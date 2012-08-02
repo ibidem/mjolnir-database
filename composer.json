@@ -1,0 +1,23 @@
+{
+	"name": "ibidem/database",
+	"version": "0.0",
+	"description": "ibidem database module",
+	"keywords": ["database"],
+	"homepage": "https://github.com/srcspider",
+	"type": "library",
+	"license": "BSD-2",
+	"authors": [
+		{
+			"name": "srcspider",
+			"homepage": "https://github.com/srcspider"
+		}
+	],
+	"require": {
+		"php": ">=5.4.0"
+	},
+	"autoload": {
+		"psr-0": {
+			"ibidem\\database": "../.."
+		}
+	}
+}
