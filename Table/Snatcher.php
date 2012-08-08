@@ -14,6 +14,8 @@ class Table_Snatcher extends \app\Instantiatable
 	protected $paged = [null, null, 0];
 	protected $tags;
 	protected $table;
+	protected $identity;
+	protected $conditions = [];
 
 	/**
 	 * @return \app\Table_Snatcher $this
@@ -22,6 +24,13 @@ class Table_Snatcher extends \app\Instantiatable
 	{
 		$this->query = $query;
 
+		return $this;
+	}
+	
+	function identity($identity)
+	{
+		$this->identity = $identity;
+		
 		return $this;
 	}
 	
@@ -39,9 +48,19 @@ class Table_Snatcher extends \app\Instantiatable
 	 * @param array tags
 	 * @return \app\Table_Snatcher $this
 	 */
-	function tags(array $tags)
+	function timers(array $tags)
 	{
 		$this->tags = $tags;
+		
+		return $this;
+	}
+		
+	/**
+	 * @return \app\SQLStash $this
+	 */
+	function on(array $equality_conditions)
+	{
+		$this->conditions = $equality_conditions;
 		
 		return $this;
 	}
@@ -59,7 +78,7 @@ class Table_Snatcher extends \app\Instantiatable
 	/**
 	 * Sepcify pages for query.
 	 */
-	function paged($page, $limit, $offset = 0)
+	function page($page, $limit, $offset = 0)
 	{
 		$this->paged = [$page, $limit, $offset];
 
@@ -81,7 +100,13 @@ class Table_Snatcher extends \app\Instantiatable
 				('Table not provided for snatch query.');
 		}
 		
-		$key = __METHOD__.'p'.$page.'l'.$limit.'o'.$offset;
+		if (empty($this->identity))
+		{
+			throw new \app\Exception_NotApplicable
+				('Identity not provided for snatch query.');
+		}
+		
+		$key = $this->identity.__METHOD__.'p'.$page.'l'.$limit.'o'.$offset;
 		
 		// create order hash
 		$sql_order = \app\Collection::implode(', ', $this->field_order, function ($k, $o) {
@@ -96,7 +121,7 @@ class Table_Snatcher extends \app\Instantiatable
 
 		$result = \app\Stash::get($key, null);
 		
-		if ( ! $result)
+		if ($result === null)
 		{			
 			if ($this->query[0] == '*')
 			{
@@ -109,18 +134,31 @@ class Table_Snatcher extends \app\Instantiatable
 				});
 			}
 			
+			$where = \app\Collection::implode(' AND ', $this->conditions, function ($k, $i) {
+				return '`'.$k.'` = :'.$k; 
+			});
+			
+			if ( ! empty($where))
+			{
+				$where = 'WHERE '.$where;
+			}
+			
 			$sql = 
 				'
 					SELECT '.$query.'
-					  FROM `'.$this->table.'`
-					 LIMIT :limit OFFSET :offset
-					 '.$sql_order.'
+					  FROM `'.$this->table.'` '.$where.'
+					 LIMIT :limit OFFSET :offset '.$sql_order.'
 				';
 			
-			$result = \app\SQL::prepare(__METHOD__, $sql)
-				->page($page, $limit, $offset)
-				->execute()
-				->fetch_all();
+			 $statement = \app\SQL::prepare(__METHOD__, $sql)
+				->page($page, $limit, $offset);
+					
+			foreach ($this->conditions as $key => $value)
+			{
+				$statement->set(':'.$key, $value);
+			}
+					
+			$result = $statement->execute()->fetch_all();
 			
 			\app\Stash::store($key, $result, $this->tags);
 		}
