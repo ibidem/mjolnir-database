@@ -14,11 +14,11 @@ trait Trait_Model_Master
 	/**
 	 * @return \app\SQLCache
 	 */
-	protected static function sql($identifier, $sql)
+	protected static function stash($identifier, $sql)
 	{
 		$identity = \join('', \array_slice(\explode('\\', \get_called_class()), -1));
 		return \app\SQLStash::prepare($identifier, $sql)
-			->timers(\app\Stash::tags(\get_class(), static::$timers))
+			->timers(\app\Stash::tags(\get_called_class(), ['change']))
 			->table(static::table())
 			->identity($identity);
 	}
@@ -31,7 +31,7 @@ trait Trait_Model_Master
 		$args = \func_get_args();
 		$identity = \join('', \array_slice(\explode('\\', \get_called_class()), -1));
 		return \app\Table_Snatcher::instance()
-			->timers(\app\Stash::tags(\get_class(), static::$timers))
+			->timers(\app\Stash::tags(\get_called_class(), ['change']))
 			->table(static::table())
 			->identity($identity)
 			->query($args);
