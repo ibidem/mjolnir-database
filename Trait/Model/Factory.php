@@ -100,7 +100,7 @@ trait Trait_Model_Factory
 	static function check(array $fields, $context = null)
 	{
 		throw new \app\Exception_NotApplicable
-			('[check] method not implemented in ['.\get_called_class().'].');
+			('['.__FUNCTION__.'] method not implemented in ['.\get_called_class().'].');
 	}
 	
 	/**
