@@ -22,6 +22,15 @@ trait Trait_Model_Master
 			->table(static::table())
 			->identity($identity);
 	}
+	
+	/**
+	 * @return \ibidem\types\SQLStatement
+	 */
+	protected static function statement($identifier, $sql, $lang = null)
+	{
+		$sql = \strtr($sql, [':table' => static::table()]);
+		return \app\SQL::prepare($identifier, $sql, $lang);
+	}
 
 	/**
 	 * @return \app\Table_Snatcher

@@ -44,8 +44,6 @@ trait Trait_Model_Factory
 			try
 			{
 				static::process($fields);
-				static::$last_inserted_id = \app\SQL::last_inserted_id();
-
 				\app\SQL::commit();
 			}
 			catch (\Exception $e)

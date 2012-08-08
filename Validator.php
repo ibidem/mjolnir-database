@@ -62,7 +62,7 @@ class Validator extends \app\Instantiatable
 	 */
 	function test($field, $error, $check)
 	{
-		if ($check)
+		if ( ! $check)
 		{
 			$this->extra_errors[] = [$field, $error];
 		}

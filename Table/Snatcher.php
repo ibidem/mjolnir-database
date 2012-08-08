@@ -10,12 +10,13 @@
 class Table_Snatcher extends \app\Instantiatable
 {
 	protected $query;
-	protected $field_order;
+	protected $field_order = [];
 	protected $paged = [null, null, 0];
 	protected $tags;
 	protected $table;
 	protected $identity;
-	protected $conditions = [];
+	protected $id;
+	protected $constraints = [];
 
 	/**
 	 * @return \app\Table_Snatcher $this
@@ -30,6 +31,13 @@ class Table_Snatcher extends \app\Instantiatable
 	function identity($identity)
 	{
 		$this->identity = $identity;
+		
+		return $this;
+	}
+	
+	function id($id)
+	{
+		$this->id = $id;
 		
 		return $this;
 	}
@@ -58,9 +66,9 @@ class Table_Snatcher extends \app\Instantiatable
 	/**
 	 * @return \app\SQLStash $this
 	 */
-	function on(array $equality_conditions)
+	function on(array $constraints)
 	{
-		$this->conditions = $equality_conditions;
+		$this->constraints = $constraints;
 		
 		return $this;
 	}
@@ -106,7 +114,13 @@ class Table_Snatcher extends \app\Instantiatable
 				('Identity not provided for snatch query.');
 		}
 		
-		$cache_key = $this->identity.'__Snatch_fetch_all__'.'p'.$page.'l'.$limit.'o'.$offset;
+		if (empty($this->id))
+		{
+			throw new \app\Exception_NotApplicable
+				('Id not provided for snatch query.');
+		}
+		
+		$cache_key = $this->identity.'_'.$this->id.'__Snatch_fetch_all__'.'p'.$page.'l'.$limit.'o'.$offset;
 		
 		// create order hash
 		$sql_order = \app\Collection::implode(', ', $this->field_order, function ($k, $o) {
@@ -117,6 +131,17 @@ class Table_Snatcher extends \app\Instantiatable
 		{
 			$sql_order = 'ORDER BY '.$sql_order;
 			$cache_key .= '__'.\sha1($sql_order);
+		}
+		
+		// where hash
+		$where = \app\Collection::implode(' AND ', $this->constraints, function ($k, $i) {
+			return '`'.$k.'` = :'.$k; 
+		});
+
+		if ( ! empty($where))
+		{
+			$where = 'WHERE '.$where;
+			$cache_key .= '__'.\sha1($where);
 		}
 
 		$result = \app\Stash::get($cache_key, null);
@@ -134,15 +159,6 @@ class Table_Snatcher extends \app\Instantiatable
 				});
 			}
 			
-			$where = \app\Collection::implode(' AND ', $this->conditions, function ($k, $i) {
-				return '`'.$k.'` = :'.$k; 
-			});
-			
-			if ( ! empty($where))
-			{
-				$where = 'WHERE '.$where;
-			}
-			
 			$sql = 
 				'
 					SELECT '.$query.'
@@ -153,7 +169,7 @@ class Table_Snatcher extends \app\Instantiatable
 			 $statement = \app\SQL::prepare(__METHOD__, $sql)
 				->page($page, $limit, $offset);
 					
-			foreach ($this->conditions as $key => $value)
+			foreach ($this->constraints as $key => $value)
 			{
 				$statement->set(':'.$key, $value);
 			}

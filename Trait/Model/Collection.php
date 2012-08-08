@@ -14,14 +14,16 @@ trait Trait_Model_Collection
 	/**
 	 * @return array of arrays
 	 */
-	static function entries($page, $limit, $offset = 0, $order = []) 
+	static function entries($page, $limit, $offset = 0, $order = [], $constraints = [])
 	{
 		return static::snatch('*')
+			->on($constraints)
 			->page($page, $limit, $offset)
 			->order($order)
+			->id(__FUNCTION__)
 			->fetch_all();
 	}
-
+	
 	/**
 	 * @return array
 	 */
@@ -37,14 +39,14 @@ trait Trait_Model_Collection
 				'
 			)
 			->set_int(':id', $id)
-			->key(__FUNCTION__.'ID'.$id)
+			->key(__FUNCTION__.'_ID'.$id)
 			->fetch_array();
 	}
 
 	/**
 	 * @param array user id's 
 	 */
-	static function delete(array $IDs)
+	static function delete(array $entries)
 	{
 		$entry = null;
 		$statement = static::statement
@@ -59,7 +61,7 @@ trait Trait_Model_Collection
 		
 		\app\SQL::begin();
 		
-		foreach ($IDs as $entry)
+		foreach ($entries as $entry)
 		{
 			$statement->execute();
 		}
@@ -72,19 +74,38 @@ trait Trait_Model_Collection
 	/**
 	 * @return int
 	 */
-	static function count() 
+	static function count($constraints = []) 
 	{
-		return static::stash
+		$cachekey = __FUNCTION__;
+		$where = '';
+		if ( ! empty($constraints))
+		{
+			$where = 'WHERE '.\app\Collection::implode(' AND ', $constraints, function ($k, $i) {
+				return '`'.$k.'` = :'.$k;
+			});
+			
+			$cachekey .= '__'.\sha1($where);
+		}
+		
+		$statement = static::stash
 			(
 				__METHOD__,
 				'
 					SELECT COUNT(1)
-					  FROM :table
+					  FROM :table '.$where.'
 				'
 			)
-			->key(__FUNCTION__)
-			->fetch_array()
-			['COUNT(1)'];
+			->key($cachekey);
+		
+		if ( ! empty($constraints))
+		{
+			foreach ($constraints as $key => $value)
+			{
+				$statement->set(':'.$key, $value);
+			}	
+		}
+		
+		return (int) $statement->entry()['COUNT(1)'];
 	}
 	
 	/**
@@ -93,15 +114,27 @@ trait Trait_Model_Collection
 	 * 
 	 * @return bool
 	 */
-	static function exists($value, $key = 'title')
+	static function exists($value, $key = 'title', $context = null)
 	{
-		$count = static::snatch('COUNT(1)')
-			->on([$key => $value])
-			->page(1, 1)
-			->fetch_all()
-			['COUNT(1)'];
+		// we don't cache existential checks since we want to be 100% sure
+		// they go though unobstructed by potential cache errors; since they
+		// can be crucial in model checks
 		
-		return ((int) $count) != 0;
+		$count = (int) static::statement
+			(
+				__METHOD__,
+				'
+					SELECT COUNT(1)
+					  FROM :table
+					 WHERE `'.$key.'` = :value
+					   AND NOT `id` <=> '.($context === null ? 'NULL' : $context).'
+				'
+			)
+			->set(':value', $value)
+			->execute()
+			->fetch_array()['COUNT(1)'];
+		
+		return $count !== 0;
 	}
 
 } # trait
