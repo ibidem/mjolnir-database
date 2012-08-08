@@ -16,9 +16,11 @@ trait Trait_Model_Master
 	 */
 	protected static function sql($identifier, $sql)
 	{
+		$identity = \join('', \array_slice(\explode('\\', \get_called_class()), -1));
 		return \app\SQLStash::prepare($identifier, $sql)
-			->tags(\app\Stash::tags(\get_class(), static::$timers))
-			->table(static::table());
+			->timers(\app\Stash::tags(\get_class(), static::$timers))
+			->table(static::table())
+			->identity($identity);
 	}
 
 	/**
@@ -27,16 +29,18 @@ trait Trait_Model_Master
 	protected static function snatch($args)
 	{		
 		$args = \func_get_args();
+		$identity = \join('', \array_slice(\explode('\\', \get_called_class()), -1));
 		return \app\Table_Snatcher::instance()
-			->tags(\app\Stash::tags(\get_class(), static::$timers))
+			->timers(\app\Stash::tags(\get_class(), static::$timers))
 			->table(static::table())
+			->identity($identity)
 			->query($args);
 	}
 
 	/**
 	 * @return \app\SQLCache
 	 */
-	protected static function sql_insert(array $fields, array $keys)
+	protected static function inserter(array $fields, array $keys)
 	{
 		$table_keys = \app\Collection::convert($keys, function ($k) { return '`'.$k.'`'; });
 		$value_keys = \app\Collection::convert($keys, function ($k) { return ':'.$k; });
@@ -52,7 +56,7 @@ trait Trait_Model_Master
 				'
 			)
 			->mass_set($fields, $keys)
-			->tags(\app\Stash::tags(\get_class(), static::$timers))
+			->timers(\app\Stash::tags(\get_called_class(), ['change']))
 			->table(static::table())
 			->is('change');
 	}
@@ -60,7 +64,7 @@ trait Trait_Model_Master
 	/**
 	 * @return \app\SQLCache
 	 */
-	protected static function sql_update($id, array $fields, array $keys)
+	protected static function updater($id, array $fields, array $keys)
 	{
 		$assignments = \app\Collection::convert
 			(
@@ -81,6 +85,7 @@ trait Trait_Model_Master
 			)
 			->mass_set($fields, $keys)
 			->set_int(':id', $id)
+			->timers(\app\Stash::tags(\get_called_class(), ['change']))
 			->table(static::table())
 			->is('change');
 	}
