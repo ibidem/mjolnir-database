@@ -106,7 +106,7 @@ class Table_Snatcher extends \app\Instantiatable
 				('Identity not provided for snatch query.');
 		}
 		
-		$key = $this->identity.__METHOD__.'p'.$page.'l'.$limit.'o'.$offset;
+		$cache_key = $this->identity.'__Snatch_fetch_all__'.'p'.$page.'l'.$limit.'o'.$offset;
 		
 		// create order hash
 		$sql_order = \app\Collection::implode(', ', $this->field_order, function ($k, $o) {
@@ -116,10 +116,10 @@ class Table_Snatcher extends \app\Instantiatable
 		if ( ! empty($sql_order))
 		{
 			$sql_order = 'ORDER BY '.$sql_order;
-			$key .= '__'.\sha1($sql_order);
+			$cache_key .= '__'.\sha1($sql_order);
 		}
 
-		$result = \app\Stash::get($key, null);
+		$result = \app\Stash::get($cache_key, null);
 		
 		if ($result === null)
 		{			
@@ -160,7 +160,7 @@ class Table_Snatcher extends \app\Instantiatable
 					
 			$result = $statement->execute()->fetch_all();
 			
-			\app\Stash::store($key, $result, $this->tags);
+			\app\Stash::store($cache_key, $result, $this->tags);
 		}
 		
 		return $result;
