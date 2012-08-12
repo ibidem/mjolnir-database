@@ -52,6 +52,14 @@ trait Trait_Model_Collection
 		
 		return $entry;
 	}
+	
+	/**
+	 * @param int id of entry
+	 */
+	static function clear_entry_cache($id)
+	{
+		\app\Stash::delete(\get_called_class().'_ID'.$id);
+	}
 
 	/**
 	 * @param array user id's 
@@ -75,7 +83,7 @@ trait Trait_Model_Collection
 		foreach ($entries as $entry)
 		{
 			$statement->execute();
-			\app\Stash::delete($partial_cachekey.$entry);
+			static::clear_entry_cache($entry);
 		}
 		
 		\app\SQL::commit();
@@ -117,7 +125,7 @@ trait Trait_Model_Collection
 			}	
 		}
 		
-		return (int) $statement->entry()['COUNT(1)'];
+		return (int) $statement->fetch_array()['COUNT(1)'];
 	}
 	
 	/**

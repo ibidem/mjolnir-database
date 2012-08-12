@@ -91,15 +91,6 @@ trait Trait_Model_Factory
 			return $errors;
 		}
 	}
-
-	/**
-	 * @return \app\Validator or null
-	 */
-	static function check(array $fields, $context = null)
-	{
-		throw new \app\Exception_NotApplicable
-			('['.__FUNCTION__.'] method not implemented in ['.\get_called_class().'].');
-	}
 	
 	/**
 	 * @return \app\Validator
@@ -107,7 +98,7 @@ trait Trait_Model_Factory
 	static function update_check($id, array $fields)
 	{
 		return static::check($fields, $id)
-			->test('form', 'exists', ! static::exists($id));
+			->test('id', ':exists', static::exists($id, 'id'));
 	}
 
 } # trait

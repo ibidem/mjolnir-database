@@ -8,12 +8,7 @@
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
  */
 trait Trait_Model_Master
-{
-	/**
-	 * @var array
-	 */
-	protected static $field_format = [];
-	
+{	
 	/**
 	 * @var array
 	 */
@@ -57,8 +52,18 @@ trait Trait_Model_Master
 	/**
 	 * @return \app\SQLCache
 	 */
-	protected static function inserter(array $fields, array $keys)
+	protected static function inserter(array $fields, array $keys, array $bools = [], array $ints = [])
 	{
+		foreach ($ints as $int)
+		{
+			$keys[] = $int;
+		}
+		
+		foreach ($bools as $bool)
+		{
+			$keys[] = $bool;
+		}
+		
 		$table_keys = \app\Collection::convert($keys, function ($k) { return '`'.$k.'`'; });
 		$value_keys = \app\Collection::convert($keys, function ($k) { return ':'.$k; });
 		
@@ -73,6 +78,8 @@ trait Trait_Model_Master
 				'
 			)
 			->mass_set($fields, $keys)
+			->mass_int($fields, $ints)
+			->mass_bool($fields, $bools)
 			->timers(\app\Stash::tags(\get_called_class(), ['change']))
 			->table(static::table())
 			->is('change');
@@ -81,8 +88,18 @@ trait Trait_Model_Master
 	/**
 	 * @return \app\SQLCache
 	 */
-	protected static function updater($id, array $fields, array $keys)
+	protected static function updater($id, array $fields, array $keys, array $bools = [], array $ints = [])
 	{
+		foreach ($ints as $int)
+		{
+			$keys[] = $int;
+		}
+		
+		foreach ($bools as $bool)
+		{
+			$keys[] = $bool;
+		}
+		
 		$assignments = \app\Collection::convert
 			(
 				$keys, 
@@ -101,6 +118,8 @@ trait Trait_Model_Master
 				'
 			)
 			->mass_set($fields, $keys)
+			->mass_int($fields, $ints)
+			->mass_bool($fields, $bools)
 			->set_int(':id', $id)
 			->timers(\app\Stash::tags(\get_called_class(), ['change']))
 			->table(static::table())

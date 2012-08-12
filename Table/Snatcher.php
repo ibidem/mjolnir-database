@@ -28,6 +28,9 @@ class Table_Snatcher extends \app\Instantiatable
 		return $this;
 	}
 	
+	/**
+	 * @return \app\Table_Snatcher $this
+	 */
 	function identity($identity)
 	{
 		$this->identity = $identity;
@@ -35,6 +38,9 @@ class Table_Snatcher extends \app\Instantiatable
 		return $this;
 	}
 	
+	/**
+	 * @return \app\Table_Snatcher $this
+	 */
 	function id($id)
 	{
 		$this->id = $id;
@@ -162,8 +168,8 @@ class Table_Snatcher extends \app\Instantiatable
 			$sql = 
 				'
 					SELECT '.$query.'
-					  FROM `'.$this->table.'` '.$where.'
-					 LIMIT :limit OFFSET :offset '.$sql_order.'
+					  FROM `'.$this->table.'` '.$where.' '.$sql_order.'
+					 LIMIT :limit OFFSET :offset 
 				';
 			
 			 $statement = \app\SQL::prepare(__METHOD__, $sql)
