@@ -29,18 +29,28 @@ trait Trait_Model_Collection
 	 */
 	static function entry($id) 
 	{
-		return static::stash
-			(
-				__METHOD__,
-				'
-					SELECT *
-					  FROM :table
-					 WHERE id = :id
-				'
-			)
-			->set_int(':id', $id)
-			->key(__FUNCTION__.'_ID'.$id)
-			->fetch_array();
+		$cachekey = \get_called_class().'_ID'.$id;
+		$entry = \app\Stash::get($cachekey, null);
+		
+		if ($entry === null)
+		{
+			$entry = static::statement
+				(
+					__METHOD__,
+					'
+						SELECT *
+						  FROM :table
+						 WHERE id = :id
+					'
+				)
+				->set_int(':id', $id)
+				->execute()
+				->fetch_array();
+			
+			\app\Stash::set($cachekey, $entry);
+		}
+		
+		return $entry;
 	}
 
 	/**
@@ -49,6 +59,7 @@ trait Trait_Model_Collection
 	static function delete(array $entries)
 	{
 		$entry = null;
+		$partial_cachekey = \get_called_class().'_ID';
 		$statement = static::statement
 			(
 				__METHOD__,
@@ -64,6 +75,7 @@ trait Trait_Model_Collection
 		foreach ($entries as $entry)
 		{
 			$statement->execute();
+			\app\Stash::delete($partial_cachekey.$entry);
 		}
 		
 		\app\SQL::commit();
