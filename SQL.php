@@ -19,16 +19,25 @@ class SQL
 	 * @param string language of statement
 	 * @return \ibidem\types\SQLStatement
 	 */
-	public static function prepare($key, $statement = null, $lang = null)
+	static function prepare($key, $statement = null, $lang = null)
 	{
 		return \app\SQLDatabase::instance()->prepare($key, $statement, $lang);
+	}
+	
+	/**
+	 * @param string raw version
+	 * @return string quoted version
+	 */
+	static function quote($value)
+	{
+		return \app\SQLDatabase::instance()->quote($value);
 	}
 	
 	/**
 	 * @param string name
 	 * @return mixed 
 	 */
-	public static function last_inserted_id($name = null)
+	static function last_inserted_id($name = null)
 	{
 		return \app\SQLDatabase::instance()->last_inserted_id($name);
 	}
@@ -38,7 +47,7 @@ class SQL
 	 * 
 	 * @return \ibidem\types\SQLDatabase
 	 */
-	public static function begin()
+	static function begin()
 	{
 		return \app\SQLDatabase::instance()->begin();
 	}
@@ -48,7 +57,7 @@ class SQL
 	 * 
 	 * @return \ibidem\types\SQLDatabase
 	 */
-	public static function commit()
+	static function commit()
 	{
 		return \app\SQLDatabase::instance()->commit();
 	}
@@ -58,7 +67,7 @@ class SQL
 	 * 
 	 * @return \ibidem\types\SQLDatabase
 	 */
-	public static function rollback()
+	static function rollback()
 	{
 		return \app\SQLDatabase::instance()->rollback();
 	}

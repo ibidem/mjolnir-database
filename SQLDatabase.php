@@ -106,7 +106,7 @@ class SQLDatabase extends \app\Instantiatable
 	/**
 	 * Cleanup
 	 */	
-	public function __destruct()
+	function __destruct()
 	{
 		$this->dbh = null;
 	}
@@ -171,7 +171,7 @@ class SQLDatabase extends \app\Instantiatable
 	 * @param string language of statement
 	 * @return \ibidem\types\SQLStatement
 	 */
-	public function prepare($key, $statement = null, $lang = null)
+	function prepare($key, $statement = null, $lang = null)
 	{	
 		if ($this->requires_translation($statement, $lang))
 		{
@@ -185,10 +185,19 @@ class SQLDatabase extends \app\Instantiatable
 	}
 	
 	/**
+	 * @param string raw version
+	 * @return string quoted version
+	 */
+	function quote($value)
+	{
+		return $this->dbh->quote($value);
+	}
+	
+	/**
 	 * @param string 
 	 * @return mixed
 	 */
-	public function last_inserted_id($name = null)
+	function last_inserted_id($name = null)
 	{
 		return $this->dbh->lastInsertId($name);
 	}
@@ -198,7 +207,7 @@ class SQLDatabase extends \app\Instantiatable
 	 * 
 	 * @return \ibidem\base\SQLDatabase $this
 	 */
-	public function begin()
+	function begin()
 	{
 		if ($this->savepoint == 0)
 		{
@@ -218,7 +227,7 @@ class SQLDatabase extends \app\Instantiatable
 	 * 
 	 * @return \ibidem\base\SQLDatabase $this
 	 */
-	public function commit()
+	function commit()
 	{
 		--$this->savepoint;
 		if ($this->savepoint == 0)
@@ -238,7 +247,7 @@ class SQLDatabase extends \app\Instantiatable
 	 * 
 	 * @return \ibidem\base\SQLDatabase $this
 	 */
-	public function rollback()
+	function rollback()
 	{
 		--$this->savepoint;
 		if ($this->savepoint == 0)
