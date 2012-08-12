@@ -9,6 +9,14 @@
  */
 trait Trait_Model_Master
 {
+	/**
+	 * @var array
+	 */
+	protected static $field_format = [];
+	
+	/**
+	 * @var array
+	 */
 	protected static $timers = ['change'];
 
 	/**
