@@ -28,7 +28,7 @@ trait Trait_Model_Collection
 	 * @return array
 	 */
 	static function entry($id) 
-	{
+	{		
 		$cachekey = \get_called_class().'_ID'.$id;
 		$entry = \app\Stash::get($cachekey, null);
 		
@@ -51,6 +51,31 @@ trait Trait_Model_Collection
 		}
 		
 		return $entry;
+	}
+	
+	/**
+	 * @return array of arrays
+	 */
+	static function find(array $criteria, $page = null, $limit = null, $offset = null)
+	{
+		return static::entries($page, $limit, $offset, [], $criteria);
+	}
+	
+	/**
+	 * @return array or null
+	 */
+	static function find_entry(array $criteria)
+	{
+		$result = static::entries(1, 1, 0, [], $criteria);
+		
+		if (empty($result))
+		{
+			return null;
+		}
+		else # non empty result
+		{
+			return $result[0];
+		}
 	}
 	
 	/**
