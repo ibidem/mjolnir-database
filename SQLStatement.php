@@ -20,7 +20,7 @@ class SQLStatement extends \app\Instantiatable
 	 * @return \app\SQLStatement
 	 * @throws \app\Exception_NotApplicable
 	 */
-	public static function instance(\PDOStatement $statement = null)
+	static function instance(\PDOStatement $statement = null)
 	{
 		if ($statement === null)
 		{
@@ -36,7 +36,7 @@ class SQLStatement extends \app\Instantiatable
 	 * @param \PDOStatement statement
 	 * @return \ibidem\base\SQLStatement $this
 	 */
-	public function statement(\PDOStatement $statement)
+	function statement(\PDOStatement $statement)
 	{
 		$this->statement = $statement;
 		return $this;
@@ -47,7 +47,7 @@ class SQLStatement extends \app\Instantiatable
 	 * @param string variable
 	 * @return \ibidem\base\SQLStatement $this
 	 */
-	public function bind($parameter, & $variable)
+	function bind($parameter, & $variable)
 	{
 		$this->statement->bindParam($parameter, $variable, \PDO::PARAM_STR);
 		return $this;
@@ -58,7 +58,7 @@ class SQLStatement extends \app\Instantiatable
 	 * @param int variable
 	 * @return \ibidem\base\SQLStatement $this
 	 */
-	public function bind_int($parameter, & $variable)
+	function bind_int($parameter, & $variable)
 	{
 		$this->statement->bindParam($parameter, $variable, \PDO::PARAM_INT);
 		return $this;
@@ -69,7 +69,7 @@ class SQLStatement extends \app\Instantiatable
 	 * @param string constant
 	 * @return \ibidem\base\SQLStatement $this 
 	 */
-	public function set($parameter, $constant)
+	function set($parameter, $constant)
 	{
 		$this->statement->bindValue($parameter, $constant, \PDO::PARAM_STR);
 		return $this;
@@ -80,7 +80,7 @@ class SQLStatement extends \app\Instantiatable
 	 * @param string constant
 	 * @return \ibidem\base\SQLStatement $this 
 	 */
-	public function set_int($parameter, $constant)
+	function set_int($parameter, $constant)
 	{
 		$this->statement->bindValue($parameter, $constant, \PDO::PARAM_INT);
 		return $this;
@@ -91,7 +91,7 @@ class SQLStatement extends \app\Instantiatable
 	 * @param string constant
 	 * @return \ibidem\base\SQLStatement $this 
 	 */
-	public function set_bool($parameter, $constant)
+	function set_bool($parameter, $constant)
 	{
 		if ($constant === true || $constant === false)
 		{
@@ -128,7 +128,7 @@ class SQLStatement extends \app\Instantiatable
 	 * @param string constant
 	 * @return \ibidem\base\SQLStatement $this 
 	 */
-	public function set_date($parameter, $constant)
+	function set_date($parameter, $constant)
 	{
 		$this->statement->bindValue($parameter, $constant, \PDO::PARAM_STR);
 		return $this;
@@ -141,7 +141,7 @@ class SQLStatement extends \app\Instantiatable
 	 * @param string variable
 	 * @return \ibidem\base\SQLStatement $this
 	 */
-	public function bind_arg($parameter, & $variable)
+	function bind_arg($parameter, & $variable)
 	{
 		$this->statement->bindParam
 			(
@@ -158,7 +158,7 @@ class SQLStatement extends \app\Instantiatable
 	 * @param array values
 	 * @return \ibidem\types\SQLStatement $this 
 	 */
-	public function mass_set(array $keys, array $values)
+	function mass_set(array $keys, array $values)
 	{
 		foreach ($keys as $key)
 		{
@@ -173,7 +173,7 @@ class SQLStatement extends \app\Instantiatable
 	 * @param array values
 	 * @return \ibidem\types\SQLStatement $this 
 	 */
-	public function mass_int(array $keys, array $values, $default = null)
+	function mass_int(array $keys, array $values, $default = null)
 	{
 		foreach ($keys as $key)
 		{
@@ -189,7 +189,7 @@ class SQLStatement extends \app\Instantiatable
 	 * @param array key map (eg. 'true_key' => true, 'false_key' => false ... )
 	 * @return \ibidem\types\SQLStatement $this 
 	 */
-	public function mass_bool(array $keys, array $values, array $map = null)
+	function mass_bool(array $keys, array $values, array $map = null)
 	{
 		if ($map === null)
 		{
@@ -220,7 +220,7 @@ class SQLStatement extends \app\Instantiatable
 	 * @param int offset
 	 * @return \ibidem\base\SQLStatement $thiss
 	 */
-	public function page($page, $limit, $offset = 0)
+	function page($page, $limit, $offset = 0)
 	{
 		if ($page == null)
 		{
@@ -242,7 +242,7 @@ class SQLStatement extends \app\Instantiatable
 	 * 
 	 * @return \ibidem\base\SQLStatement $this
 	 */
-	public function execute()
+	function execute()
 	{
 		$this->statement->execute();
 		return $this;
@@ -255,7 +255,7 @@ class SQLStatement extends \app\Instantiatable
 	 * @param array paramters to be passed to constructor
 	 * @return mixed
 	 */
-	public function fetch_object($class = 'stdClass', array $args = null)
+	function fetch_object($class = 'stdClass', array $args = null)
 	{
 		return $this->statement->fetchObject($class, $args);
 	}
@@ -265,7 +265,7 @@ class SQLStatement extends \app\Instantiatable
 	 *
 	 * @return array
 	 */
-	public function fetch_array()
+	function fetch_array()
 	{
 		$statement = $this->statement->fetch(\PDO::FETCH_ASSOC);
 		
@@ -286,7 +286,7 @@ class SQLStatement extends \app\Instantiatable
 	 *
 	 * @return array
 	 */
-	public function fetch_all(array $format = null)
+	function fetch_all(array $format = null)
 	{
 		if ($format === null)
 		{

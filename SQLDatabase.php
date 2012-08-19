@@ -38,7 +38,7 @@ class SQLDatabase extends \app\Instantiatable
 	/**
 	 * @return \app\SQL
 	 */
-	public static function instance($database = 'default')
+	static function instance($database = 'default')
 	{
 		if ( ! isset(static::$instances[$database]))
 		{

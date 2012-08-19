@@ -16,7 +16,7 @@ class ValidatorRules
 	 * @param mixed field
 	 * @return bool 
 	 */
-	public static function not_empty($field)
+	static function not_empty($field)
 	{
 		return $field === 0 || $field === '0' || ! empty($field);
 	}
@@ -26,7 +26,7 @@ class ValidatorRules
 	 * @param integer maxlength
 	 * @return bool
 	 */
-	public static function max_length($field, $maxlength)
+	static function max_length($field, $maxlength)
 	{
 		return \strlen($field) <= $maxlength;
 	}
@@ -36,7 +36,7 @@ class ValidatorRules
 	 * @param integer minlength
 	 * @return bool
 	 */
-	public static function min_length($field, $minlength)
+	static function min_length($field, $minlength)
 	{
 		return \strlen($field) >= $minlength;
 	}
@@ -46,7 +46,7 @@ class ValidatorRules
 	 * @param string other
 	 * @return bool
 	 */
-	public static function equal_to($field, $other)
+	static function equal_to($field, $other)
 	{
 		return $field == $other;
 	}
@@ -56,7 +56,7 @@ class ValidatorRules
 	 * @param array values
 	 * @return bool
 	 */
-	public static function only_values($field, array $values)
+	static function only_values($field, array $values)
 	{
 		return \in_array($field, $values);
 	}
@@ -66,7 +66,7 @@ class ValidatorRules
 	 * @param type $field 
 	 * @return bool
 	 */
-	public static function valid_date($field)
+	static function valid_date($field)
 	{
 		$matches = array();
 		if (\preg_match('#^(?P<year>[0-9]+)-(?P<month>[0-9]+)-(?P<day>[0-9]+)$#', $field, $matches))
