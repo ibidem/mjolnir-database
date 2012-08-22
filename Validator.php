@@ -51,7 +51,9 @@ class Validator extends \app\Instantiatable
 	 */
 	function extras($rules_class)
 	{
-		$this->rules_class = $rule_class;
+		$this->rules_class = $rules_class;
+		
+		return $this;
 	}
 
 	/**
