@@ -14,6 +14,19 @@
 class SQL
 {	
 	/**
+	 * @var string database used
+	 */
+	protected static $database = 'default';
+	
+	/**
+	 * Sets the default database to be used.
+	 */
+	static function database($database)
+	{
+		static::$database = $database;
+	}
+	
+	/**
 	 * @param string key
 	 * @param string statement
 	 * @param string language of statement
@@ -21,7 +34,7 @@ class SQL
 	 */
 	static function prepare($key, $statement = null, $lang = null)
 	{
-		return \app\SQLDatabase::instance()->prepare($key, $statement, $lang);
+		return \app\SQLDatabase::instance(static::$database)->prepare($key, $statement, $lang);
 	}
 	
 	/**
@@ -30,7 +43,7 @@ class SQL
 	 */
 	static function quote($value)
 	{
-		return \app\SQLDatabase::instance()->quote($value);
+		return \app\SQLDatabase::instance(static::$database)->quote($value);
 	}
 	
 	/**
@@ -39,7 +52,7 @@ class SQL
 	 */
 	static function last_inserted_id($name = null)
 	{
-		return \app\SQLDatabase::instance()->last_inserted_id($name);
+		return \app\SQLDatabase::instance(static::$database)->last_inserted_id($name);
 	}
 	
 	/**
@@ -49,7 +62,7 @@ class SQL
 	 */
 	static function begin()
 	{
-		return \app\SQLDatabase::instance()->begin();
+		return \app\SQLDatabase::instance(static::$database)->begin();
 	}
 	
 	/**
@@ -59,7 +72,7 @@ class SQL
 	 */
 	static function commit()
 	{
-		return \app\SQLDatabase::instance()->commit();
+		return \app\SQLDatabase::instance(static::$database)->commit();
 	}
 	
 	/**
@@ -69,7 +82,7 @@ class SQL
 	 */
 	static function rollback()
 	{
-		return \app\SQLDatabase::instance()->rollback();
+		return \app\SQLDatabase::instance(static::$database)->rollback();
 	}
 	
 } # class
