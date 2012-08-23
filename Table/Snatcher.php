@@ -141,9 +141,9 @@ class Table_Snatcher extends \app\Instantiatable
 		
 		// where hash
 		$where = \app\Collection::implode(' AND ', $this->constraints, function ($k, $i) {
-			return '`'.$k.'` = :'.$k; 
+			return '`'.$k.'` = '.\app\SQL::quote($i); 
 		});
-
+		
 		if ( ! empty($where))
 		{
 			$where = 'WHERE '.$where;
@@ -174,11 +174,6 @@ class Table_Snatcher extends \app\Instantiatable
 			
 			 $statement = \app\SQL::prepare(__METHOD__, $sql)
 				->page($page, $limit, $offset);
-					
-			foreach ($this->constraints as $key => $value)
-			{
-				$statement->set(':'.$key, $value);
-			}
 					
 			$result = $statement->execute()->fetch_all();
 			

@@ -28,10 +28,10 @@ trait Trait_Model_Collection
 	 * @return array
 	 */
 	static function entry($id) 
-	{		
+	{
 		$cachekey = \get_called_class().'_ID'.$id;
 		$entry = \app\Stash::get($cachekey, null);
-		
+
 		if ($entry === null)
 		{
 			$entry = static::statement
