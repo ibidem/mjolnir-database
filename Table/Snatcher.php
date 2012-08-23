@@ -72,7 +72,7 @@ class Table_Snatcher extends \app\Instantiatable
 	/**
 	 * @return \app\SQLStash $this
 	 */
-	function on(array $constraints)
+	function constraints(array $constraints)
 	{
 		$this->constraints = $constraints;
 		
@@ -94,6 +94,10 @@ class Table_Snatcher extends \app\Instantiatable
 	 */
 	function page($page, $limit, $offset = 0)
 	{
+		$page = $page === null ? null : (int) $page;
+		$limit = $limit === null ? null : (int) $limit;
+		$offset = (int) $offset;
+		
 		$this->paged = [$page, $limit, $offset];
 
 		return $this;
@@ -139,10 +143,34 @@ class Table_Snatcher extends \app\Instantiatable
 			$cache_key .= '__'.\sha1($sql_order);
 		}
 		
-		// where hash
-		$where = \app\Collection::implode(' AND ', $this->constraints, function ($k, $i) {
-			return '`'.$k.'` = '.\app\SQL::quote($i); 
-		});
+		// where hash	
+		$where = \app\Collection::implode
+			(
+				' AND ', # delimiter
+				$this->constraints, # source
+
+				function ($k, $value) {
+
+					$k = \strpbrk($k, ' .()') === false ? '`'.$k.'`' : $k;
+
+					if (\is_bool($value))
+					{
+						return $k.' = '.($value ? 'TRUE' : 'FALSE');
+					}
+					else if (\is_numeric($value))
+					{
+						return $k.' = '.$value;
+					}
+					else if (\is_null($value))
+					{
+						return $k.' IS NULL';
+					}
+					else # string, or string compatible
+					{
+						return $k.' = '.\app\SQL::quote($value);
+					}
+				}
+			);
 		
 		if ( ! empty($where))
 		{

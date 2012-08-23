@@ -17,7 +17,7 @@ trait Trait_Model_Collection
 	static function entries($page, $limit, $offset = 0, $order = [], $constraints = [])
 	{
 		return static::snatch('*')
-			->on($constraints)
+			->constraints($constraints)
 			->page($page, $limit, $offset)
 			->order($order)
 			->id(__FUNCTION__)
@@ -54,6 +54,7 @@ trait Trait_Model_Collection
 	}
 	
 	/**
+	 * @shorthand for entries
 	 * @return array of arrays
 	 */
 	static function find(array $criteria, $page = null, $limit = null, $offset = null)
@@ -62,11 +63,12 @@ trait Trait_Model_Collection
 	}
 	
 	/**
+	 * @shorthand for entries
 	 * @return array or null
 	 */
 	static function find_entry(array $criteria)
 	{
-		$result = static::entries(1, 1, 0, [], $criteria);
+		$result = static::entries(1, 2, 0, [], $criteria);
 		
 		if (empty($result))
 		{
@@ -125,9 +127,34 @@ trait Trait_Model_Collection
 		$where = '';
 		if ( ! empty($constraints))
 		{
-			$where = 'WHERE '.\app\Collection::implode(' AND ', $constraints, function ($k, $i) {
-				return '`'.$k.'` = :'.$k;
-			});
+			$where = 'WHERE ';
+			$where .= \app\Collection::implode
+				(
+					' AND ', # delimiter
+					$this->constraints, # source
+
+					function ($k, $value) {
+
+						$k = \strpbrk($k, ' .()') === false ? '`'.$k.'`' : $k;
+
+						if (\is_bool($value))
+						{
+							return $k.' = '.($value ? 'TRUE' : 'FALSE');
+						}
+						else if (\is_numeric($value))
+						{
+							return $k.' = '.$value;
+						}
+						else if (\is_null($value))
+						{
+							return $k.' IS NULL';
+						}
+						else # string, or string compatible
+						{
+							return $k.' = '.\app\SQL::quote($value);
+						}
+					}
+				);
 			
 			$cachekey .= '__'.\sha1($where);
 		}
@@ -141,14 +168,6 @@ trait Trait_Model_Collection
 				'
 			)
 			->key($cachekey);
-		
-		if ( ! empty($constraints))
-		{
-			foreach ($constraints as $key => $value)
-			{
-				$statement->set(':'.$key, $value);
-			}	
-		}
 		
 		return (int) $statement->fetch_array()['COUNT(1)'];
 	}
