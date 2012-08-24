@@ -57,6 +57,7 @@ Feature: Simple collection template
   Scenarios:
 	| page   | limit  | offset | entries          |
 	| 1      | 3      | 0      | 1, 2, 3          |
+	| 1      | 1      | 0      | 1                |
 	| 2      | 5      | 0      | 6, 7, 8          |
 	| 2      | 2      | 1      | 4, 5             |
 	| 1      | 6      | 2      | 3, 4, 5, 6, 7, 8 |
@@ -71,6 +72,19 @@ Feature: Simple collection template
 	| title => a          | 1, 3, 7 |
 	| title => x          |         |
 	| id => 2, title => d | 2       |
+
+  Scenario Outline: Limiting result though constraints and pagination
+	When I constraint entries to "<constraints>" and limit entries to "<page>", "<limit>", "<offset>"
+    Then I should get the entries "<entries>"
+
+  Scenarios:
+	| constraints         | entries | page | limit | offset |
+	| title => a          | 1, 3, 7 | 1    | 6     | 0      |
+	| title => x          |         | 1    | 2     | 0      |
+	| id => 2, title => d | 2       | 1    | 1     | 0      |
+	| id => 2, title => a |         | 1    | 1     | 0      |
+	| id => 3, title => d |         | 1    | 1     | 0      |
+	| title => d          | 2       | 1    | 1     | 0      |
 	
   Scenario Outline: Sorting results
 	When I sort the entries to "<sorting>"

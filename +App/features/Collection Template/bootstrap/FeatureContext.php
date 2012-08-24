@@ -235,6 +235,34 @@ class FeatureContext extends BehatContext
 		$this->result = Test_Mockup::entries(null, null, 0, [], $constraints);
     }
 
+	/**
+     * @When /^I constraint entries to "([^"]*)" and limit entries to "(\d+)", "(\d+)", "([^"]*)"$/
+     */
+    public function iConstraintEntriesToAndLimitEntriesTo($conditions, $page, $limit, $offset)
+    {
+        $criterias = \explode(', ', $conditions);
+		$constraints = [];
+		foreach ($criterias as $criteria)
+		{
+			$constraint = \explode(' => ', $criteria);
+			
+			if ($constraint[1] === 'true')
+			{
+				$constraint[1] = true;
+			}
+			
+			if ($constraint[1] === 'false')
+			{
+				$constraint[1] = false;
+			}
+			
+			$constraints[$constraint[0]] = $constraint[1];
+		}
+		
+		$this->result = Test_Mockup::entries($page, $limit, $offset, [], $constraints);
+    }
+
+	
     /**
      * @When /^I sort the entries to "([^"]*)"$/
      */

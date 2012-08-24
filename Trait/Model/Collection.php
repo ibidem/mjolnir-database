@@ -70,8 +70,6 @@ trait Trait_Model_Collection
 	{
 		$result = static::entries(1, 1, 0, [], $criteria);
 		
-//		\var_dump(static::entries(1, 1));
-		
 		if (empty($result))
 		{
 			return null;
