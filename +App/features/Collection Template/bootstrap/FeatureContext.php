@@ -11,7 +11,7 @@ use Behat\Gherkin\Node\PyStringNode,
 
 // @todo LOW - convert database code to mockup when I have time
 
-class Test_Mockup
+class Model_Test
 {
 	use \app\Trait_Model_Factory;
 	use \app\Trait_Model_Master;
@@ -53,12 +53,14 @@ class FeatureContext extends BehatContext
 		
 		\app\Schematic::destroy
 			(
-				'test_table'
+				Model_Test::table()
 			);
+		
+		\app\Stash::purge(['Test__change']);
 		
 		\app\Schematic::table
 			(
-				'test_table', 
+				Model_Test::table(), 
 				'
 					`id`    :key_primary,
 					`title` :title,
@@ -75,7 +77,7 @@ class FeatureContext extends BehatContext
 	{
 		\app\Schematic::destroy
 			(
-				'test_table'
+				Model_Test::table()
 			);
 		
 		\app\SQL::database('default');
@@ -98,7 +100,7 @@ class FeatureContext extends BehatContext
 			(
 				__METHOD__.':truncate',
 				'
-					TRUNCATE TABLE test_table
+					TRUNCATE TABLE `'.Model_Test::table().'`
 				'
 			)
 			->execute();
@@ -109,7 +111,7 @@ class FeatureContext extends BehatContext
 			(
 				__METHOD__,
 				'
-					INSERT INTO test_table
+					INSERT INTO `'.Model_Test::table().'`
 						(id, title) VALUES (:id, :title)
 				'
 			)
@@ -130,7 +132,7 @@ class FeatureContext extends BehatContext
      */
     public function iAskForTheExistenceOf($title)
     {
-        $this->result = Test_Mockup::exists($title);
+        $this->result = Model_Test::exists($title);
     }
 
     /**
@@ -147,7 +149,7 @@ class FeatureContext extends BehatContext
      */
     public function iAskForTheExistenceOfUnderTheKey($value, $key)
     {
-		$this->result = Test_Mockup::exists($value, $key);
+		$this->result = Model_Test::exists($value, $key);
     }
 
     /**
@@ -155,7 +157,7 @@ class FeatureContext extends BehatContext
      */
     public function iAskForTheEntry($entry)
     {
-         $this->result = Test_Mockup::entry($entry)['id'];
+         $this->result = Model_Test::entry($entry)['id'];
     }
 
     /**
@@ -172,7 +174,7 @@ class FeatureContext extends BehatContext
      */
     public function iAskForTheEntryWithTheTitle($title)
     {
-        $this->result = Test_Mockup::find_entry(['title' => $title])['id'];
+        $this->result = Model_Test::find_entry(['title' => $title])['id'];
     }
 
     /**
@@ -180,7 +182,7 @@ class FeatureContext extends BehatContext
      */
     public function iAskForTheEntries()
     {
-        $this->result = Test_Mockup::entries(null, null);
+        $this->result = Model_Test::entries(null, null);
     }
 
     /**
@@ -205,7 +207,7 @@ class FeatureContext extends BehatContext
      */
     public function iLimitEntriesTo($page, $limit, $offset)
     {
-        $this->result = Test_Mockup::entries($page, $limit, $offset);
+        $this->result = Model_Test::entries($page, $limit, $offset);
     }
 
     /**
@@ -232,7 +234,7 @@ class FeatureContext extends BehatContext
 			$constraints[$constraint[0]] = $constraint[1];
 		}
 		
-		$this->result = Test_Mockup::entries(null, null, 0, [], $constraints);
+		$this->result = Model_Test::entries(null, null, 0, [], $constraints);
     }
 
 	/**
@@ -259,7 +261,7 @@ class FeatureContext extends BehatContext
 			$constraints[$constraint[0]] = $constraint[1];
 		}
 		
-		$this->result = Test_Mockup::entries($page, $limit, $offset, [], $constraints);
+		$this->result = Model_Test::entries($page, $limit, $offset, [], $constraints);
     }
 
 	
@@ -276,7 +278,7 @@ class FeatureContext extends BehatContext
 			$order[$sort_order[0]] = $sort_order[1];
 		}
 		
-		$this->result = Test_Mockup::entries(null, null, 0, $order);
+		$this->result = Model_Test::entries(null, null, 0, $order);
     }
 
     /**
@@ -284,7 +286,7 @@ class FeatureContext extends BehatContext
      */
     public function iAskForTheCount()
     {
-        $this->result = Test_Mockup::count();
+        $this->result = Model_Test::count();
     }
 
     /**
@@ -292,7 +294,7 @@ class FeatureContext extends BehatContext
      */
     public function iDeleteTheEntry($id)
     {
-        $this->result = Test_Mockup::delete([$id]);
+        $this->result = Model_Test::delete([$id]);
     }
 	
 }
