@@ -31,7 +31,7 @@ trait Trait_Model_Collection
 	{
 		$cachekey = \get_called_class().'_ID'.$id;
 		$entry = \app\Stash::get($cachekey, null);
-
+		
 		if ($entry === null)
 		{
 			$entry = static::statement
@@ -68,7 +68,9 @@ trait Trait_Model_Collection
 	 */
 	static function find_entry(array $criteria)
 	{
-		$result = static::entries(1, 2, 0, [], $criteria);
+		$result = static::entries(1, 1, 0, [], $criteria);
+		
+//		\var_dump(static::entries(1, 1));
 		
 		if (empty($result))
 		{
