@@ -204,7 +204,6 @@ class Table_Snatcher extends \app\Instantiatable
 				->page($page, $limit, $offset);
 					
 			$result = $statement->execute()->fetch_all();
-			
 			\app\Stash::store($cache_key, $result, $this->tags);
 		}
 		
