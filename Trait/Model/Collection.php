@@ -131,7 +131,7 @@ trait Trait_Model_Collection
 			$where .= \app\Collection::implode
 				(
 					' AND ', # delimiter
-					$this->constraints, # source
+					$constraints, # source
 
 					function ($k, $value) {
 
