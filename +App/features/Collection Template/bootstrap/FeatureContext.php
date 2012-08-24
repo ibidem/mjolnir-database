@@ -22,6 +22,12 @@ class Model_Test
 	 */
 	protected static $table = 'test_table';
 	
+	static function table()
+	{
+		// avoid prefixing
+		return static::$table;
+	}
+	
 }
 
 /**
