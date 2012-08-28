@@ -7,7 +7,7 @@
  * @copyright  (c) 2012 Ibidem Team
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
  */
-trait Trait_Model_Master
+trait Trait_Model_Utilities
 {	
 	/**
 	 * @var array
