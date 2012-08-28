@@ -15,11 +15,6 @@
 	/**
 	 * @var array
 	 */
-	protected static $timers = ['change'];
-	
-	/**
-	 * @var array
-	 */
 	protected static $field_format = [];
 	
 	/**
