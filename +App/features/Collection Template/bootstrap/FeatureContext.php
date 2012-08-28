@@ -14,7 +14,7 @@ use Behat\Gherkin\Node\PyStringNode,
 class Model_Test
 {
 	use \app\Trait_Model_Factory;
-	use \app\Trait_Model_Master;
+	use \app\Trait_Model_Utilities;
 	use \app\Trait_Model_Collection;
 	
 	/**
