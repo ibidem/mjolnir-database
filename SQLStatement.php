@@ -65,6 +65,54 @@ class SQLStatement extends \app\Instantiatable
 	}
 	
 	/**
+	 * @param string paramter
+	 * @param string variable
+	 * @return \ibidem\database\SQLStatement $this
+	 */
+	function bind_date($parameter, & $variable)
+	{
+		$this->statement->bindValue($parameter, $variable, \PDO::PARAM_STR);
+		return $this;
+	}
+	
+	/**
+	 * @param string paramter
+	 * @param string variable
+	 * @return \ibidem\database\SQLStatement $this
+	 */
+	function bind_bool($parameter, & $variable)
+	{
+		if ($variable === true || $variable === false)
+		{
+			$this->statement->bindValue($parameter, $variable, \PDO::PARAM_BOOL);
+		}
+		else 
+		{
+			static $map = array
+				(
+					'true' => true,
+					'on' => true,
+					'yes' => true,
+					'false' => false,
+					'off' => false,
+					'no' => false,
+				);
+			
+			if (isset($map[$variable]))
+			{
+				$this->statement->bindValue($parameter, $map[$variable], \PDO::PARAM_BOOL);
+			}
+			else
+			{
+				throw new \app\Exception_NotApplicable('Unrecognized boolean value passed.');
+			}
+			
+		}
+		
+		return $this;
+	}
+	
+	/**
 	 * @param string parameter
 	 * @param string constant
 	 * @return \ibidem\base\SQLStatement $this 
