@@ -134,6 +134,7 @@ class Table_Snatcher extends \app\Instantiatable
 		
 		// create order hash
 		$sql_order = \app\Collection::implode(', ', $this->field_order, function ($k, $o) {
+			$k = \strpbrk($k, ' .()') === false ? '`'.$k.'`' : $k;
 			return $k.' '.$o;
 		});
 		
