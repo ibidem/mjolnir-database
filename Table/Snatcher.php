@@ -106,7 +106,7 @@ class Table_Snatcher extends \app\Instantiatable
 	/**
 	 * @return array of arrays
 	 */
-	function fetch_all()
+	function fetch_all($field_format = [])
 	{
 		$page = $this->paged[0];
 		$limit = $this->paged[1];
@@ -204,7 +204,7 @@ class Table_Snatcher extends \app\Instantiatable
 			 $statement = \app\SQL::prepare(__METHOD__, $sql)
 				->page($page, $limit, $offset);
 					
-			$result = $statement->execute()->fetch_all();
+			$result = $statement->execute()->fetch_all($field_format);
 			\app\Stash::store($cache_key, $result, $this->tags);
 		}
 		

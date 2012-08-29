@@ -21,7 +21,7 @@ trait Trait_Model_Collection
 			->page($page, $limit, $offset)
 			->order($order)
 			->id(__FUNCTION__)
-			->fetch_all();
+			->fetch_all(static::$field_format);
 	}
 	
 	/**
