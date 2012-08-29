@@ -134,7 +134,7 @@ trait Trait_Model_Collection
 					$constraints, # source
 
 					function ($k, $value) {
-
+				
 						$k = \strpbrk($k, ' .()') === false ? '`'.$k.'`' : $k;
 
 						if (\is_bool($value))
