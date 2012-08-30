@@ -8,7 +8,7 @@
 	use \app\Trait_Model_Automaton;
 	
 	/**
-	 * @var array
+	 * @var string
 	 */
 	protected static $table = 'table_name';
 	
