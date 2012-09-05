@@ -40,7 +40,7 @@ trait Trait_Model_Collection
 					'
 						SELECT *
 						  FROM :table
-						 WHERE id = :id
+						 WHERE '.static::unique_key().' = :id
 					'
 				)
 				->set_int(':id', $id)
@@ -87,6 +87,18 @@ trait Trait_Model_Collection
 	{
 		\app\Stash::delete(\get_called_class().'_ID'.$id);
 	}
+	
+	static function unique_key()
+	{
+		if (isset(static::$unique_key))
+		{
+			return static::$unique_key;
+		}
+		else
+		{
+			return '`id`';
+		}
+	}
 
 	/**
 	 * @param array user id's 
@@ -100,7 +112,7 @@ trait Trait_Model_Collection
 				__METHOD__,
 				'
 					DELETE FROM :table
-					 WHERE id = :id
+					 WHERE '.static::unique_key().' = :id
 				'
 			)
 			->bind_int(':id', $entry);
@@ -191,7 +203,7 @@ trait Trait_Model_Collection
 					SELECT COUNT(1)
 					  FROM :table
 					 WHERE `'.$key.'` = :value
-					   AND NOT `id` <=> '.($context === null ? 'NULL' : $context).'
+					   AND NOT '.static::unique_key().' <=> '.($context === null ? 'NULL' : $context).'
 				'
 			)
 			->set(':value', $value)

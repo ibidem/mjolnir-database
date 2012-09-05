@@ -114,7 +114,7 @@ trait Trait_Model_Utilities
 				'
 					UPDATE :table
 					   SET '.\implode(', ', $assignments).'
-					 WHERE id = :id
+					 WHERE '.static::unique_key().' = :id
 				'
 			)
 			->mass_set($fields, $keys)
