@@ -9,6 +9,9 @@
  */
 trait Trait_Model_Factory
 {
+	/**
+	 * @var int or null 
+	 */
 	protected static $last_inserted_id;
 
 	/**
