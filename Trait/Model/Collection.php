@@ -88,6 +88,9 @@ trait Trait_Model_Collection
 		\app\Stash::delete(\get_called_class().'_ID'.$id);
 	}
 	
+	/**
+	 * @return string
+	 */
 	static function unique_key()
 	{
 		if (isset(static::$unique_key))
@@ -188,10 +191,14 @@ trait Trait_Model_Collection
 	 * Checks if a value exists in the table, given a key. By default the title
 	 * key is assumed.
 	 * 
-	 * @return bool
+	 * Key defaults to 'title' if not set.
+	 * 
+	 * @return boolean
 	 */
-	static function exists($value, $key = 'title', $context = null)
+	static function exists($value, $key = null, $context = null)
 	{
+		$key = $key === null ? 'title' : $key;
+		
 		// we don't cache existential checks since we want to be 100% sure
 		// they go though unobstructed by potential cache errors; since they
 		// can be crucial in model checks
@@ -211,6 +218,16 @@ trait Trait_Model_Collection
 			->fetch_array()['COUNT(1)'];
 		
 		return $count !== 0;
+	}
+	
+	/**
+	 * Syntactic sugar for negation of `exists`.
+	 * 
+	 * @return boolean
+	 */
+	static function is_unique($value, $key = null, $context = null)
+	{
+		return ! static::exists($value, $key, $context);
 	}
 
 } # trait

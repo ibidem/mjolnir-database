@@ -27,6 +27,21 @@ trait Trait_Model_Automaton
 		{
 			foreach (static::$automaton['unique'] as $field)
 			{
+				if ( ! isset($fields[$field]))
+				{
+					if (\app\CFS::config('ibidem/base')['development'])
+					{
+						throw new \app\Exception_NotApplicable
+							('Model Automaton - missing key ['.$field.']');
+					}
+					else
+					{
+						throw new \app\Exception_NotApplicable
+							('The data recieved appears to be corrupt. Request canceled to avoid errors.');
+					}
+					
+				}
+				
 				$validator->test($field, ':unique', ! static::exists($fields[$field], $field, $context));
 			}
 		}
