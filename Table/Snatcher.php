@@ -201,7 +201,7 @@ class Table_Snatcher extends \app\Instantiatable
 					 LIMIT :limit OFFSET :offset 
 				';
 			
-			 $statement = \app\SQL::prepare(__METHOD__, $sql)
+			$statement = \app\SQL::prepare(__METHOD__, $sql)
 				->page($page, $limit, $offset);
 					
 			$result = $statement->execute()->fetch_all($field_format);

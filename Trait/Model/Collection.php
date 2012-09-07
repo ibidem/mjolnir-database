@@ -54,6 +54,82 @@ trait Trait_Model_Collection
 	}
 	
 	/**
+	 * Utility function for creating the search query along with the 
+	 * coresponding order by query.
+	 */
+	protected static function search_query_parameters($term, array & $columns, & $where, & $order)
+	{
+		$term = '%'.$term.'%';
+		$query = 'LIKE '.\app\SQL::quote($term);
+		$where = 'WHERE '.\app\Arr::implode(' OR ', $columns, function ($k, $v) use ($query) {
+			return '`'.$v.'` '.$query;
+		});
+		$query = 'LOCATE ('.\app\SQL::quote($term).', `:column`) ASC';
+		$order = 'ORDER BY '.\app\Arr::implode(', ', $columns, function ($k, $v) use ($query) {
+			return \strtr($query, [':column' => $v]);
+		});
+	}
+	
+	/**
+	 * Search takes the term and tries to match it against all the columns.
+	 * 
+	 * @return array of arrays
+	 */
+	static function search($term, array $columns, $page = null, $limit = null, $offset = null)
+	{
+		$where = null;
+		$order = null;
+		static::search_query_parameters($term, $columns, $where, $order);
+		
+		$cache_key = __FUNCTION__.'__t'.$term.'__p'.$page.'l'.$limit.'o'.$offset.'__'.\sha1($where);
+		
+		$entries = static::stash
+			(
+				__METHOD__,
+				'
+					SELECT *
+					  FROM :table
+					  '.$where.'
+					  '.$order.'
+				',
+				'mysql'
+			)
+			->page($page, $limit, $offset)
+			->key($cache_key)
+			->fetch_all();
+		
+		return $entries;
+	}
+	
+	/**
+	 * @return int entry count for given search
+	 */
+	static function search_count($term, array $columns)
+	{
+		$where = null;
+		$order = null;
+		static::search_query_parameters($term, $columns, $where, $order);
+		
+		$cache_key = __FUNCTION__.'__t'.$term.'__'.\sha1($where);
+		
+		$entries = static::stash
+			(
+				__METHOD__,
+				'
+					SELECT COUNT(1)
+					  FROM :table
+					  '.$where.'
+					  '.$order.'
+				',
+				'mysql'
+			)
+			->key($cache_key)
+			->fetch_all();
+		
+		return $entries[0]['COUNT(1)'];
+	}
+	
+	/**
 	 * @shorthand for entries
 	 * @return array of arrays
 	 */
