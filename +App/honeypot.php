@@ -3,7 +3,7 @@
 // This is an IDE honeypot. It tells IDEs the class hirarchy, but otherwise has
 // no effect on your application. :)
 
-// HowTo: order honeypot -n 'ibidem\database'
+// HowTo: order honeypot -n 'mjolnir\database'
 
 class SQL extends \mjolnir\database\SQL {}
 class SQLDatabase extends \mjolnir\database\SQLDatabase { /** @return \mjolnir\database\SQLDatabase */ static function instance($database = 'default') { return parent::instance($database); } }
