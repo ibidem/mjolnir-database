@@ -1,10 +1,10 @@
-<?php namespace ibidem\database;
+<?php namespace mjolnir\database;
 
 /**
  * This class should only ever be extended at the project level. For all other
  * cases use callbacks.
  * 
- * @package    ibidem
+ * @package    mjolnir
  * @category   Library
  * @author     Ibidem
  * @copyright  (c) 2012, Ibidem Team

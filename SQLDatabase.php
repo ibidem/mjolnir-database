@@ -1,14 +1,14 @@
-<?php namespace ibidem\database;
+<?php namespace mjolnir\database;
 
 /**
- * @package    ibidem
+ * @package    mjolnir
  * @category   Base
  * @author     Ibidem Team
  * @copyright  (c) 2012 Ibidem Team
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
  */
 class SQLDatabase extends \app\Instantiatable
-	implements \ibidem\types\SQLDatabase
+	implements \mjolnir\types\SQLDatabase
 {
 	/**
 	 * @var array
@@ -142,18 +142,18 @@ class SQLDatabase extends \app\Instantiatable
 	
 	/**
 	 * @param string key
-	 * @return \ibidem\types\SQLStatement
+	 * @return \mjolnir\types\SQLStatement
 	 */
 	protected function run_stored_statement($key)
 	{
 		$key = static::normalize_key($key);
-		$splitter = \strpos($key, \ibidem\types\SQLDatabase::KEYSPLIT);
+		$splitter = \strpos($key, \mjolnir\types\SQLDatabase::KEYSPLIT);
 		$file = \substr($key, 0, $splitter);
 		$key = \substr($key, $splitter+1);
 		$statements = \app\CFS::config('sql/'.$this->dialect_target.'/'.$file);
 		if ( ! isset($statements[$key]))
 		{
-			$file = \ibidem\cfs\CFSCompatible::CNFDIR
+			$file = \mjolnir\cfs\CFSCompatible::CNFDIR
 				. '/sql/'.$this->dialect_target.'/'.$file;
 			
 			throw new \app\Exception_NotFound
@@ -169,7 +169,7 @@ class SQLDatabase extends \app\Instantiatable
 	 * @param string key
 	 * @param string statement
 	 * @param string language of statement
-	 * @return \ibidem\types\SQLStatement
+	 * @return \mjolnir\types\SQLStatement
 	 */
 	function prepare($key, $statement = null, $lang = null)
 	{	
@@ -205,7 +205,7 @@ class SQLDatabase extends \app\Instantiatable
 	/**
 	 * Begin transaction.
 	 * 
-	 * @return \ibidem\base\SQLDatabase $this
+	 * @return \mjolnir\base\SQLDatabase $this
 	 */
 	function begin()
 	{
@@ -225,7 +225,7 @@ class SQLDatabase extends \app\Instantiatable
 	/**
 	 * Commit transaction.
 	 * 
-	 * @return \ibidem\base\SQLDatabase $this
+	 * @return \mjolnir\base\SQLDatabase $this
 	 */
 	function commit()
 	{
@@ -245,7 +245,7 @@ class SQLDatabase extends \app\Instantiatable
 	/**
 	 * Rollback transaction.
 	 * 
-	 * @return \ibidem\base\SQLDatabase $this
+	 * @return \mjolnir\base\SQLDatabase $this
 	 */
 	function rollback()
 	{

@@ -1,14 +1,14 @@
-<?php namespace ibidem\database;
+<?php namespace mjolnir\database;
 
 /**
- * @package    ibidem
+ * @package    mjolnir
  * @category   Base
  * @author     Ibidem Team
  * @copyright  (c) 2012 Ibidem Team
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
  */
 class SQLStatement extends \app\Instantiatable
-	implements \ibidem\types\SQLStatement
+	implements \mjolnir\types\SQLStatement
 {
 	/**
 	 * @var \PDOStatement 
@@ -34,7 +34,7 @@ class SQLStatement extends \app\Instantiatable
 	
 	/**
 	 * @param \PDOStatement statement
-	 * @return \ibidem\base\SQLStatement $this
+	 * @return \mjolnir\base\SQLStatement $this
 	 */
 	function statement(\PDOStatement $statement)
 	{
@@ -45,7 +45,7 @@ class SQLStatement extends \app\Instantiatable
 	/**
 	 * @param string parameter
 	 * @param string variable
-	 * @return \ibidem\base\SQLStatement $this
+	 * @return \mjolnir\base\SQLStatement $this
 	 */
 	function bind($parameter, & $variable)
 	{
@@ -56,7 +56,7 @@ class SQLStatement extends \app\Instantiatable
 	/**
 	 * @param string parameter
 	 * @param int variable
-	 * @return \ibidem\base\SQLStatement $this
+	 * @return \mjolnir\base\SQLStatement $this
 	 */
 	function bind_int($parameter, & $variable)
 	{
@@ -67,7 +67,7 @@ class SQLStatement extends \app\Instantiatable
 	/**
 	 * @param string paramter
 	 * @param string variable
-	 * @return \ibidem\database\SQLStatement $this
+	 * @return \mjolnir\database\SQLStatement $this
 	 */
 	function bind_date($parameter, & $variable)
 	{
@@ -78,7 +78,7 @@ class SQLStatement extends \app\Instantiatable
 	/**
 	 * @param string paramter
 	 * @param string variable
-	 * @return \ibidem\database\SQLStatement $this
+	 * @return \mjolnir\database\SQLStatement $this
 	 */
 	function bind_bool($parameter, & $variable)
 	{
@@ -115,7 +115,7 @@ class SQLStatement extends \app\Instantiatable
 	/**
 	 * @param string parameter
 	 * @param string constant
-	 * @return \ibidem\base\SQLStatement $this 
+	 * @return \mjolnir\base\SQLStatement $this 
 	 */
 	function set($parameter, $constant)
 	{
@@ -126,7 +126,7 @@ class SQLStatement extends \app\Instantiatable
 	/**
 	 * @param string parameter
 	 * @param string constant
-	 * @return \ibidem\base\SQLStatement $this 
+	 * @return \mjolnir\base\SQLStatement $this 
 	 */
 	function set_int($parameter, $constant)
 	{
@@ -137,7 +137,7 @@ class SQLStatement extends \app\Instantiatable
 	/**
 	 * @param string parameter
 	 * @param string constant
-	 * @return \ibidem\base\SQLStatement $this 
+	 * @return \mjolnir\base\SQLStatement $this 
 	 */
 	function set_bool($parameter, $constant)
 	{
@@ -174,7 +174,7 @@ class SQLStatement extends \app\Instantiatable
 	/**
 	 * @param string parameter
 	 * @param string constant
-	 * @return \ibidem\base\SQLStatement $this 
+	 * @return \mjolnir\base\SQLStatement $this 
 	 */
 	function set_date($parameter, $constant)
 	{
@@ -187,7 +187,7 @@ class SQLStatement extends \app\Instantiatable
 	 * 
 	 * @param string parameter
 	 * @param string variable
-	 * @return \ibidem\base\SQLStatement $this
+	 * @return \mjolnir\base\SQLStatement $this
 	 */
 	function bind_arg($parameter, & $variable)
 	{
@@ -204,7 +204,7 @@ class SQLStatement extends \app\Instantiatable
 	/**
 	 * @param array keys
 	 * @param array values
-	 * @return \ibidem\types\SQLStatement $this 
+	 * @return \mjolnir\types\SQLStatement $this 
 	 */
 	function mass_set(array $keys, array $values)
 	{
@@ -219,7 +219,7 @@ class SQLStatement extends \app\Instantiatable
 	/**
 	 * @param array keys
 	 * @param array values
-	 * @return \ibidem\types\SQLStatement $this 
+	 * @return \mjolnir\types\SQLStatement $this 
 	 */
 	function mass_int(array $keys, array $values, $default = null)
 	{
@@ -235,7 +235,7 @@ class SQLStatement extends \app\Instantiatable
 	 * @param array keys
 	 * @param array values
 	 * @param array key map (eg. 'true_key' => true, 'false_key' => false ... )
-	 * @return \ibidem\types\SQLStatement $this 
+	 * @return \mjolnir\types\SQLStatement $this 
 	 */
 	function mass_bool(array $keys, array $values, array $map = null)
 	{
@@ -266,7 +266,7 @@ class SQLStatement extends \app\Instantiatable
 	 * @param int page
 	 * @param int limit
 	 * @param int offset
-	 * @return \ibidem\base\SQLStatement $thiss
+	 * @return \mjolnir\base\SQLStatement $thiss
 	 */
 	function page($page, $limit, $offset = 0)
 	{
@@ -288,7 +288,7 @@ class SQLStatement extends \app\Instantiatable
 	/**
 	 * Execute the statement.
 	 * 
-	 * @return \ibidem\base\SQLStatement $this
+	 * @return \mjolnir\base\SQLStatement $this
 	 */
 	function execute()
 	{

@@ -1,7 +1,7 @@
-<?php namespace ibidem\database;
+<?php namespace mjolnir\database;
 
 /**
- * @package    ibidem
+ * @package    mjolnir
  * @category   Base
  * @author     Ibidem
  * @copyright  (c) 2012, Ibidem Team
@@ -100,7 +100,7 @@ class Validator extends \app\Instantiatable
 	/**
 	 * @param string config with errors (should contain "errors" on route)
 	 * @param array fields
-	 * @return \ibidem\base\Validator 
+	 * @return \mjolnir\base\Validator 
 	 */
 	static function instance(array $messages = null, array $fields = null)
 	{
@@ -130,7 +130,7 @@ class Validator extends \app\Instantiatable
 	
 	/**
 	 * @param array fields
-	 * @return \ibidem\base\Validator $this
+	 * @return \mjolnir\base\Validator $this
 	 */
 	function fields(array $fields)
 	{
@@ -140,7 +140,7 @@ class Validator extends \app\Instantiatable
 	
 	/**
 	 * @param array errors
-	 * @return \ibidem\base\Validator $this
+	 * @return \mjolnir\base\Validator $this
 	 */
 	function messages(array $errors)
 	{
@@ -150,7 +150,7 @@ class Validator extends \app\Instantiatable
 	
 	/**
 	 * @param array $args
-	 * @return \ibidem\base\Validator $this
+	 * @return \mjolnir\base\Validator $this
 	 */
 	function rule($args)
 	{

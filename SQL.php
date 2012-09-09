@@ -1,11 +1,11 @@
-<?php namespace ibidem\database;
+<?php namespace mjolnir\database;
 
 /**
  * Static library that acts as shortcut for running statements on default 
  * database. All statements are esentially equivalent to doing 
  * \app\SQLDatabase::instance() and then calling the equivalent method.
  * 
- * @package    ibidem
+ * @package    mjolnir
  * @category   Base
  * @author     Ibidem Team
  * @copyright  (c) 2012 Ibidem Team
@@ -30,7 +30,7 @@ class SQL
 	 * @param string key
 	 * @param string statement
 	 * @param string language of statement
-	 * @return \ibidem\types\SQLStatement
+	 * @return \mjolnir\types\SQLStatement
 	 */
 	static function prepare($key, $statement = null, $lang = null)
 	{
@@ -58,7 +58,7 @@ class SQL
 	/**
 	 * Begin transaction.
 	 * 
-	 * @return \ibidem\types\SQLDatabase
+	 * @return \mjolnir\types\SQLDatabase
 	 */
 	static function begin()
 	{
@@ -68,7 +68,7 @@ class SQL
 	/**
 	 * Commit transaction.
 	 * 
-	 * @return \ibidem\types\SQLDatabase
+	 * @return \mjolnir\types\SQLDatabase
 	 */
 	static function commit()
 	{
@@ -78,7 +78,7 @@ class SQL
 	/**
 	 * Rollback transaction.
 	 * 
-	 * @return \ibidem\types\SQLDatabase
+	 * @return \mjolnir\types\SQLDatabase
 	 */
 	static function rollback()
 	{

@@ -1,9 +1,9 @@
-<?php namespace ibidem\database;
+<?php namespace mjolnir\database;
 
 /**
  * Assumes Model_Master trait was used, or similar interface is available.
  * 
- * @package    ibidem
+ * @package    mjolnir
  * @category   Database
  * @author     Ibidem Team
  * @copyright  (c) 2012 Ibidem Team

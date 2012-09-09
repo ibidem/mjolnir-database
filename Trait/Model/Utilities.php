@@ -1,7 +1,7 @@
-<?php namespace ibidem\database;
+<?php namespace mjolnir\database;
 
 /**
- * @package    ibidem
+ * @package    mjolnir
  * @category   Database
  * @author     Ibidem Team
  * @copyright  (c) 2012 Ibidem Team
@@ -27,7 +27,7 @@ trait Trait_Model_Utilities
 	}
 	
 	/**
-	 * @return \ibidem\types\SQLStatement
+	 * @return \mjolnir\types\SQLStatement
 	 */
 	protected static function statement($identifier, $sql, $lang = null)
 	{
