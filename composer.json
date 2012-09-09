@@ -1,9 +1,9 @@
 {
-	"name": "ibidem/database",
+	"name": "mjolnir/database",
 	"version": "0.0",
-	"description": "ibidem database module",
+	"description": "Mjolnir database module",
 	"keywords": ["database"],
-	"homepage": "https://github.com/srcspider",
+	"homepage": "https://github.com/ibidem",
 	"type": "library",
 	"license": "BSD-2",
 	"authors": [
@@ -17,7 +17,7 @@
 	},
 	"autoload": {
 		"psr-0": {
-			"ibidem\\database": "../.."
+			"mjolnir\\database": "../.."
 		}
 	}
 }

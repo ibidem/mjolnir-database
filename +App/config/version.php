@@ -1,8 +1,8 @@
 <?php return array
 	(
-		'ibidem\database' => array
+		'mjolnir\database' => array
 			(
-				'major' => '1',
+				'major' => '0',
 				'minor' => '0',
 			)
 	);
