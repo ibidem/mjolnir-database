@@ -15,7 +15,7 @@
 								 * string   password    database password
 								 * boolean  persistent  use persistent connections?
 								 */
-								'dsn'        => 'mysql:host=localhost;dbname=ibidem',
+								'dsn'        => 'mysql:host=localhost;dbname=mjolnir',
 								'username'   => 'root',
 								'password'   => '',
 								'persistent' => false,
@@ -46,7 +46,7 @@
 				// the following is used in testing. Ideally mocks of the database should be used,
 				// however in the interest of time it's sometimes both simpler and more robust to 
 				// just run the tests against a real life database
-				'ibidem_testing' => array
+				'mjolnir_testing' => array
 					(
 						'connection' => array
 							(
@@ -58,7 +58,7 @@
 								 * string   password    database password
 								 * boolean  persistent  use persistent connections?
 								 */
-								'dsn'        => 'mysql:host=localhost;dbname=ibidem_testing',
+								'dsn'        => 'mysql:host=localhost;dbname=mjolnir_testing',
 								'username'   => 'root',
 								'password'   => '',
 								'persistent' => false,

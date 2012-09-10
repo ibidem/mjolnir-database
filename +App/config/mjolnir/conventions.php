@@ -2,6 +2,6 @@
 	(
 		'autofills' => array
 			(
-				'#^Model_.*$#' => \app\View::instance('ibidem/database/autofills/Model')->render(),
+				'#^Model_.*$#' => \app\View::instance('mjolnir/database/autofills/Model')->render(),
 			),
 	);

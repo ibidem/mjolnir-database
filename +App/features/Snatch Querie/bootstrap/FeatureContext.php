@@ -36,7 +36,7 @@ class FeatureContext extends BehatContext
 	 */
 	static function before()
 	{
-		\app\SQL::database('ibidem_testing');
+		\app\SQL::database('mjolnir_testing');
 		
 		\app\Schematic::destroy
 			(
