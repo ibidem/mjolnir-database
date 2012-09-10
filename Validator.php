@@ -206,7 +206,7 @@ class Validator extends \app\Instantiatable
 					if ( ! isset($this->errors[$field][$callback]))
 					{
 						// try to use general ruleset
-						$general_errors = \app\CFS::config('ibidem/general-errors');
+						$general_errors = \app\CFS::config('mjolnir/general-errors');
 						if (isset($general_errors[$callback]))
 						{
 							// get the general message
@@ -242,7 +242,7 @@ class Validator extends \app\Instantiatable
 					if ( ! isset($this->errors[$field][$callback]))
 					{
 						// try to use general ruleset
-						$general_errors = \app\CFS::config('ibidem/general-errors');
+						$general_errors = \app\CFS::config('mjolnir/general-errors');
 						if (isset($general_errors[$callback]))
 						{
 							// get the general message
@@ -310,7 +310,7 @@ class Validator extends \app\Instantiatable
 			if ( ! isset($this->errors[$field][$callback]))
 			{
 				// try to use general ruleset
-				$general_errors = \app\CFS::config('ibidem/general-errors');
+				$general_errors = \app\CFS::config('mjolnir/general-errors');
 				if (isset($general_errors[$callback]))
 				{
 					// get the general message

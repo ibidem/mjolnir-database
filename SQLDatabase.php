@@ -46,7 +46,7 @@ class SQLDatabase extends \app\Instantiatable
 			try 
 			{
 				// attempt to load configuration
-				$pdo = \app\CFS::config('ibidem/database');
+				$pdo = \app\CFS::config('mjolnir/database');
 				$pdo = $pdo['databases'][$database];
 				if (empty($pdo))
 				{
@@ -72,7 +72,7 @@ class SQLDatabase extends \app\Instantiatable
 				static::$instances[$database]->dialect_default = $pdo['dialect_default'];
 				static::$instances[$database]->dialect_target = $pdo['dialect_target'];
 				
-				$base_config = \app\CFS::config('ibidem/base');
+				$base_config = \app\CFS::config('mjolnir/base');
 				// set charset
 				static::$instances[$database]->dbh->exec("SET CHARACTER SET '{$base_config['charset']}'");
 				static::$instances[$database]->dbh->exec("SET NAMES '{$base_config['charset']}'");

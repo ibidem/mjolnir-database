@@ -27,7 +27,7 @@ trait Trait_Model_Factory
 	 */
 	static function table()
 	{
-		$config = \app\CFS::config('ibidem/database');
+		$config = \app\CFS::config('mjolnir/database');
 		return $config['table_prefix'].static::$table;
 	}
 

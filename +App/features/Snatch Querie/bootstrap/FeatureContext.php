@@ -24,7 +24,7 @@ class FeatureContext extends BehatContext
      */
     public function __construct(array $parameters)
     {
-		$base = \app\CFS::config('ibidem/base');
+		$base = \app\CFS::config('mjolnir/base');
 		if ( ! isset($base['caching']) || ! $base['caching'])
 		{
 			throw new \app\Exception('Caching is not enabled.');

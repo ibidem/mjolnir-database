@@ -29,7 +29,7 @@ trait Trait_Model_Automaton
 			{
 				if ( ! isset($fields[$field]))
 				{
-					if (\app\CFS::config('ibidem/base')['development'])
+					if (\app\CFS::config('mjolnir/base')['development'])
 					{
 						throw new \app\Exception_NotApplicable
 							('Model Automaton - missing key ['.$field.']');
