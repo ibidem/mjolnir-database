@@ -76,8 +76,12 @@ class ValidatorRules
 		else # failed match
 		{
 			return false;
-		}
-		
+		}	
+	}
+	
+	static function valid_number($field)
+	{
+		return \is_numeric($field);
 	}
 
 } # class
