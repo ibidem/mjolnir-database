@@ -8,7 +8,7 @@
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
  */
 trait Trait_Model_Utilities
-{	
+{
 	/**
 	 * @var array
 	 */
@@ -25,7 +25,7 @@ trait Trait_Model_Utilities
 			->table(static::table())
 			->identity($identity);
 	}
-	
+
 	/**
 	 * @return \mjolnir\types\SQLStatement
 	 */
@@ -39,7 +39,7 @@ trait Trait_Model_Utilities
 	 * @return \app\Table_Snatcher
 	 */
 	protected static function snatch($args)
-	{		
+	{
 		$args = \func_get_args();
 		$identity = \join('', \array_slice(\explode('\\', \get_called_class()), -1));
 		return \app\Table_Snatcher::instance()
@@ -58,18 +58,18 @@ trait Trait_Model_Utilities
 		{
 			$keys[] = $int;
 		}
-		
+
 		foreach ($bools as $bool)
 		{
 			$keys[] = $bool;
 		}
-		
+
 		$table_keys = \app\Collection::convert($keys, function ($k) { return '`'.$k.'`'; });
 		$value_keys = \app\Collection::convert($keys, function ($k) { return ':'.$k; });
-		
+
 		return \app\SQLStash::prepare
 			(
-				__METHOD__, 
+				__METHOD__,
 				'
 					INSERT INTO :table
 						('.\implode(', ', $table_keys).')
@@ -94,23 +94,23 @@ trait Trait_Model_Utilities
 		{
 			$keys[] = $int;
 		}
-		
+
 		foreach ($bools as $bool)
 		{
 			$keys[] = $bool;
 		}
-		
+
 		$assignments = \app\Collection::convert
 			(
-				$keys, 
-				function ($k) { 
+				$keys,
+				function ($k) {
 					return '`'.$k.'` = :'.$k;
 				}
 			);
 
 		return \app\SQLStash::prepare
 			(
-				__METHOD__, 
+				__METHOD__,
 				'
 					UPDATE :table
 					   SET '.\implode(', ', $assignments).'
@@ -124,6 +124,21 @@ trait Trait_Model_Utilities
 			->timers(\app\Stash::tags(\get_called_class(), ['change']))
 			->table(static::table())
 			->is('change');
+	}
+
+	/**
+	 * @return array
+	 */
+	static function field_format()
+	{
+		if (isset(static::$field_format))
+		{
+			return static::$field_format;
+		}
+		else # no field format set
+		{
+			return [];
+		}
 	}
 
 } # trait
