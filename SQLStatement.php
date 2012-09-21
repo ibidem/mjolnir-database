@@ -313,17 +313,22 @@ class SQLStatement extends \app\Instantiatable
 	 *
 	 * @return array
 	 */
-	function fetch_array()
+	function fetch_array(array $format = null)
 	{
-		$statement = $this->statement->fetch(\PDO::FETCH_ASSOC);
+		$result = $this->statement->fetch(\PDO::FETCH_ASSOC);
 		
-		if ($statement === false)
+		if ($result === false)
 		{
 			return null;
 		}
 		else # succesfully retrieved statement
 		{
-			return $statement;
+			if ($format !== null)
+			{
+				$this->format_entry($result, $format);
+			}
+			
+			return $result;
 		}
 	}
 	
@@ -345,30 +350,51 @@ class SQLStatement extends \app\Instantiatable
 			$result = $this->statement->fetchAll(\PDO::FETCH_ASSOC);
 			foreach ($result as & $entry)
 			{
-				foreach ($format as $field => $operation)
-				{
-					if (\is_string($operation))
-					{
-						// preset operation
-						switch ($operation)
-						{
-							case 'datetime':
-								$entry[$field] = new \DateTime($entry[$field]);
-								break;
-							
-							default:
-								throw new \app\Exception_NotApplicable
-									('Unknown post formatting operation.');
-						}
-					}
-					else
-					{
-						$entry[$field] = $operation($entry[$field]);
-					}
-				}
+				$this->format_entry($entry, $format);
 			}
 			
 			return $result;
+		}
+	}
+	
+	/**
+	 * Formats an entry.
+	 */
+	protected function format_entry( & $entry, & $format)
+	{
+		foreach ($format as $field => $operation)
+		{
+			if (\is_string($operation))
+			{
+				// preset operation
+				switch ($operation)
+				{
+					case 'datetime':
+						if (empty($entry[$field]))
+						{
+							$entry[$field] = null;
+						}
+						else # not empty
+						{
+							$entry[$field] = new \DateTime($entry[$field]);
+							// confirm datetime is valid
+							if ($entry[$field]->getLastErrors()['error_count'] !== 0)
+							{
+								$entry[$field] = null;
+							}
+						}
+
+						break;
+
+					default:
+						throw new \app\Exception_NotApplicable
+							('Unknown post formatting operation.');
+				}
+			}
+			else # non string (assume callback)
+			{
+				$entry[$field] = $operation($entry[$field]);
+			}
 		}
 	}
 	
