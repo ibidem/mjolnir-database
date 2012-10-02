@@ -101,7 +101,7 @@ trait Trait_Model_Factory
 	static function update_check($id, array $fields)
 	{
 		return static::check($fields, $id)
-			->test('id', ':exists', static::exists($id, 'id'));
+			->test(static::unique_key(), ':exists', static::exists($id, static::unique_key()));
 	}
 
 } # trait
