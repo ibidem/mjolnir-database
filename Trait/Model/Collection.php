@@ -175,7 +175,7 @@ trait Trait_Model_Collection
 		}
 		else
 		{
-			return '`id`';
+			return 'id';
 		}
 	}
 
