@@ -10,7 +10,7 @@
 trait Trait_Model_Factory
 {
 	/**
-	 * @var int or null 
+	 * @var int or null
 	 */
 	protected static $last_inserted_id;
 
@@ -32,12 +32,22 @@ trait Trait_Model_Factory
 	}
 
 	/**
+	 * Clean up fields
+	 */
+	static function cleanup(array & $fields)
+	{
+		// empty
+	}
+
+	/**
 	 * Verifies and creates entry.
 	 *
 	 * @return array or null
 	 */
 	static function push(array $fields)
 	{
+		static::cleanup($fields);
+
 		// check for errors
 		$errors = static::check($fields)->errors();
 
@@ -65,11 +75,13 @@ trait Trait_Model_Factory
 
 	/**
 	 * Verifies and updates entry.
-	 * 
+	 *
 	 * @return array or null
 	 */
 	static function update($id, array $fields)
 	{
+		static::cleanup($fields);
+
 		// check for errors
 		$errors = static::update_check($id, $fields)->errors();
 
@@ -94,7 +106,7 @@ trait Trait_Model_Factory
 			return $errors;
 		}
 	}
-	
+
 	/**
 	 * @return \app\Validator
 	 */
