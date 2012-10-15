@@ -141,4 +141,12 @@ trait Trait_Model_Utilities
 		}
 	}
 
+	/**
+	 * Clears cache for given tags.
+	 */
+	static function purge_cache($tags)
+	{
+		\app\Stash::purge(\app\Stash::tags(\get_called_class(), $tags));
+	}
+	
 } # trait
