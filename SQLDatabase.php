@@ -16,6 +16,11 @@ class SQLDatabase extends \app\Instantiatable
 	protected static $instances = array();
 
 	/**
+	 * @var boolean
+	 */
+	protected $cleanup = false;
+	
+	/**
 	 * @var int
 	 */
 	protected $savepoint = 0;
@@ -72,20 +77,6 @@ class SQLDatabase extends \app\Instantiatable
 				static::$instances[$database]->dialect_default = $pdo['dialect_default'];
 				static::$instances[$database]->dialect_target = $pdo['dialect_target'];
 				
-				$base_config = \app\CFS::config('mjolnir/base');
-				// set charset
-				static::$instances[$database]->dbh->exec("SET CHARACTER SET '{$base_config['charset']}'");
-				static::$instances[$database]->dbh->exec("SET NAMES '{$base_config['charset']}'");
-				// set timezone
-				$now = new \DateTime();  
-				$mins = $now->getOffset() / 60;  
-				$sgn = ($mins < 0 ? -1 : 1);  
-				$mins = \abs($mins);  
-				$hrs = \floor($mins / 60);
-				$mins -= $hrs * 60;
-				$offset = \sprintf('%+d:%02d', $hrs*$sgn, $mins);
-				static::$instances[$database]->dbh->exec("SET time_zone='$offset';");  
-				
 				return static::$instances[$database];
 			}
 			catch (\PDOException $e)
@@ -123,6 +114,9 @@ class SQLDatabase extends \app\Instantiatable
 			|| $statement === null;
 	}
 	
+	/**
+	 * @return string
+	 */
 	protected static function normalize_key($key)
 	{
 		// convert :: to :
@@ -166,13 +160,38 @@ class SQLDatabase extends \app\Instantiatable
 	}
 	
 	/**
+	 * Configure database before executing statements.
+	 */
+	protected function pre_execution_configuration()
+	{
+		$base_config = \app\CFS::config('mjolnir/base');
+		// set charset
+		$this->dbh->exec("SET CHARACTER SET '{$base_config['charset']}'");
+		$this->dbh->exec("SET NAMES '{$base_config['charset']}'");
+		// set timezone
+		$now = new \DateTime();  
+		$mins = $now->getOffset() / 60;  
+		$sgn = ($mins < 0 ? -1 : 1);  
+		$mins = \abs($mins);  
+		$hrs = \floor($mins / 60);
+		$mins -= $hrs * 60;
+		$offset = \sprintf('%+d:%02d', $hrs*$sgn, $mins);
+		$this->dbh->exec("SET time_zone='$offset';");
+	}
+	
+	/**
 	 * @param string key
 	 * @param string statement
 	 * @param string language of statement
 	 * @return \mjolnir\types\SQLStatement
 	 */
 	function prepare($key, $statement = null, $lang = null)
-	{	
+	{
+		if ( ! $this->cleanup)
+		{
+			$this->pre_execution_configuration();
+		}
+		
 		if ($this->requires_translation($statement, $lang))
 		{
 			return $this->run_stored_statement($key);
