@@ -207,6 +207,12 @@ trait Trait_Model_Collection
 		\app\SQL::commit();
 		
 		\app\Stash::purge(\app\Stash::tags(\get_called_class(), ['change']));
+		
+		// reset related caches
+		foreach (static::related_caches() as $related_cache)
+		{
+			\app\Stash::purge(\app\Stash::tags($related_cache[0], $related_cache[1]));
+		}
 	}
 	
 	/**

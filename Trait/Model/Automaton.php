@@ -56,6 +56,12 @@ trait Trait_Model_Automaton
 	{		
 		static::inserter($fields, static::$automaton['fields'])->run();
 		static::$last_inserted_id = \app\SQL::last_inserted_id();
+		
+		// reset related caches
+		foreach (static::related_caches() as $related_cache)
+		{
+			\app\Stash::purge(\app\Stash::tags($related_cache[0], $related_cache[1]));
+		}
 	}
 
 	/**
@@ -75,6 +81,12 @@ trait Trait_Model_Automaton
 		
 		static::updater($id, $fields, $update_fields)->run();
 		static::clear_entry_cache($id);
+		
+		// reset related caches
+		foreach (static::related_caches() as $related_cache)
+		{
+			\app\Stash::purge(\app\Stash::tags($related_cache[0], $related_cache[1]));
+		}
 	}
 	
 } # trait

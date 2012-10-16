@@ -30,6 +30,21 @@ trait Trait_Model_Factory
 		$config = \app\CFS::config('mjolnir/database');
 		return $config['table_prefix'].static::$table;
 	}
+	
+	/**
+	 * @return array
+	 */
+	static function related_caches()
+	{
+		if (isset(static::$related_caches))
+		{
+			return static::$related_caches;
+		}
+		else # cache_reset not set
+		{
+			return [];
+		}
+	}
 
 	/**
 	 * Clean up fields
