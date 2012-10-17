@@ -41,52 +41,75 @@ class SQLDatabase extends \app\Instantiatable
 	protected $dbh;
 	
 	/**
+	 * Database setup; null if already executed.
+	 */
+	protected $setup = null;
+	
+	/**
 	 * @return \app\SQL
 	 */
 	static function instance($database = 'default')
 	{
 		if ( ! isset(static::$instances[$database]))
 		{
-			static::$instances[$database] = parent::instance();
-			try 
-			{
-				// attempt to load configuration
-				$pdo = \app\CFS::config('mjolnir/database');
-				$pdo = $pdo['databases'][$database];
-				if (empty($pdo))
+			$instance = static::$instances[$database] = parent::instance();
+			
+			$instance->setup = function () use ($instance, $database)
 				{
-					$exception = new \app\Exception_NotFound
-						('Missing database configuration.');
+					try 
+					{
+						// attempt to load configuration
+						$pdo = \app\CFS::config('mjolnir/database');
+						$pdo = $pdo['databases'][$database];
+						if (empty($pdo))
+						{
+							$exception = new \app\Exception_NotFound
+								('Missing database configuration.');
+
+							throw $exception->set_title('Database Error');
+						}
+						// setup database handle
+						$dbh = $instance->dbh = new \PDO
+							(
+								$pdo['connection']['dsn'], 
+								$pdo['connection']['username'], 
+								$pdo['connection']['password']
+							);
+						// set error mode
+						$dbh->setAttribute
+							(
+								\PDO::ATTR_ERRMODE, 
+								\PDO::ERRMODE_EXCEPTION 
+							);
+						// default SQL flavor
+						$instance->dialect_default = $pdo['dialect_default'];
+						$instance->dialect_target = $pdo['dialect_target'];
 						
-					throw $exception->set_title('Database Error');
-				}
-				// setup database handle
-				$dbh = static::$instances[$database]->dbh = new \PDO
-					(
-						$pdo['connection']['dsn'], 
-						$pdo['connection']['username'], 
-						$pdo['connection']['password']
-					);
-				// set error mode
-				$dbh->setAttribute
-					(
-						\PDO::ATTR_ERRMODE, 
-						\PDO::ERRMODE_EXCEPTION 
-					);
-				// default SQL flavor
-				static::$instances[$database]->dialect_default = $pdo['dialect_default'];
-				static::$instances[$database]->dialect_target = $pdo['dialect_target'];
+						$base_config = \app\CFS::config('mjolnir/base');
+						// set charset
+						$instance->dbh->exec("SET CHARACTER SET '{$base_config['charset']}'");
+						$instance->dbh->exec("SET NAMES '{$base_config['charset']}'");
+						// set timezone
+						$now = new \DateTime();  
+						$mins = $now->getOffset() / 60;  
+						$sgn = ($mins < 0 ? -1 : 1);  
+						$mins = \abs($mins);  
+						$hrs = \floor($mins / 60);
+						$mins -= $hrs * 60;
+						$offset = \sprintf('%+d:%02d', $hrs*$sgn, $mins);
+						$instance->dbh->exec("SET time_zone='$offset';");
+					}
+					catch (\PDOException $e)
+					{
+						throw new \app\Exception
+							(
+								$e->getMessage(), # message
+								'Database Error' # title
+							);
+					}
+				};
 				
-				return static::$instances[$database];
-			}
-			catch (\PDOException $e)
-			{
-				throw new \app\Exception
-					(
-						$e->getMessage(), # message
-						'Database Error' # title
-					);
-			}
+			return static::$instances[$database];
 		}
 		else # is set
 		{
@@ -159,24 +182,14 @@ class SQLDatabase extends \app\Instantiatable
 		return $statements[$key]($this->dbh);
 	}
 	
-	/**
-	 * Configure database before executing statements.
-	 */
-	protected function pre_execution_configuration()
+	protected function check_setup()
 	{
-		$base_config = \app\CFS::config('mjolnir/base');
-		// set charset
-		$this->dbh->exec("SET CHARACTER SET '{$base_config['charset']}'");
-		$this->dbh->exec("SET NAMES '{$base_config['charset']}'");
-		// set timezone
-		$now = new \DateTime();  
-		$mins = $now->getOffset() / 60;  
-		$sgn = ($mins < 0 ? -1 : 1);  
-		$mins = \abs($mins);  
-		$hrs = \floor($mins / 60);
-		$mins -= $hrs * 60;
-		$offset = \sprintf('%+d:%02d', $hrs*$sgn, $mins);
-		$this->dbh->exec("SET time_zone='$offset';");
+		if ($this->setup !== null)
+		{
+			$setup = $this->setup;
+			$setup();
+			$this->setup = null;
+		}
 	}
 	
 	/**
@@ -187,11 +200,8 @@ class SQLDatabase extends \app\Instantiatable
 	 */
 	function prepare($key, $statement = null, $lang = null)
 	{
-		if ( ! $this->cleanup)
-		{
-			$this->pre_execution_configuration();
-		}
-		
+		$this->check_setup();
+
 		if ($this->requires_translation($statement, $lang))
 		{
 			return $this->run_stored_statement($key);
@@ -209,6 +219,8 @@ class SQLDatabase extends \app\Instantiatable
 	 */
 	function quote($value)
 	{
+		$this->check_setup();
+		
 		return $this->dbh->quote($value);
 	}
 	
@@ -218,6 +230,11 @@ class SQLDatabase extends \app\Instantiatable
 	 */
 	function last_inserted_id($name = null)
 	{
+		if ($this->setup === null)
+		{
+			return null;
+		}
+		
 		return $this->dbh->lastInsertId($name);
 	}
 	
@@ -228,6 +245,8 @@ class SQLDatabase extends \app\Instantiatable
 	 */
 	function begin()
 	{
+		$this->check_setup();
+		
 		if ($this->savepoint == 0)
 		{
 			$this->dbh->beginTransaction();
@@ -247,7 +266,7 @@ class SQLDatabase extends \app\Instantiatable
 	 * @return \mjolnir\base\SQLDatabase $this
 	 */
 	function commit()
-	{
+	{		
 		--$this->savepoint;
 		if ($this->savepoint == 0)
 		{
