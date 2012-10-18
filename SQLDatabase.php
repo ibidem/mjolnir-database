@@ -230,7 +230,7 @@ class SQLDatabase extends \app\Instantiatable
 	 */
 	function last_inserted_id($name = null)
 	{
-		if ($this->setup === null)
+		if ($this->setup !== null)
 		{
 			return null;
 		}
