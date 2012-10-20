@@ -109,7 +109,7 @@ class Validator extends \app\Instantiatable
 		
 		if ($messages === null)
 		{
-			$instance->$messages(array());
+			$instance->messages([]);
 		}
 		else # errors not null
 		{
