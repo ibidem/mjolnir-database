@@ -7,7 +7,7 @@ use Behat\Behat\Context\ClosuredContextInterface,
 use Behat\Gherkin\Node\PyStringNode,
     Behat\Gherkin\Node\TableNode;
 
-\mjolnir\base\Mjolnir::behat();
+\mjolnir\cfs\Mjolnir::behat();
 
 // @todo LOW - convert database code to mockup when I have time
 
