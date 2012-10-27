@@ -27,37 +27,37 @@ class Table_Snatcher extends \app\Instantiatable
 
 		return $this;
 	}
-	
+
 	/**
 	 * @return \app\Table_Snatcher $this
 	 */
 	function identity($identity)
 	{
 		$this->identity = $identity;
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * @return \app\Table_Snatcher $this
 	 */
 	function id($id)
 	{
 		$this->id = $id;
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * @return \app\Table_Snatcher $this
 	 */
 	function table($table)
 	{
 		$this->table = $table;
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * @param array tags
 	 * @return \app\Table_Snatcher $this
@@ -65,17 +65,17 @@ class Table_Snatcher extends \app\Instantiatable
 	function timers(array $tags)
 	{
 		$this->tags = $tags;
-		
+
 		return $this;
 	}
-		
+
 	/**
 	 * @return \app\SQLStash $this
 	 */
 	function constraints(array $constraints)
 	{
 		$this->constraints = $constraints;
-		
+
 		return $this;
 	}
 
@@ -97,7 +97,7 @@ class Table_Snatcher extends \app\Instantiatable
 		$page = $page === null ? null : (int) $page;
 		$limit = $limit === null ? null : (int) $limit;
 		$offset = (int) $offset;
-		
+
 		$this->paged = [$page, $limit, $offset];
 
 		return $this;
@@ -111,40 +111,40 @@ class Table_Snatcher extends \app\Instantiatable
 		$page = $this->paged[0];
 		$limit = $this->paged[1];
 		$offset = $this->paged[2];
-		
+
 		if (empty($this->table))
 		{
-			throw new \app\Exception_NotApplicable
+			throw new \app\Exception
 				('Table not provided for snatch query.');
 		}
-		
+
 		if (empty($this->identity))
 		{
-			throw new \app\Exception_NotApplicable
+			throw new \app\Exception
 				('Identity not provided for snatch query.');
 		}
-		
+
 		if (empty($this->id))
 		{
-			throw new \app\Exception_NotApplicable
+			throw new \app\Exception
 				('Id not provided for snatch query.');
 		}
-		
+
 		$cache_key = $this->identity.'_'.$this->id.'__Snatch_fetch_all__'.'p'.$page.'l'.$limit.'o'.$offset;
-		
+
 		// create order hash
 		$sql_order = \app\Collection::implode(', ', $this->field_order, function ($k, $o) {
 			$k = \strpbrk($k, ' .()') === false ? '`'.$k.'`' : $k;
 			return $k.' '.$o;
 		});
-		
+
 		if ( ! empty($sql_order))
 		{
 			$sql_order = 'ORDER BY '.$sql_order;
 			$cache_key .= '__'.\sha1($sql_order);
 		}
-		
-		// where hash	
+
+		// where hash
 		$where = \app\Collection::implode
 			(
 				' AND ', # delimiter
@@ -172,7 +172,7 @@ class Table_Snatcher extends \app\Instantiatable
 					}
 				}
 			);
-		
+
 		if ( ! empty($where))
 		{
 			$where = 'WHERE '.$where;
@@ -180,9 +180,9 @@ class Table_Snatcher extends \app\Instantiatable
 		}
 
 		$result = \app\Stash::get($cache_key, null);
-		
+
 		if ($result === null)
-		{			
+		{
 			if ($this->query[0] == '*')
 			{
 				$query = '*';
@@ -193,21 +193,21 @@ class Table_Snatcher extends \app\Instantiatable
 					return '`'.$i.'`';
 				});
 			}
-			
-			$sql = 
+
+			$sql =
 				'
 					SELECT '.$query.'
 					  FROM `'.$this->table.'` '.$where.' '.$sql_order.'
-					 LIMIT :limit OFFSET :offset 
+					 LIMIT :limit OFFSET :offset
 				';
-			
+
 			$statement = \app\SQL::prepare(__METHOD__, $sql)
 				->page($page, $limit, $offset);
-					
+
 			$result = $statement->execute()->fetch_all($field_format);
 			\app\Stash::store($cache_key, $result, $this->tags);
 		}
-		
+
 		return $result;
 	}
 

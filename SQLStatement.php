@@ -11,10 +11,10 @@ class SQLStatement extends \app\Instantiatable
 	implements \mjolnir\types\SQLStatement
 {
 	/**
-	 * @var \PDOStatement 
+	 * @var \PDOStatement
 	 */
 	protected $statement;
-	
+
 	/**
 	 * @param \PDOStatement statement
 	 * @return \app\SQLStatement
@@ -24,14 +24,14 @@ class SQLStatement extends \app\Instantiatable
 	{
 		if ($statement === null)
 		{
-			throw new \app\Exception_NotApplicable('No statement provided.');
+			throw new \app\Exception('No statement provided.');
 		}
-		
+
 		$instance = parent::instance();
 		$instance->statement($statement);
 		return $instance;
 	}
-	
+
 	/**
 	 * @param \PDOStatement statement
 	 * @return \mjolnir\base\SQLStatement $this
@@ -41,7 +41,7 @@ class SQLStatement extends \app\Instantiatable
 		$this->statement = $statement;
 		return $this;
 	}
-	
+
 	/**
 	 * @param string parameter
 	 * @param string variable
@@ -52,7 +52,7 @@ class SQLStatement extends \app\Instantiatable
 		$this->statement->bindParam($parameter, $variable, \PDO::PARAM_STR);
 		return $this;
 	}
-	
+
 	/**
 	 * @param string parameter
 	 * @param int variable
@@ -63,7 +63,7 @@ class SQLStatement extends \app\Instantiatable
 		$this->statement->bindParam($parameter, $variable, \PDO::PARAM_INT);
 		return $this;
 	}
-	
+
 	/**
 	 * @param string paramter
 	 * @param string variable
@@ -74,7 +74,7 @@ class SQLStatement extends \app\Instantiatable
 		$this->statement->bindValue($parameter, $variable, \PDO::PARAM_STR);
 		return $this;
 	}
-	
+
 	/**
 	 * @param string paramter
 	 * @param string variable
@@ -86,7 +86,7 @@ class SQLStatement extends \app\Instantiatable
 		{
 			$this->statement->bindValue($parameter, $variable, \PDO::PARAM_BOOL);
 		}
-		else 
+		else
 		{
 			static $map = array
 				(
@@ -97,47 +97,47 @@ class SQLStatement extends \app\Instantiatable
 					'off' => false,
 					'no' => false,
 				);
-			
+
 			if (isset($map[$variable]))
 			{
 				$this->statement->bindValue($parameter, $map[$variable], \PDO::PARAM_BOOL);
 			}
 			else
 			{
-				throw new \app\Exception_NotApplicable('Unrecognized boolean value passed.');
+				throw new \app\Exception('Unrecognized boolean value passed.');
 			}
-			
+
 		}
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * @param string parameter
 	 * @param string constant
-	 * @return \mjolnir\base\SQLStatement $this 
+	 * @return \mjolnir\base\SQLStatement $this
 	 */
 	function set($parameter, $constant)
 	{
 		$this->statement->bindValue($parameter, $constant, \PDO::PARAM_STR);
 		return $this;
 	}
-	
+
 	/**
 	 * @param string parameter
 	 * @param string constant
-	 * @return \mjolnir\base\SQLStatement $this 
+	 * @return \mjolnir\base\SQLStatement $this
 	 */
 	function set_int($parameter, $constant)
 	{
 		$this->statement->bindValue($parameter, $constant, \PDO::PARAM_INT);
 		return $this;
 	}
-	
+
 	/**
 	 * @param string parameter
 	 * @param string constant
-	 * @return \mjolnir\base\SQLStatement $this 
+	 * @return \mjolnir\base\SQLStatement $this
 	 */
 	function set_bool($parameter, $constant)
 	{
@@ -145,7 +145,7 @@ class SQLStatement extends \app\Instantiatable
 		{
 			$this->statement->bindValue($parameter, $constant, \PDO::PARAM_BOOL);
 		}
-		else 
+		else
 		{
 			static $map = array
 				(
@@ -156,35 +156,35 @@ class SQLStatement extends \app\Instantiatable
 					'off' => false,
 					'no' => false,
 				);
-			
+
 			if (isset($map[$constant]))
 			{
 				$this->statement->bindValue($parameter, $map[$constant], \PDO::PARAM_BOOL);
 			}
 			else
 			{
-				throw new \app\Exception_NotApplicable('Unrecognized boolean value passed.');
+				throw new \app\Exception('Unrecognized boolean value passed.');
 			}
-			
+
 		}
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * @param string parameter
 	 * @param string constant
-	 * @return \mjolnir\base\SQLStatement $this 
+	 * @return \mjolnir\base\SQLStatement $this
 	 */
 	function set_date($parameter, $constant)
 	{
 		$this->statement->bindValue($parameter, $constant, \PDO::PARAM_STR);
 		return $this;
 	}
-	
+
 	/**
 	 * Stored procedure argument.
-	 * 
+	 *
 	 * @param string parameter
 	 * @param string variable
 	 * @return \mjolnir\base\SQLStatement $this
@@ -193,18 +193,18 @@ class SQLStatement extends \app\Instantiatable
 	{
 		$this->statement->bindParam
 			(
-				$parameter, 
-				$variable, 
+				$parameter,
+				$variable,
 				\PDO::PARAM_STR|\PDO::PARAM_INPUT_OUTPUT
 			);
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * @param array keys
 	 * @param array values
-	 * @return \mjolnir\types\SQLStatement $this 
+	 * @return \mjolnir\types\SQLStatement $this
 	 */
 	function mass_set(array $keys, array $values)
 	{
@@ -212,14 +212,14 @@ class SQLStatement extends \app\Instantiatable
 		{
 			$this->set(':'.$key, isset($values[$key]) ? $values[$key] : null);
 		}
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * @param array keys
 	 * @param array values
-	 * @return \mjolnir\types\SQLStatement $this 
+	 * @return \mjolnir\types\SQLStatement $this
 	 */
 	function mass_int(array $keys, array $values, $default = null)
 	{
@@ -227,15 +227,15 @@ class SQLStatement extends \app\Instantiatable
 		{
 			$this->set_int(':'.$key, isset($values[$key]) ? $values[$key] : $default);
 		}
-		
+
 		return $this;
-	}	
-	
+	}
+
 	/**
 	 * @param array keys
 	 * @param array values
 	 * @param array key map (eg. 'true_key' => true, 'false_key' => false ... )
-	 * @return \mjolnir\types\SQLStatement $this 
+	 * @return \mjolnir\types\SQLStatement $this
 	 */
 	function mass_bool(array $keys, array $values, array $map = null)
 	{
@@ -253,18 +253,18 @@ class SQLStatement extends \app\Instantiatable
 					'0' => false,
 				);
 		}
-		
+
 		foreach ($keys as $key)
 		{
 			$this->set_bool(':'.$key, isset($values[$key]) ? $map[$values[$key]] : false);
 		}
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * Automatically sets the :offset and :limit varaibles.
-	 * 
+	 *
 	 * @param int page
 	 * @param int limit
 	 * @param int offset
@@ -283,13 +283,13 @@ class SQLStatement extends \app\Instantiatable
 			$this->set_int(':offset', $limit * ($page - 1) + $offset);
 			$this->set_int(':limit', $limit);
 		}
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * Execute the statement.
-	 * 
+	 *
 	 * @return \mjolnir\base\SQLStatement $this
 	 */
 	function execute()
@@ -297,10 +297,10 @@ class SQLStatement extends \app\Instantiatable
 		$this->statement->execute();
 		return $this;
 	}
-	
+
 	/**
 	 * Featch as object.
-	 * 
+	 *
 	 * @param string class
 	 * @param array paramters to be passed to constructor
 	 * @return mixed
@@ -309,7 +309,7 @@ class SQLStatement extends \app\Instantiatable
 	{
 		return $this->statement->fetchObject($class, $args);
 	}
-	
+
 	/**
 	 * Fetch associative array of row.
 	 *
@@ -318,7 +318,7 @@ class SQLStatement extends \app\Instantiatable
 	function fetch_array(array $format = null)
 	{
 		$result = $this->statement->fetch(\PDO::FETCH_ASSOC);
-		
+
 		if ($result === false)
 		{
 			return null;
@@ -329,14 +329,14 @@ class SQLStatement extends \app\Instantiatable
 			{
 				$this->format_entry($result, $format);
 			}
-			
+
 			return $result;
 		}
 	}
-	
+
 	/**
 	 * Retrieves all remaining rows. Rows are retrieved as arrays.
-	 * 
+	 *
 	 * [!!] May be extremely memory intensive when used on large data sets.
 	 *
 	 * @return array
@@ -354,11 +354,11 @@ class SQLStatement extends \app\Instantiatable
 			{
 				$this->format_entry($entry, $format);
 			}
-			
+
 			return $result;
 		}
 	}
-	
+
 	/**
 	 * Formats an entry.
 	 */
@@ -389,7 +389,7 @@ class SQLStatement extends \app\Instantiatable
 						break;
 
 					default:
-						throw new \app\Exception_NotApplicable
+						throw new \app\Exception
 							('Unknown post formatting operation.');
 				}
 			}
@@ -399,5 +399,5 @@ class SQLStatement extends \app\Instantiatable
 			}
 		}
 	}
-	
+
 } # class

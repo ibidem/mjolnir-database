@@ -10,20 +10,20 @@
 class Validator extends \app\Instantiatable
 {
 	/**
-	 * @var array 
+	 * @var array
 	 */
 	protected $fields;
-	
+
 	/**
 	 * @var array
 	 */
 	protected $errors;
-	
+
 	/**
-	 * @var array 
+	 * @var array
 	 */
 	protected $rules;
-	
+
 	/**
 	 * @var array
 	 */
@@ -38,21 +38,21 @@ class Validator extends \app\Instantiatable
 	 * @var string or null
 	 */
 	protected $rules_class = null;
-	
+
 	/**
-	 * @var array 
+	 * @var array
 	 */
 	protected $errors_cache = null;
-	
+
 	/**
-	 * Extras specifies a class which will be used to resolve colon rules. 
+	 * Extras specifies a class which will be used to resolve colon rules.
 	 * Typically this is the model class, so that :exists, etc can resolve to
 	 * exists of the model.
 	 */
 	function extras($rules_class)
 	{
 		$this->rules_class = $rules_class;
-		
+
 		return $this;
 	}
 
@@ -78,7 +78,7 @@ class Validator extends \app\Instantiatable
 	function not($args)
 	{
 		$args = \func_get_args();
-		
+
 		$this->not_rules[] = $args;
 
 		return $this;
@@ -96,17 +96,17 @@ class Validator extends \app\Instantiatable
 
 		return $this;
 	}
-	
+
 	/**
 	 * @param string config with errors (should contain "errors" on route)
 	 * @param array fields
-	 * @return \mjolnir\base\Validator 
+	 * @return \mjolnir\base\Validator
 	 */
 	static function instance(array $messages = null, array $fields = null)
 	{
 		$instance = parent::instance();
 		$instance->rules = array();
-		
+
 		if ($messages === null)
 		{
 			$instance->messages([]);
@@ -115,7 +115,7 @@ class Validator extends \app\Instantiatable
 		{
 			$instance->messages($messages);
 		}
-		
+
 		if ($fields === null)
 		{
 			$instance->fields(array());
@@ -124,10 +124,10 @@ class Validator extends \app\Instantiatable
 		{
 			$instance->fields($fields);
 		}
-		
+
 		return $instance;
 	}
-	
+
 	/**
 	 * @param array fields
 	 * @return \mjolnir\base\Validator $this
@@ -137,7 +137,7 @@ class Validator extends \app\Instantiatable
 		$this->fields = $fields;
 		return $this;
 	}
-	
+
 	/**
 	 * @param array errors
 	 * @return \mjolnir\base\Validator $this
@@ -147,7 +147,7 @@ class Validator extends \app\Instantiatable
 		$this->errors = $errors;
 		return $this;
 	}
-	
+
 	/**
 	 * @param array $args
 	 * @return \mjolnir\base\Validator $this
@@ -155,12 +155,12 @@ class Validator extends \app\Instantiatable
 	function rule($args)
 	{
 		$args = \func_get_args();
-		
+
 		$this->rules[] = $args;
 
 		return $this;
 	}
-	
+
 	/**
 	 * @return array|null array of errors on failure, null on success
 	 */
@@ -173,13 +173,13 @@ class Validator extends \app\Instantiatable
 			foreach ($this->rules as $args)
 			{
 				$field = \array_shift($args);
-				
+
 				if ( ! isset($this->fields[$field]))
 				{
 					throw new \app\Exception_NotAllowed
 						('Inconsistent fields passed to validation. Missing field: '.$field);
 				}
-				
+
 				$callback = \array_shift($args);
 				\array_unshift($args, $this->fields[$field]);
 
@@ -202,7 +202,7 @@ class Validator extends \app\Instantiatable
 				{
 					// gurantee error field exists as an array
 					isset($this->errors_cache[$field]) or $this->errors_cache[$field] = array();
-					
+
 					if ( ! isset($this->errors[$field][$callback]))
 					{
 						// try to use general ruleset
@@ -216,7 +216,7 @@ class Validator extends \app\Instantiatable
 						{
 							// generic rules won't work since everything will just look
 							// wrong if we print the same message two or three times as
-							// a consequence of the user getting several things wrong 
+							// a consequence of the user getting several things wrong
 							// for the same field
 							throw new \app\Exception_NotFound
 								("Missing error message for when [$field] fails [$callback].");
@@ -227,18 +227,18 @@ class Validator extends \app\Instantiatable
 						$this->errors_cache[$field][$callback] = $this->errors[$field][$callback];
 					}
 
-					
+
 					// add errors based on error field
 					//$this->errors_cache[$field][$callback] = $errors[$field][$callback];
 				}
 			}
-			
+
 			if ( ! empty($this->extra_errors))
 			{
 				foreach ($this->extra_errors as $errors)
 				{
 					list($field, $callback) = $errors;
-					
+
 					if ( ! isset($this->errors[$field][$callback]))
 					{
 						// try to use general ruleset
@@ -252,7 +252,7 @@ class Validator extends \app\Instantiatable
 						{
 							// generic rules won't work since everything will just look
 							// wrong if we print the same message two or three times as
-							// a consequence of the user getting several things wrong 
+							// a consequence of the user getting several things wrong
 							// for the same field
 							throw new \app\Exception_NotFound
 								("Missing error message for when [$field] fails [$callback].");
@@ -265,15 +265,15 @@ class Validator extends \app\Instantiatable
 				}
 			}
 		}
-		
+
 		// return null if no errors or array with error messages
 		return empty($this->errors_cache) ? null : $this->errors_cache;
 	}
-	
+
 	/**
 	 * This method is designed for unit testing.
-	 * 
-	 * @return array 
+	 *
+	 * @return array
 	 */
 	function all_errors()
 	{
@@ -320,7 +320,7 @@ class Validator extends \app\Instantiatable
 				{
 					// generic rules won't work since everything will just look
 					// wrong if we print the same message two or three times as
-					// a consequence of the user getting several things wrong 
+					// a consequence of the user getting several things wrong
 					// for the same field
 					throw new \app\Exception_NotFound
 						("Missing error message for when [$field] fails [$callback].");
@@ -334,18 +334,18 @@ class Validator extends \app\Instantiatable
 
 			// check if rule is callable
 			$class_method = \explode('::', $callback);
-			if (\count($class_method) == 1) 
+			if (\count($class_method) == 1)
 			{
 				\array_unshift($class_method, '\app\ValidatorRules');
 			}
-			
+
 			if ( ! \method_exists($class_method[0], $class_method[1]))
 			{
-				throw new \app\Exception_NotApplicable
+				throw new \app\Exception
 					('The method ['.$callback.'] is not defined.');
 			}
 		}
-		
+
 		return $errors;
 	}
 
