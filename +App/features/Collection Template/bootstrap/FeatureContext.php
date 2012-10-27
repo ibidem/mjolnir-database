@@ -16,25 +16,25 @@ class Model_Test
 	use \app\Trait_Model_Factory;
 	use \app\Trait_Model_Utilities;
 	use \app\Trait_Model_Collection;
-	
+
 	/**
 	 * @var string
 	 */
 	protected static $table = 'test_table';
-	
+
 	static function table()
 	{
 		// avoid prefixing
 		return static::$table;
 	}
-	
+
 }
 
 /**
  * Features context.
  */
 class FeatureContext extends BehatContext
-{	
+{
     /**
      * Initializes context.
      * Every scenario gets it's own context object.
@@ -49,33 +49,33 @@ class FeatureContext extends BehatContext
 			throw new \app\Exception('Caching is not enabled.');
 		}
     }
-	
+
 	/**
 	 * @BeforeFeature
 	 */
 	static function before()
 	{
-		\app\SQL::database('ibidem_testing');
-		
+		\app\SQL::database('mjolnir_testing');
+
 		\app\Schematic::destroy
 			(
 				Model_Test::table()
 			);
-		
+
 		\app\Stash::purge(['Test__change']);
-		
+
 		\app\Schematic::table
 			(
-				Model_Test::table(), 
+				Model_Test::table(),
 				'
 					`id`    :key_primary,
 					`title` :title,
-					
+
 					PRIMARY KEY(`id`)
 				'
 			);
 	}
-	
+
 	/**
 	 * @AfterFeature
 	 */
@@ -85,10 +85,10 @@ class FeatureContext extends BehatContext
 			(
 				Model_Test::table()
 			);
-		
+
 		\app\SQL::database('default');
 	}
-	
+
 	/**
 	 * @var \app\Table_Snatcher
 	 */
@@ -101,7 +101,7 @@ class FeatureContext extends BehatContext
     {
 		$ids = \explode(', ', $ids);
 		$titles = \explode(', ', $titles);
-		
+
 		\app\SQL::prepare
 			(
 				__METHOD__.':truncate',
@@ -110,9 +110,9 @@ class FeatureContext extends BehatContext
 				'
 			)
 			->execute();
-		
+
 		\app\SQL::begin();
-		
+
 		$inserter = \app\SQL::prepare
 			(
 				__METHOD__,
@@ -123,16 +123,16 @@ class FeatureContext extends BehatContext
 			)
 			->bind_int(':id', $id)
 			->bind(':title', $title);
-		
+
 		foreach ($ids as $idx => $id)
 		{
 			$title = $titles[$idx];
 			$inserter->execute();
 		}
-		
+
 		\app\SQL::commit();
     }
-	
+
 	    /**
      * @When /^I ask for the existence of "([^"]*)"$/
      */
@@ -198,13 +198,13 @@ class FeatureContext extends BehatContext
     {
 		$this->result = \app\Collection::implode
 			(
-				', ', 
-				$this->result, 
+				', ',
+				$this->result,
 				function ($k, $i) {
 					return $i['id'];
 				}
 			);
-			
+
 		\app\expects($entries)->equals($this->result);
     }
 
@@ -226,20 +226,20 @@ class FeatureContext extends BehatContext
 		foreach ($criterias as $criteria)
 		{
 			$constraint = \explode(' => ', $criteria);
-			
+
 			if ($constraint[1] === 'true')
 			{
 				$constraint[1] = true;
 			}
-			
+
 			if ($constraint[1] === 'false')
 			{
 				$constraint[1] = false;
 			}
-			
+
 			$constraints[$constraint[0]] = $constraint[1];
 		}
-		
+
 		$this->result = Model_Test::entries(null, null, 0, [], $constraints);
     }
 
@@ -253,24 +253,24 @@ class FeatureContext extends BehatContext
 		foreach ($criterias as $criteria)
 		{
 			$constraint = \explode(' => ', $criteria);
-			
+
 			if ($constraint[1] === 'true')
 			{
 				$constraint[1] = true;
 			}
-			
+
 			if ($constraint[1] === 'false')
 			{
 				$constraint[1] = false;
 			}
-			
+
 			$constraints[$constraint[0]] = $constraint[1];
 		}
-		
+
 		$this->result = Model_Test::entries($page, $limit, $offset, [], $constraints);
     }
 
-	
+
     /**
      * @When /^I sort the entries to "([^"]*)"$/
      */
@@ -283,7 +283,7 @@ class FeatureContext extends BehatContext
 			$sort_order = \explode(' => ', $criteria);
 			$order[$sort_order[0]] = $sort_order[1];
 		}
-		
+
 		$this->result = Model_Test::entries(null, null, 0, $order);
     }
 
@@ -302,5 +302,5 @@ class FeatureContext extends BehatContext
     {
         $this->result = Model_Test::delete([$id]);
     }
-	
+
 }
