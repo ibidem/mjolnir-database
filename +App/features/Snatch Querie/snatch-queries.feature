@@ -1,4 +1,4 @@
-@ibidem @caching @ancillary
+@mjolnir @caching @ancillary
 Feature: Simple easy-to-use selective queries
   In order for snatch queries to work.
   As a developer
