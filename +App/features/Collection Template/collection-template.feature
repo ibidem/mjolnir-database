@@ -1,4 +1,4 @@
-@ibidem @caching @ancillary
+@mjolnir @caching @ancillary
 Feature: Simple collection template
   In order for collection functions to work.
   As a developer
@@ -11,7 +11,7 @@ Feature: Simple collection template
 	When I ask for the existence of "<title>"
 	Then I should get back the boolean "<answer>"
 
-  Scenarios: 
+  Scenarios:
 	| title           | answer            |
 	| a               | true              |
 	| b               | true              |
@@ -22,7 +22,7 @@ Feature: Simple collection template
 	When I ask for the existence of "<id>", under the key "id"
 	Then I should get back the boolean "<answer>"
 
-  Scenarios: 
+  Scenarios:
 	| id              | answer            |
 	| 1               | true              |
 	| 2               | true              |
@@ -32,7 +32,7 @@ Feature: Simple collection template
   Scenario Outline: Retrieving an item.
 	When I ask for the entry "<id>"
 	Then I should get the value "<value>"
-	
+
   Scenarios:
 	| id              | value             |
 	| 1               | 1                 |
@@ -85,7 +85,7 @@ Feature: Simple collection template
 	| id => 2, title => a |         | 1    | 1     | 0      |
 	| id => 3, title => d |         | 1    | 1     | 0      |
 	| title => d          | 2       | 1    | 1     | 0      |
-	
+
   Scenario Outline: Sorting results
 	When I sort the entries to "<sorting>"
 	Then I should get the entries "<entries>"
@@ -99,7 +99,7 @@ Feature: Simple collection template
   Scenario: counting all entries
 	When I ask for the count
 	Then I should get the value "8"
-	
+
   Scenario: counting all entries after a delete
 	When I ask for the count
 	 And I delete the entry "2"
