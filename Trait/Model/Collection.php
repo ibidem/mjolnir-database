@@ -47,7 +47,7 @@ trait Trait_Model_Collection
 				->execute()
 				->fetch_array();
 
-			\app\Stash::set($cachekey, $entry, \app\Stash::tags(\get_called_class(), ['change']));
+			\app\Stash::store($cachekey, $entry, \app\Stash::tags(\get_called_class(), ['change']));
 		}
 
 		return $entry;
