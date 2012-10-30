@@ -80,7 +80,7 @@
 			(
 				'description' => array
 					(
-						'Reset database to a specified serial version. Destructive!!'
+						'Reset database to a specified serial version.'
 					),
 				'flags' => array
 					(
@@ -104,7 +104,7 @@
 			(
 				'description' => array
 					(
-						'Cleans up database and re-installs channels. Destructive!!'
+						'Cleans up database and re-installs channels.'
 					),
 				'flags' => array
 					(
@@ -189,4 +189,19 @@
 							)
 					),
 			),
+		'db:sphinx' => array
+			(
+				'description' => array
+					(
+						'Provides helpers for working with sphinx.'
+					),
+				'flags' => array
+					(
+						'regenerate' => array
+							(
+								'description' => 'Regenerate sphinx configuration file.',
+								'short' => 'r',
+							),
+					),
+			)
 	);
