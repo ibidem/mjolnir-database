@@ -1,11 +1,11 @@
-<?php namespace app;
+<?php require_once \app\CFS::dir('vendor/sphinx/').'sphinxapi'.EXT;
 
-$base_config = CFS::config('mjolnir/base');
-$offset = SQLDatabase::default_timezone_offset();
+$base_config = \app\CFS::config('mjolnir/base');
+$offset = \app\SQLDatabase::default_timezone_offset();
 
 return array
 	(
-		'timeout' => 2,
+		'timeout' => 1,
 	
 		'default.matchmode' => SPH_MATCH_ANY,
 	
@@ -33,6 +33,10 @@ return array
 				'default.path-prefix' => '@CONFDIR@/data/',
 				'default.docinfo' => 'extern',
 				'default.charset_type' => 'utf-8',
+				'default.min_word_len' => 2,
+				'default.min_prefix_len' => 0,
+				'default.min_infix_len' => 2,
+				'default.min_stemming_len' => 3,
 			),
 	
 		'indexer' => array
