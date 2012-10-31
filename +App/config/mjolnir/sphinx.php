@@ -4,7 +4,13 @@ $base_config = CFS::config('mjolnir/base');
 $offset = SQLDatabase::default_timezone_offset();
 
 return array
-	(	
+	(
+		'timeout' => 2,
+	
+		'default.matchmode' => SPH_MATCH_ANY,
+	
+		'default.sortmode' => SPH_SORT_RELEVANCE,
+	
 		'default.src.config' => array
 			(
 				'type'     => 'mysql',

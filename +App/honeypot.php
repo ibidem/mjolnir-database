@@ -10,6 +10,7 @@ class SQLDatabase extends \mjolnir\database\SQLDatabase { /** @return \mjolnir\d
 class SQLStatement extends \mjolnir\database\SQLStatement { /** @return \mjolnir\database\SQLStatement */ static function instance($statement = null) { return parent::instance($statement); } }
 class Schematic_Base extends \mjolnir\database\Schematic_Base { /** @return \mjolnir\database\Schematic_Base */ static function instance() { return parent::instance(); } }
 class Schematic extends \mjolnir\database\Schematic {}
+class Sphinx extends \mjolnir\database\Sphinx { /** @return \mjolnir\database\Sphinx */ static function instance() { return parent::instance(); } }
 class Table_Snatcher extends \mjolnir\database\Table_Snatcher { /** @return \mjolnir\database\Table_Snatcher */ static function instance() { return parent::instance(); } }
 class Task_Db_Backup extends \mjolnir\database\Task_Db_Backup { /** @return \mjolnir\database\Task_Db_Backup */ static function instance() { return parent::instance(); } }
 class Task_Db_Init extends \mjolnir\database\Task_Db_Init { /** @return \mjolnir\database\Task_Db_Init */ static function instance($encoded_task = null) { return parent::instance($encoded_task); } }

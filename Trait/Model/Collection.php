@@ -23,6 +23,37 @@ trait Trait_Model_Collection
 			->id(__FUNCTION__)
 			->fetch_all(static::field_format());
 	}
+	
+	/**
+	 * Given a list of ids, this function will return an equivalent result to
+	 * entries for those ids. The unique_key is assumed numeric and as a 
+	 * consequence this function will treat it as such.
+	 * 
+	 * For different behaviour re-implement this function in your class.
+	 * 
+	 * @return array of arrays
+	 */
+	static function select_entries(array $entries)
+	{
+		if (empty($entries))
+		{
+			return [];
+		}
+		
+		$cache_key = __FUNCTION__.'__entries'.\implode(',', $entries);
+		
+		return static::stash
+			(
+				__METHOD__,
+				'
+					SELECT *
+					  FROM :table
+					 WHERE `'.static::unique_key().'` IN ('.\implode(', ', $entries).')
+				'
+			)
+			->key($cache_key)
+			->fetch_all();
+	}
 
 	/**
 	 * @return array

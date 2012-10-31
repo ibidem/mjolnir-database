@@ -107,20 +107,21 @@ trait Trait_Model_MjolnirSphinx
 	/**
 	 * @return array entries
 	 */
-	static function sph_entries($search, $page, $limit, $offset = 0, $order = [])
+	static function sph_entries($search, $page, $limit, $offset = 0)
 	{
-		$config = \app\CFS::config('mjolnir/sphinx');
+		$search = \trim($search);
+		if (empty($search))
+		{
+			return [];
+		}
 		
 		try
 		{
-			$sphinx = new \SphinxClient();
-			$sphinx->SetServer($config['searchd']['host'], $config['searchd']['listen']['api']);
-			$sphinx->SetLimits($offset + ($page - 1) * $limit, $limit);
-			$sphinx->SetMatchMode(SPH_MATCH_ANY);
-			$sphinx->SetSelect('*');
-			$sphinx->SetSortMode(SPH_SORT_RELEVANCE);
-
-			$result = $sphinx->Query($search, static::sph_name());
+			$sphinx = \app\Sphinx::instance();
+			
+			$ids = $sphinx->fetch_ids($search, static::sph_name());
+			
+			return static::select_entries($ids);
 		}
 		catch (\Exception $exception)
 		{
@@ -128,16 +129,6 @@ trait Trait_Model_MjolnirSphinx
 			
 			// potential failed connection
 			return [];
-		}
-		
-		if (empty($result['error']))
-		{
-			\var_dump($result['matches']); die;
-			return empty($result['matches']) ? [] : $result['matches'];	
-		}
-		else # got error
-		{
-			throw new \Exception('Sphinx: '.$result['error']);
 		}
 	}
 	
