@@ -1,5 +1,27 @@
-<?php return array
-	(
+<?php namespace app;
+
+$base_config = CFS::config('mjolnir/base');
+$offset = SQLDatabase::default_timezone_offset();
+
+return array
+	(	
+		'default.src.config' => array
+			(
+				'type'     => 'mysql',
+				'sql_host' => 'localhost',
+				'sql_user' => null,
+				'sql_pass' => null,
+				'sql_db'   => null,
+				'sql_port' => 3306, # optional, default is 3306
+			
+				'sql_query_pre' => array
+					(
+						"SET CHARACTER SET '{$base_config['charset']}';",
+						"SET NAMES '{$base_config['charset']}';",
+						"SET time_zone='$offset';"
+					),
+			),
+	
 		'index' => array
 			(
 				'default.path-prefix' => '@CONFDIR@/data/',
@@ -14,6 +36,8 @@
 	
 		'searchd' => array
 			(
+				'host' => 'localhost',
+			
 				'listen' => array
 					(
 						'api' => '9312', 
@@ -31,15 +55,5 @@
 				'unlink_old' => 1,
 				'workers' => 'threads # for RT to work',
 				'binlog_path' => '@CONFDIR@/data',
-			),
-	
-		'default.src.config' => array
-			(
-				'type'     => 'mysql',
-				'sql_host' => 'localhost',
-				'sql_user' => null,
-				'sql_pass' => null,
-				'sql_db'   => null,
-				'sql_port' => 3306, # optional, default is 3306
-			),
+			),	
 	);

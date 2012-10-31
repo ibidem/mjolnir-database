@@ -46,6 +46,21 @@ class SQLDatabase extends \app\Instantiatable
 	protected $setup = null;
 	
 	/**
+	 * @return string
+	 */
+	static function default_timezone_offset()
+	{
+		$now = new \DateTime();  
+		$mins = $now->getOffset() / 60;  
+		$sgn = ($mins < 0 ? -1 : 1);  
+		$mins = \abs($mins);  
+		$hrs = \floor($mins / 60);
+		$mins -= $hrs * 60;
+		
+		return \sprintf('%+d:%02d', $hrs*$sgn, $mins);
+	}
+	
+	/**
 	 * @return \app\SQL
 	 */
 	static function instance($database = 'default')
@@ -90,13 +105,7 @@ class SQLDatabase extends \app\Instantiatable
 						$instance->dbh->exec("SET CHARACTER SET '{$base_config['charset']}'");
 						$instance->dbh->exec("SET NAMES '{$base_config['charset']}'");
 						// set timezone
-						$now = new \DateTime();  
-						$mins = $now->getOffset() / 60;  
-						$sgn = ($mins < 0 ? -1 : 1);  
-						$mins = \abs($mins);  
-						$hrs = \floor($mins / 60);
-						$mins -= $hrs * 60;
-						$offset = \sprintf('%+d:%02d', $hrs*$sgn, $mins);
+						$offset = static::default_timezone_offset();
 						$instance->dbh->exec("SET time_zone='$offset';");
 					}
 					catch (\PDOException $e)

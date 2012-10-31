@@ -1,5 +1,7 @@
 <?php namespace mjolnir\database;
 
+require_once \app\CFS::dir('vendor/sphinx').'sphinxapi'.EXT;
+
 /**
  * @package    mjolnir
  * @category   Library
@@ -36,10 +38,20 @@ trait Trait_Model_MjolnirSphinx
 		
 		foreach ($config as $key => $value)
 		{
-			$sph_source .= "\t".\sprintf('%-10s', $key)." = $value\n";
+			if (\is_array($value))
+			{
+				foreach ($value as $subvalue)
+				{
+					$sph_source .= "\t".\sprintf('%-13s', $key)." = {$subvalue}\n";
+				}	
+			}
+			else # non array
+			{
+				$sph_source .= "\t".\sprintf('%-13s', $key)." = $value\n";
+			}
 		}
 		
-		$sph_source
+		$sph_source 
 			.= "\n"
 			. "\tsql_query = \\\n"
 			. "\t\tSELECT "
@@ -95,19 +107,38 @@ trait Trait_Model_MjolnirSphinx
 	/**
 	 * @return array entries
 	 */
-	static function sph_entries($search, $page, $limit, $offset = 0, $order = [], $constraints = [])
+	static function sph_entries($search, $page, $limit, $offset = 0, $order = [])
 	{
-		return static::statement
-			(
-				__METHOD__,
-				'
-					SELECT *
-					  FROM `'.static::sph_name().'`
-				     WHERE MATCH(:search)
-				'
-			)
-			->set(':search', $search)
-			->fetch_all();
+		$config = \app\CFS::config('mjolnir/sphinx');
+		
+		try
+		{
+			$sphinx = new \SphinxClient();
+			$sphinx->SetServer($config['searchd']['host'], $config['searchd']['listen']['api']);
+			$sphinx->SetLimits($offset + ($page - 1) * $limit, $limit);
+			$sphinx->SetMatchMode(SPH_MATCH_ANY);
+			$sphinx->SetSelect('*');
+			$sphinx->SetSortMode(SPH_SORT_RELEVANCE);
+
+			$result = $sphinx->Query($search, static::sph_name());
+		}
+		catch (\Exception $exception)
+		{
+			\mjolnir\log_exception($exception);
+			
+			// potential failed connection
+			return [];
+		}
+		
+		if (empty($result['error']))
+		{
+			\var_dump($result['matches']); die;
+			return empty($result['matches']) ? [] : $result['matches'];	
+		}
+		else # got error
+		{
+			throw new \Exception('Sphinx: '.$result['error']);
+		}
 	}
 	
 } # trait
