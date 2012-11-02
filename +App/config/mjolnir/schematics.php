@@ -1,5 +1,10 @@
 <?php return array
 	(
+		'steps' => array
+			(
+				'mjolnir:registry' => [ 'serial' => '1:0-default' ],
+			),
+	
 		'dependencies' => array
 			(
 				// empty
