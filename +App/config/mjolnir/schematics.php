@@ -63,10 +63,5 @@
 				':engine' => 'InnoDB',
 				':default_charset' => 'utf8',
 			),
-
-		'steps' => array
-			(
-				// empty
-			),
-
+	
 	);
