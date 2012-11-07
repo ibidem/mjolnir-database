@@ -13,7 +13,7 @@ class Task_Db_Sphinx extends \app\Task
 	 * Execute task.
 	 */
 	function execute()
-	{		
+	{	
 		if ($this->config['regenerate'])
 		{
 			$this->regenerate();

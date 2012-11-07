@@ -37,6 +37,15 @@ class Sphinx extends \app\Instantiatable
 	/**
 	 * @return \app\Sphinx $this
 	 */
+	function filter($attribute, $values, $exclude = false)
+	{
+		$this->sphinx->SetFilter($attribute, $values, $exclude);
+		return $this;
+	}
+	
+	/**
+	 * @return \app\Sphinx $this
+	 */
 	function matchmode($matchmode)
 	{
 		$this->sphinx->SetMatchMode($matchmode);

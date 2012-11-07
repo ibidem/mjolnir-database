@@ -98,7 +98,22 @@ trait Trait_Model_MjolnirSphinx
 		$sph_source
 			.= $source_fields." \\\n"
 			. "\t\tFROM `".static::table()."`\n\n"
-			. "\tsql_query_info = SELECT * FROM `".static::table()."` WHERE `".static::unique_key()."` = \$".static::unique_key()."\n"
+			;
+		
+		// attributes
+		if (isset(static::$sph_attributes) && static::$sph_attributes !== null)
+		{
+			foreach (static::$sph_attributes as $attr => $type)
+			{
+				$sph_source
+					.= 'sql_attr_'.$type.' = '.$attr."\n"
+					;
+			}
+		}
+		
+		$sph_source
+			.= "\tsql_query_info = SELECT * FROM `".static::table()
+			. "` WHERE `".static::unique_key()."` = \$".static::unique_key()."\n"
 			;	
 		
 		return $sph_source;
@@ -107,7 +122,7 @@ trait Trait_Model_MjolnirSphinx
 	/**
 	 * @return array entries
 	 */
-	static function sph_entries($search, $page, $limit, $offset = 0)
+	static function sph_entries($search, $page, $limit, $offset = 0, array $attributes = null)
 	{
 		$search = \trim($search);
 		if (empty($search))
@@ -117,7 +132,17 @@ trait Trait_Model_MjolnirSphinx
 		
 		try
 		{
-			$sphinx = \app\Sphinx::instance();
+			$sphinx = \app\Sphinx::instance()
+				->page($page, $limit, $offset);
+			
+			// process attributes
+			if ($attributes !== null)
+			{
+				foreach ($attributes as $attr => $attr_value)
+				{
+					$sphinx->set_filter($attr, $attr_value);
+				}
+			}
 			
 			$ids = $sphinx->fetch_ids($search, static::sph_name());
 			
