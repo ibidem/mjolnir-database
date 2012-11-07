@@ -179,7 +179,7 @@ trait Trait_Model_MjolnirSphinx
 	/**
 	 * @return array entries
 	 */
-	static function sph_entries($search, $page, $limit, $offset = 0, array $attributes = null)
+	static function sph_entries($search, $page, $limit, $offset = 0, array $order = null, array $attributes = null)
 	{
 		$search = \trim($search);
 		if (empty($search))
