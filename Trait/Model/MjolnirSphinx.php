@@ -197,7 +197,7 @@ trait Trait_Model_MjolnirSphinx
 			{
 				foreach ($attributes as $attr => $attr_value)
 				{
-					$sphinx->set_filter($attr, $attr_value);
+					$sphinx->filter($attr, $attr_value);
 				}
 			}
 			
