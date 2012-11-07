@@ -51,29 +51,51 @@ class Task_Db_Sphinx extends \app\Task
 			
 			// does the class support sphinx?
 			if (\method_exists($class, 'sph_source') && $class::sph_source() !== null)
-			{				
+			{
 				$sph_name = $class::sph_name(); # for sql models, it's table()
+			
+				$is_rtindex = $class::sph_is_rtindex();
+				if ( ! $is_rtindex)
+				{
+					$source 
+						= 'source '.$sph_name."\n{\n"
+						. $class::sph_source()
+						. "}\n\n"
+						;
+
+					$sph_conf .= $source;
+				}
 				
-				$source 
-					= 'source '.$sph_name."\n{\n"
-					. $class::sph_source()
-					. "}\n\n"
-					;
+				$sph_name = ($is_rtindex ? 'rt_' : '').$sph_name;
 				
-				$index 
-					= 'index '.$sph_name."\n{\n"
-					. "\tsource           = ".$sph_name."\n"
-					. "\tpath             = ".$config['index']['default.path-prefix'].$sph_name."\n"
+				$index = 'index '.$sph_name."\n{\n";
+				
+				if ( ! $is_rtindex)
+				{
+					$index .= "\tsource           = ".$sph_name."\n";
+				}
+				else # rt index
+				{
+					$index .= "\ttype             = rt\n";
+				}
+				
+				$index
+					.= "\tpath             = ".$config['index']['default.path-prefix'].$sph_name."\n"
 					. "\tdocinfo          = ".$config['index']['default.docinfo']."\n"
 					. "\tcharset_type     = ".$config['index']['default.charset_type']."\n"
 					. "\tmin_word_len     = ".$config['index']['default.min_word_len']."\n"
 					. "\tmin_prefix_len   = ".$config['index']['default.min_prefix_len']."\n"
 					. "\tmin_infix_len    = ".$config['index']['default.min_infix_len']."\n"
 					. "\tmin_stemming_len = ".$config['index']['default.min_stemming_len']."\n"
-					. "}\n\n"
 					;
 				
-				$sph_conf .= $source;
+				if ($is_rtindex)
+				{
+					$index .= "\n".$class::sph_rtindex();
+				}
+				
+				$index .= "}\n\n";
+				
 				$sph_conf .= $index;
 			}
 		}

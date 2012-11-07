@@ -28,7 +28,22 @@ trait Trait_Model_MjolnirSphinx
 	}
 	
 	/**
-	 * @return string source for the given table
+	 * @return boolean
+	 */
+	static function sph_is_rtindex()
+	{
+		if (isset(static::$sph_rt_index))
+		{
+			return static::$sph_rt_index;
+		}
+		else # default to false
+		{
+			return false;
+		}
+	}
+	
+	/**
+	 * @return string source
 	 */
 	static function sph_source()
 	{
@@ -106,9 +121,10 @@ trait Trait_Model_MjolnirSphinx
 			foreach (static::$sph_attributes as $attr => $type)
 			{
 				$sph_source
-					.= 'sql_attr_'.$type.' = '.$attr."\n"
+					.= "\tsql_attr_{$type} = {$attr}\n"
 					;
 			}
+			$sph_source .= "\n";
 		}
 		
 		$sph_source
@@ -117,6 +133,47 @@ trait Trait_Model_MjolnirSphinx
 			;	
 		
 		return $sph_source;
+	}
+	
+	/**
+	 * @return string index rt_ field configuration
+	 */
+	static function sph_rtindex()
+	{
+		$sph_index = '';
+		
+		$fieldlist = static::fieldlist();
+		
+		if ( ! isset($fieldlist['string']))
+		{
+			$string_fields = [];
+		}
+		else # string fields set
+		{
+			$string_fields = $fieldlist['string'];
+		}
+		
+		foreach (static::$sph_fields as $field => $value)
+		{
+			if (\in_array($field, $string_fields))
+			{
+				$sph_index .= "\trt_field = $field\n";
+			}
+		}
+		
+		// attributes
+		if (isset(static::$sph_attributes) && static::$sph_attributes !== null)
+		{
+			foreach (static::$sph_attributes as $attr => $type)
+			{
+				$sph_index
+					.= "\trt_attr_{$type} = {$attr}\n"
+					;
+			}
+			$sph_index .= "\n";
+		}
+		
+		return $sph_index;
 	}
 
 	/**
