@@ -37,6 +37,7 @@ return array
 				'default.min_prefix_len' => 0,
 				'default.min_infix_len' => 2,
 				'default.min_stemming_len' => 3,
+				'default.index_exact_words' => 0,
 			),
 	
 		'indexer' => array

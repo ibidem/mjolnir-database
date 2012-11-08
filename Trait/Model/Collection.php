@@ -52,7 +52,7 @@ trait Trait_Model_Collection
 				'
 			)
 			->key($cache_key)
-			->fetch_all();
+			->fetch_all(static::field_format());
 	}
 
 	/**

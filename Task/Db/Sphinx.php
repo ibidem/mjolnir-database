@@ -80,13 +80,14 @@ class Task_Db_Sphinx extends \app\Task
 				}
 				
 				$index
-					.= "\tpath             = ".$config['index']['default.path-prefix'].$sph_name."\n"
-					. "\tdocinfo          = ".$config['index']['default.docinfo']."\n"
-					. "\tcharset_type     = ".$config['index']['default.charset_type']."\n"
-					. "\tmin_word_len     = ".$config['index']['default.min_word_len']."\n"
-					. "\tmin_prefix_len   = ".$config['index']['default.min_prefix_len']."\n"
-					. "\tmin_infix_len    = ".$config['index']['default.min_infix_len']."\n"
-					. "\tmin_stemming_len = ".$config['index']['default.min_stemming_len']."\n"
+					.= "\tpath              = {$config['index']['default.path-prefix']}{$sph_name}\n"
+					. "\tdocinfo           = {$config['index']['default.docinfo']}\n"
+					. "\tcharset_type      = {$config['index']['default.charset_type']}\n"
+					. "\tmin_word_len      = {$config['index']['default.min_word_len']}\n"
+					. "\tmin_prefix_len    = {$config['index']['default.min_prefix_len']}\n"
+					. "\tmin_infix_len     = {$config['index']['default.min_infix_len']}\n"
+					. "\tmin_stemming_len  = {$config['index']['default.min_stemming_len']}\n"
+					. "\tindex_exact_words = {$config['index']['default.index_exact_words']}\n"
 					;
 				
 				if ($is_rtindex)
