@@ -53,6 +53,10 @@
 				# advised since a lot of the time the systems in question need to allow
 				# foreigners to register as well, and the ssn format is inconsistent
 				':ssn' => 'varchar(20)',
+			
+				# general purpose ID field; the field is not numeric because IDs
+				# in the real world tend to be things like 999-9999-99 etc.
+				':identifier' => 'varchar(100) DEFAULT \'\'',
 
 				# zipcodes usually go for around 4 to 9
 				# 16 used for safety (assuming misc characters)
