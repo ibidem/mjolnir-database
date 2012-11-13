@@ -76,7 +76,7 @@ trait Trait_Model_Collection
 				)
 				->set_int(':id', $id)
 				->execute()
-				->fetch_array();
+				->fetch_array(static::field_format());
 
 			\app\Stash::store($cachekey, $entry, \app\Stash::tags(\get_called_class(), ['change']));
 		}
