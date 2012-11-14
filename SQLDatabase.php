@@ -78,7 +78,7 @@ class SQLDatabase extends \app\Instantiatable
 						$pdo = $pdo['databases'][$database];
 						if (empty($pdo))
 						{
-							$exception = new \app\Exception_NotFound
+							$exception = new \app\Exception
 								('Missing database configuration.');
 
 							throw $exception->set_title('Database Error');
@@ -182,7 +182,7 @@ class SQLDatabase extends \app\Instantiatable
 			$file = \mjolnir\cfs\CFSCompatible::CNFDIR
 				. '/sql/'.$this->dialect_target.'/'.$file;
 			
-			throw new \app\Exception_NotFound
+			throw new \app\Exception
 				(
 					'Missing key ['.$key.'] in ['.$file.'].', # message
 					'Database Translation Error' # title

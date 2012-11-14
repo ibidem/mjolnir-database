@@ -218,7 +218,7 @@ class Validator extends \app\Instantiatable
 							// wrong if we print the same message two or three times as
 							// a consequence of the user getting several things wrong
 							// for the same field
-							throw new \app\Exception_NotFound
+							throw new \app\Exception
 								("Missing error message for when [$field] fails [$callback].");
 						}
 					}
@@ -254,7 +254,7 @@ class Validator extends \app\Instantiatable
 							// wrong if we print the same message two or three times as
 							// a consequence of the user getting several things wrong
 							// for the same field
-							throw new \app\Exception_NotFound
+							throw new \app\Exception
 								("Missing error message for when [$field] fails [$callback].");
 						}
 					}
@@ -322,7 +322,7 @@ class Validator extends \app\Instantiatable
 					// wrong if we print the same message two or three times as
 					// a consequence of the user getting several things wrong
 					// for the same field
-					throw new \app\Exception_NotFound
+					throw new \app\Exception
 						("Missing error message for when [$field] fails [$callback].");
 				}
 			}
