@@ -218,7 +218,7 @@ class SQLDatabase extends \app\Instantiatable
 		else # translation not required
 		{
 			$prepared_statement = $this->dbh->prepare($statement.' -- '.$key);
-			return \app\SQLStatement::instance($prepared_statement);
+			return \app\SQLStatement::instance($prepared_statement, $statement.' -- '.$key);
 		}
 	}
 	

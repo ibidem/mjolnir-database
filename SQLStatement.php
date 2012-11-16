@@ -14,13 +14,18 @@ class SQLStatement extends \app\Instantiatable
 	 * @var \PDOStatement
 	 */
 	protected $statement;
+	
+	/**
+	 * @var string
+	 */
+	protected $query;
 
 	/**
 	 * @param \PDOStatement statement
 	 * @return \app\SQLStatement
 	 * @throws \app\Exception_NotApplicable
 	 */
-	static function instance(\PDOStatement $statement = null)
+	static function instance(\PDOStatement $statement = null, $query = null)
 	{
 		if ($statement === null)
 		{
@@ -28,7 +33,7 @@ class SQLStatement extends \app\Instantiatable
 		}
 
 		$instance = parent::instance();
-		$instance->statement($statement);
+		$instance->statement($statement, $query);
 		return $instance;
 	}
 
@@ -36,9 +41,11 @@ class SQLStatement extends \app\Instantiatable
 	 * @param \PDOStatement statement
 	 * @return \mjolnir\base\SQLStatement $this
 	 */
-	function statement(\PDOStatement $statement)
+	function statement(\PDOStatement $statement, $query = null)
 	{
 		$this->statement = $statement;
+		$this->query = $query;
+		
 		return $this;
 	}
 
@@ -294,7 +301,20 @@ class SQLStatement extends \app\Instantiatable
 	 */
 	function execute()
 	{
-		$this->statement->execute();
+		try
+		{
+			$this->statement->execute();
+		}
+		catch (\Exception $exception)
+		{
+			$message = $exception->getMessage();
+			$message .= "\n\n".\app\Text::baseindent($this->query, "\t\t")."\n";
+			
+			\mjolnir\masterlog('Database', $message, 'Database/');
+			
+			throw $exception;
+		}
+		
 		return $this;
 	}
 
