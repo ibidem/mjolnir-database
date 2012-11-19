@@ -85,4 +85,20 @@ class SQL
 		return \app\SQLDatabase::instance(static::$database)->rollback();
 	}
 	
+	// Extended
+	
+	/**
+	 * Test for expression - starts and ends with ().
+	 * 
+	 * @return boolean
+	 */
+	static function is_expression($str)
+	{
+		if($str[0] == '(' && $str[strlen($str) - 1] == ')') {
+		    return true;
+		};
+		
+		return false;
+	}
+	
 } # class
