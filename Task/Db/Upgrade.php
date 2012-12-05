@@ -44,7 +44,15 @@ class Task_Db_Upgrade extends \app\Task_Db_Reset
 		
 		static::write_trail($this->writer, $channel, $trail);
 		
-		$this->process_trail($channel, $trail);
+		$bindings = array();
+		$this->process_trail($channel, $trail, $bindings);
+		
+		$this->writer->header(' Binding');
+
+		foreach ($bindings as $binding)
+		{
+			$binding();
+		}
 	}
 
 } # class
