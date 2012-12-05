@@ -194,6 +194,20 @@ trait Trait_Model_Collection
 	{
 		\app\Stash::delete(\get_called_class().'_ID'.$id);
 	}
+	
+	/**
+	 * Wipes cash for specified tags
+	 */
+	static function clear_cache($tags = ['change'])
+	{
+		\app\Stash::purge(\app\Stash::tags(\get_called_class(), $tags));
+		
+		// reset related caches
+		foreach (static::related_caches() as $related_cache)
+		{
+			\app\Stash::purge(\app\Stash::tags($related_cache[0], $related_cache[1]));
+		}
+	}
 
 	/**
 	 * @return string
