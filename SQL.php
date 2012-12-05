@@ -94,7 +94,8 @@ class SQL
 	 */
 	static function is_expression($str)
 	{
-		if($str[0] == '(' && $str[strlen($str) - 1] == ')') {
+		if($str[0] == '(' && $str[strlen($str) - 1] == ')')
+		{
 		    return true;
 		};
 		
