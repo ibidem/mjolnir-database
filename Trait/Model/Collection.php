@@ -357,4 +357,21 @@ trait Trait_Model_Collection
 		return ! static::exists($value, $key, $context);
 	}
 
+	/**
+	 * Remove all entries from the table.
+	 */
+	static function truncate()
+	{
+		static::statement
+			(
+				__METHOD__,
+				'
+					TRUNCATE TABLE `'.static::table().'`;
+				'
+			)
+			->execute();
+		
+		static::clear_cache();
+	}
+	
 } # trait
