@@ -236,7 +236,7 @@ trait Trait_Model_Collection
 				__METHOD__,
 				'
 					DELETE FROM :table
-					 WHERE '.static::unique_key().' = :id
+					 WHERE `'.static::unique_key().'` = :id
 				'
 			)
 			->bind_int(':id', $entry);
