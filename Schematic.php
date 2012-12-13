@@ -55,25 +55,44 @@ class Schematic
 
 	static function table($table, $schematic)
 	{
-		$schematics_config = \app\CFS::config('mjolnir/schematics');
-		\app\SQL::prepare
-			(
-				__METHOD__,
-				\strtr
+		try
+		{
+			$schematics_config = \app\CFS::config('mjolnir/schematics');
+			\app\SQL::prepare
+				(
+					__METHOD__,
+					\strtr
+						(
+							'
+								CREATE TABLE IF NOT EXISTS `'.$table.'`
+									(
+										'.$schematic.'
+									)
+								ENGINE=:engine
+								DEFAULT CHARSET=:default_charset
+							',
+							$schematics_config['definitions']
+						),
+					'mysql'
+				)
+				->execute();
+		}
+		catch (\Exception $e)
+		{
+			if (\php_sapi_name() === 'cli')
+			{
+				echo PHP_EOL.PHP_EOL.' Schematic: '.PHP_EOL;
+				echo \strtr
 					(
-						'
-							CREATE TABLE IF NOT EXISTS `'.$table.'`
-								(
-									'.$schematic.'
-								)
-							ENGINE=:engine
-							DEFAULT CHARSET=:default_charset
-						',
+						\app\Text::baseindent($schematic),
 						$schematics_config['definitions']
-					),
-				'mysql'
-			)
-			->execute();
+					);
+				
+				echo PHP_EOL.PHP_EOL;
+			}
+			
+			throw $e;
+		}
 	}
 
 	static function alter($table, $updates)
