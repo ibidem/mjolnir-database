@@ -362,14 +362,29 @@ trait Trait_Model_Collection
 	 */
 	static function truncate()
 	{
-		static::statement
+		// we could do a truncate, but truncate won't resolve any extra logic 
+		// that might be required when deleting entries, so it's safer to 
+		// grab all the IDs and do a delete. Also if any constraints are set,
+		// which (when constraits are used) is the case 90% of the time, 
+		// truncate will simply not work
+		
+		static::delete
 			(
-				__METHOD__,
-				'
-					TRUNCATE TABLE `'.static::table().'`;
-				'
-			)
-			->execute();
+				\app\Arr::gather
+					(
+						static::statement
+							(
+								__METHOD__,
+								'
+									SELECT `'.static::unique_key().'`
+									  FROM :table
+								'
+							)
+							->execute()
+							->fetch_all(),
+						static::unique_key()
+					)
+			);
 		
 		static::clear_cache();
 	}
