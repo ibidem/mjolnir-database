@@ -35,7 +35,16 @@ class Task_Db_Install extends \app\Task_Db_Reset
 
 		if ($channel !== false)
 		{
-			$this->process($channel);
+			$bindings = [];
+			$this->process($channel, $bindings);
+			
+			$this->writer->eol();
+			$this->writer->header(' Binding');
+
+			foreach ($bindings as $binding)
+			{
+				$binding();
+			}
 		}
 		else # process channels
 		{
