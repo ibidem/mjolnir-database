@@ -134,7 +134,7 @@ class Task_Db_Sphinx extends \app\Task
 		$sph_conf .= $searchd;
 		
 		$sph_configuration_file = DRAFTPATH.'sphinx/sphinx.conf.mj';
-		\app\File::puts($sph_configuration_file, $sph_conf);
+		\app\Filesystem::puts($sph_configuration_file, $sph_conf);
 		
 		$this->writer->write(' Created Sphinx configuration: '.$sph_configuration_file);
 	}
