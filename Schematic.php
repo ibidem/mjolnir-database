@@ -131,7 +131,7 @@ class Schematic
 						ADD CONSTRAINT `".$table."_mjolnirfk_".$idx."`
 						   FOREIGN KEY (`".$key."`)
 							REFERENCES `".$constraint[0]."` (`id`)
-							 ON DELETE ".$constraint[1]."
+							 ON DELETE ".$constraint[1]."	
 							 ON UPDATE ".$constraint[2]."
 					";
 
@@ -145,7 +145,21 @@ class Schematic
 				}
 			}
 
-			\app\SQL::prepare(__METHOD__, $query, 'mysql')->execute();
+			try
+			{
+				\app\SQL::prepare(__METHOD__, $query, 'mysql')->execute();
+			}
+			catch (\Exception $e)
+			{
+				if (\php_sapi_name() === 'cli')
+			{
+				echo PHP_EOL.PHP_EOL.' Query: '.PHP_EOL;
+				echo \app\Text::baseindent($query);
+				echo PHP_EOL.PHP_EOL;
+			}
+				
+				throw $e;
+			}
 		}
 	}
 
