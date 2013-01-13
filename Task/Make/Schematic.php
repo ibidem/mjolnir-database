@@ -12,13 +12,13 @@ class Task_Make_Schematic extends \app\Instantiatable implements \mjolnir\types\
 	use \app\Trait_Task;
 
 	/**
-	 * Execute task.
+	 * ...
 	 */
 	function run()
 	{
-		$namespace = $this->config['namespace'];
-		$nominator = $this->config['schematic'];
-		$forced = $this->config['forced'];
+		$namespace = $this->get('namespace', false);
+		$nominator = $this->get('schematic', false);
+		$forced = $this->get('forced', false);
 
 		$class_definition = \app\Schematic::parse_class($nominator);
 		$class_definition = '\\'.\trim($namespace, '\\').'\\'.\preg_replace('#^.*\\\#', '', $class_definition);

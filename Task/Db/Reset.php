@@ -16,6 +16,8 @@ class Task_Db_Reset extends \app\Instantiatable implements \mjolnir\types\Task
 	 */
 	function run()
 	{
+		\app\Task::consolewriter($this->writer);
+
 		$channel = $this->get('channel', false);
 		$serial = $this->get('serial', false);
 
