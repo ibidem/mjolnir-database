@@ -2,35 +2,42 @@
 
 /**
  * @package    mjolnir
- * @category   Task
+ * @category   Database
  * @author     Ibidem
  * @copyright  (c) 2012, Ibidem Team
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
  */
-class Task_Db_Install extends \app\Task_Db_Reset
+class Task_Db_Install extends \app\Instantiatable implements \mjolnir\types\Task
 {
+	use \app\Trait_Task;
+
 	/**
 	 * Execute task.
 	 */
 	function execute()
 	{
-		$channel = $this->config['channel'];
+		\app\Task::consolewriter($this->writer);
+
+		$channel = $this->get('channel');
 
 		if ($channel === false)
 		{
 			// uninstall everything
-			\app\Task_Db_Init::instance()->config(['uninstall' => true])
-				->writer($this->writer)
-				->execute();
+			\app\Task::invoke('db:init')
+				->set('uninstall', true)
+				->writer_is($this->writer)
+				->run();
 
 			// initialize everything back
-			\app\Task_Db_Init::instance()->config(['uninstall' => false])
-				->writer($this->writer)
+			\app\Task::invoke('db:init')
+				->set('uninstall', false)
+				->writer_is($this->writer)
 				->execute();
 		}
 
-		\app\Task_Db_Uninstall::instance()->config(['channel' => $channel])
-			->writer($this->writer)
+		\app\Task::invoke('db:uninstall')
+			->set('channel', $channel)
+			->writer_is($this->writer)
 			->execute();
 
 		if ($channel !== false)
@@ -50,7 +57,7 @@ class Task_Db_Install extends \app\Task_Db_Reset
 				$this->writer->eol();
 			}
 
-			$this->writer->header(' Binding');
+			$this->writer->printf('title', 'Binding');
 
 			foreach ($bindings as $binding)
 			{
@@ -81,8 +88,6 @@ class Task_Db_Install extends \app\Task_Db_Reset
 			};
 
 		$this->process_trail($channel, $trail, $bindings);
-
-
 	}
 
 } # class

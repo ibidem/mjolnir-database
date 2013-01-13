@@ -2,20 +2,22 @@
 
 /**
  * @package    mjolnir
- * @category   Task
+ * @category   Database
  * @author     Ibidem
  * @copyright  (c) 2012, Ibidem Team
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
  */
-class Task_Db_Jump extends \app\Task
+class Task_Db_Jump extends \app\Instantiatable implements \mjolnir\types\Task
 {
+	use \app\Trait_Task;
+
 	/**
 	 * Execute task.
 	 */
-	function execute()
+	function run()
 	{
 		// todo implement jumps
-		throw new \app\Exception_NotApplicable('Not implemented.');
+		throw new \Exception('Not Implemented.');
 	}
 
 } # class

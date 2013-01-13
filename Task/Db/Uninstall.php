@@ -2,22 +2,24 @@
 
 /**
  * @package    mjolnir
- * @category   Task
+ * @category   Database
  * @author     Ibidem
  * @copyright  (c) 2012, Ibidem Team
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
  */
-class Task_Db_Uninstall extends \app\Task
+class Task_Db_Uninstall extends \app\Instantiatable implements \mjolnir\types\Task
 {
+	use \app\Trait_Task;
+
 	/**
 	 * Execute task.
 	 */
-	function execute()
+	function run()
 	{
 		$schematics_config = \app\Schematic::config();
-			
-		$channel = $this->config['channel'];
-		
+
+		$channel = $this->get('channel', false);
+
 		foreach ($schematics_config['steps'] as $serial => $schematic)
 		{
 			if ($channel === false || $schematic['channel'] === $channel)
@@ -44,7 +46,7 @@ class Task_Db_Uninstall extends \app\Task
 			$this->writer->write(' Resetting channel ['.$channel.'] to 0:0-default')->eol();
 			\app\Schematic::set_channel_serialversion($channel, '0:0-default');
 		}
-		
+
 		$this->writer->eol();
 	}
 
