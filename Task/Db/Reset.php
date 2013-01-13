@@ -120,7 +120,7 @@ class Task_Db_Reset extends \app\Instantiatable implements \mjolnir\types\Task
 	 */
 	static function write_trail($writer, $channel, $trail)
 	{
-		$trail_string = \app\Collection::implode(' >> ', $trail, function ($k, $value) {
+		$trail_string = \app\Arr::implode(' >> ', $trail, function ($k, $value) {
 			return \preg_replace('#-default$#', '', $value);
 		});
 

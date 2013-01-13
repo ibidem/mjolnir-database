@@ -23,14 +23,14 @@ trait Trait_Model_Collection
 			->id(__FUNCTION__)
 			->fetch_all(static::field_format());
 	}
-	
+
 	/**
 	 * Given a list of ids, this function will return an equivalent result to
-	 * entries for those ids. The unique_key is assumed numeric and as a 
+	 * entries for those ids. The unique_key is assumed numeric and as a
 	 * consequence this function will treat it as such.
-	 * 
+	 *
 	 * For different behaviour re-implement this function in your class.
-	 * 
+	 *
 	 * @return array of arrays
 	 */
 	static function select_entries(array $entries)
@@ -39,9 +39,9 @@ trait Trait_Model_Collection
 		{
 			return [];
 		}
-		
+
 		$cache_key = __FUNCTION__.'__entries'.\implode(',', $entries);
-		
+
 		return static::stash
 			(
 				__METHOD__,
@@ -194,14 +194,14 @@ trait Trait_Model_Collection
 	{
 		\app\Stash::delete(\get_called_class().'_ID'.$id);
 	}
-	
+
 	/**
 	 * Wipes cash for specified tags
 	 */
 	static function clear_cache($tags = ['change'])
 	{
 		\app\Stash::purge(\app\Stash::tags(\get_called_class(), $tags));
-		
+
 		// reset related caches
 		foreach (static::related_caches() as $related_cache)
 		{
@@ -270,7 +270,7 @@ trait Trait_Model_Collection
 		if ( ! empty($constraints))
 		{
 			$where = 'WHERE ';
-			$where .= \app\Collection::implode
+			$where .= \app\Arr::implode
 				(
 					' AND ', # delimiter
 					$constraints, # source
@@ -362,12 +362,12 @@ trait Trait_Model_Collection
 	 */
 	static function truncate()
 	{
-		// we could do a truncate, but truncate won't resolve any extra logic 
-		// that might be required when deleting entries, so it's safer to 
+		// we could do a truncate, but truncate won't resolve any extra logic
+		// that might be required when deleting entries, so it's safer to
 		// grab all the IDs and do a delete. Also if any constraints are set,
-		// which (when constraits are used) is the case 90% of the time, 
+		// which (when constraits are used) is the case 90% of the time,
 		// truncate will simply not work
-		
+
 		static::delete
 			(
 				\app\Arr::gather
@@ -385,8 +385,8 @@ trait Trait_Model_Collection
 						static::unique_key()
 					)
 			);
-		
+
 		static::clear_cache();
 	}
-	
+
 } # trait

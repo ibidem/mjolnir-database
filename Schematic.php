@@ -87,10 +87,10 @@ class Schematic
 						\app\Text::baseindent($schematic),
 						$schematics_config['definitions']
 					);
-				
+
 				echo PHP_EOL.PHP_EOL;
 			}
-			
+
 			throw $e;
 		}
 	}
@@ -131,7 +131,7 @@ class Schematic
 						ADD CONSTRAINT `".$table."_mjolnirfk_".$idx."`
 						   FOREIGN KEY (`".$key."`)
 							REFERENCES `".$constraint[0]."` (`id`)
-							 ON DELETE ".$constraint[1]."	
+							 ON DELETE ".$constraint[1]."
 							 ON UPDATE ".$constraint[2]."
 					";
 
@@ -157,7 +157,7 @@ class Schematic
 				echo \app\Text::baseindent($query);
 				echo PHP_EOL.PHP_EOL;
 			}
-				
+
 				throw $e;
 			}
 		}
@@ -457,13 +457,13 @@ class Schematic
 		\preg_match('#^(.*:)?(.*)$#', $nominator, $matches);
 
 		$class_parts = \explode('-', $matches[2]);
-		$channel = \app\Collection::implode('_', \explode('-', $channel), function ($i, $v) {
+		$channel = \app\Arr::implode('_', \explode('-', $channel), function ($i, $v) {
 			return \ucfirst($v);
 		});
 
 		\array_unshift($class_parts, 'Schematic', $channel);
 
-		return '\app\\'.\app\Collection::implode('_', $class_parts, function ($k, $value) {
+		return '\app\\'.\app\Arr::implode('_', $class_parts, function ($k, $value) {
 			return \ucfirst($value);
 		});
 	}

@@ -196,7 +196,7 @@ class FeatureContext extends BehatContext
      */
     public function iShouldGetTheEntries($entries)
     {
-		$this->result = \app\Collection::implode
+		$this->result = \app\Arr::implode
 			(
 				', ',
 				$this->result,

@@ -15,7 +15,7 @@ use Behat\Gherkin\Node\PyStringNode,
  * Features context.
  */
 class FeatureContext extends BehatContext
-{	
+{
     /**
      * Initializes context.
      * Every scenario gets it's own context object.
@@ -30,31 +30,31 @@ class FeatureContext extends BehatContext
 			throw new \app\Exception('Caching is not enabled.');
 		}
     }
-	
+
 	/**
 	 * @BeforeFeature
 	 */
 	static function before()
 	{
 		\app\SQL::database('mjolnir_testing');
-		
+
 		\app\Schematic::destroy
 			(
 				'test_table'
 			);
-		
+
 		\app\Schematic::table
 			(
-				'test_table', 
+				'test_table',
 				'
 					`id`    :key_primary,
 					`title` :title,
-					
+
 					PRIMARY KEY(`id`)
 				'
 			);
 	}
-	
+
 	/**
 	 * @AfterFeature
 	 */
@@ -64,10 +64,10 @@ class FeatureContext extends BehatContext
 			(
 				'test_table'
 			);
-		
+
 		\app\SQL::database('default');
 	}
-	
+
 	/**
 	 * @var \app\Table_Snatcher
 	 */
@@ -80,7 +80,7 @@ class FeatureContext extends BehatContext
     {
 		$ids = \explode(', ', $ids);
 		$titles = \explode(', ', $titles);
-		
+
 		\app\SQL::prepare
 			(
 				__METHOD__.':truncate',
@@ -89,9 +89,9 @@ class FeatureContext extends BehatContext
 				'
 			)
 			->execute();
-		
+
 		\app\SQL::begin();
-		
+
 		$inserter = \app\SQL::prepare
 			(
 				__METHOD__,
@@ -102,13 +102,13 @@ class FeatureContext extends BehatContext
 			)
 			->bind_int(':id', $id)
 			->bind(':title', $title);
-		
+
 		foreach ($ids as $idx => $id)
 		{
 			$title = $titles[$idx];
 			$inserter->execute();
 		}
-		
+
 		\app\SQL::commit();
     }
 
@@ -138,10 +138,10 @@ class FeatureContext extends BehatContext
      */
     public function iShouldGetTheIds($expected)
     {
-		$actual = \app\Collection::implode(', ', $this->result, function ($i, $v) {
+		$actual = \app\Arr::implode(', ', $this->result, function ($i, $v) {
 			return $v['id'];
 		});
-		
+
 		\app\expects($expected)->equals($actual);
     }
 
@@ -150,13 +150,13 @@ class FeatureContext extends BehatContext
      */
     public function iShouldGetTheTitles($expected)
     {
-        $actual = \app\Collection::implode(', ', $this->result, function ($i, $v) {
+        $actual = \app\Arr::implode(', ', $this->result, function ($i, $v) {
 			return $v['title'];
 		});
-		
+
 		\app\expects($expected)->equals($actual);
     }
-	
+
     /**
      * @When /^I add an item with id "([^"]*)" and title "([^"]*)" to the database$/
      */
@@ -173,7 +173,7 @@ class FeatureContext extends BehatContext
 			->set_int(':id', $id)
 			->set(':title', $title)
 			->execute();
-		
+
 		\app\Stash::purge(['my_table_update']);
     }
 
@@ -208,7 +208,7 @@ class FeatureContext extends BehatContext
 			$sort_order = \explode(' => ', $criteria);
 			$order[$sort_order[0]] = $sort_order[1];
 		}
-		
+
 		$this->querie->order($order);
     }
 
@@ -222,21 +222,21 @@ class FeatureContext extends BehatContext
 		foreach ($criterias as $criteria)
 		{
 			$constraint = \explode(' => ', $criteria);
-			
+
 			if ($constraint[1] === 'true')
 			{
 				$constraint[1] = true;
 			}
-			
+
 			if ($constraint[1] === 'false')
 			{
 				$constraint[1] = false;
 			}
-			
+
 			$constraints[$constraint[0]] = $constraint[1];
 		}
-		
+
 		$this->querie->constraints($constraints);
     }
-	
+
 }

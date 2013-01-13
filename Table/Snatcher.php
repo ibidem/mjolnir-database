@@ -133,7 +133,7 @@ class Table_Snatcher extends \app\Instantiatable
 		$cache_key = $this->identity.'_'.$this->id.'__Snatch_fetch_all__'.'p'.$page.'l'.$limit.'o'.$offset;
 
 		// create order hash
-		$sql_order = \app\Collection::implode(', ', $this->field_order, function ($k, $o) {
+		$sql_order = \app\Arr::implode(', ', $this->field_order, function ($k, $o) {
 			$k = \strpbrk($k, ' .()') === false ? '`'.$k.'`' : $k;
 			return $k.' '.$o;
 		});
@@ -145,7 +145,7 @@ class Table_Snatcher extends \app\Instantiatable
 		}
 
 		// where hash
-		$where = \app\Collection::implode
+		$where = \app\Arr::implode
 			(
 				' AND ', # delimiter
 				$this->constraints, # source
@@ -189,7 +189,7 @@ class Table_Snatcher extends \app\Instantiatable
 			}
 			else # query is not *
 			{
-				$query = \app\Collection::implode(', ', $this->query, function ($k, $i) {
+				$query = \app\Arr::implode(', ', $this->query, function ($k, $i) {
 					return '`'.$i.'`';
 				});
 			}

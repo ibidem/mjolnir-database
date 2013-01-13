@@ -64,8 +64,8 @@ trait Trait_Model_Utilities
 			$keys[] = $bool;
 		}
 
-		$table_keys = \app\Collection::convert($keys, function ($k) { return '`'.$k.'`'; });
-		$value_keys = \app\Collection::convert($keys, function ($k) { return ':'.$k; });
+		$table_keys = \app\Arr::convert($keys, function ($k) { return '`'.$k.'`'; });
+		$value_keys = \app\Arr::convert($keys, function ($k) { return ':'.$k; });
 
 		return \app\SQLStash::prepare
 			(
@@ -100,7 +100,7 @@ trait Trait_Model_Utilities
 			$keys[] = $bool;
 		}
 
-		$assignments = \app\Collection::convert
+		$assignments = \app\Arr::convert
 			(
 				$keys,
 				function ($k) {
@@ -148,5 +148,5 @@ trait Trait_Model_Utilities
 	{
 		\app\Stash::purge(\app\Stash::tags(\get_called_class(), $tags));
 	}
-	
+
 } # trait
