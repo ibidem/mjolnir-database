@@ -12,13 +12,13 @@
 							(
 								'description' => 'The schematic key as mentioned in the configuration.',
 								'short' => 's',
-								'type' => '\mjolnir\base\Flags::text',
+								'type' => 'text',
 							),
 						'namespace' => array
 							(
 								'description' => 'Namespace in which to place class.',
 								'short' => 'n',
-								'type' => '\mjolnir\base\Flags::text',
+								'type' => 'text',
 							),
 						'forced' => array
 							(
@@ -52,12 +52,12 @@
 					(
 						'channel' => array
 							(
-								'type' => '\mjolnir\base\Flags::text',
+								'type' => 'text',
 								'description' => 'Specified a channel when setting version.',
 								'short' => 'c',
 								'default' => 'default',
 							),
-					
+
 						'all' => array
 							(
 								'description' => 'Processes all channels.',
@@ -86,18 +86,18 @@
 					(
 						'channel' => array
 							(
-								'type' => '\mjolnir\base\Flags::text',
+								'type' => 'text',
 								'description' => 'Specified a channel when setting version.',
 								'short' => 'c',
 								'default' => 'default',
 							),
 						'serial' => array
 							(
-								'type' => '\mjolnir\base\Flags::text',
+								'type' => 'text',
 								'description' => 'Specified a channel when setting version.',
 								'short' => 'v',
 							)
-							
+
 					),
 			),
 		'db:install' => array
@@ -110,7 +110,7 @@
 					(
 						'channel' => array
 							(
-								'type' => '\mjolnir\base\Flags::text',
+								'type' => 'text',
 								'description' => 'Specified a channel when setting version.',
 								'short' => 'c',
 								'default' => false,
@@ -132,7 +132,7 @@
 					(
 						'channel' => array
 							(
-								'type' => '\mjolnir\base\Flags::text',
+								'type' => 'text',
 								'description' => 'Specified a channel when setting version.',
 								'short' => 'c',
 								'default' => false,
@@ -176,13 +176,13 @@
 					(
 						'force-set' => array
 							(
-								'type' => '\mjolnir\base\Flags::text',
+								'type' => 'text',
 								'description' => 'Set the version to a specified serial.',
 								'default' => false,
 							),
 						'channel' => array
 							(
-								'type' => '\mjolnir\base\Flags::text',
+								'type' => 'text',
 								'description' => 'Specified a channel when setting version.',
 								'short' => 'c',
 								'default' => 'default',
