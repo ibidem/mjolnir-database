@@ -1,7 +1,7 @@
 {
 	"name": "mjolnir/database",
-	"version": "0.0",
-	"description": "Database utilities and related structures.",
+	"version": "1.0",
+	"description": "Database tools, helpers and related structures.",
 	"keywords": [ ],
 	"homepage": "https://github.com/ibidem",
 	"type": "library",
