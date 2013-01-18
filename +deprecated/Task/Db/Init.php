@@ -32,7 +32,7 @@ class Task_Db_Init extends \app\Instantiatable implements \mjolnir\types\Task
 
 		// check if table exists
 		$existing_tables = \app\SQL::prepare(__METHOD__.':show_tables', 'SHOW TABLES', 'mysql')
-			->execute()->fetch_all();
+			->run()->fetch_all();
 
 		$table_exists = false;
 
@@ -103,8 +103,8 @@ class Task_Db_Init extends \app\Instantiatable implements \mjolnir\types\Task
 						',
 						'mysql'
 					)
-					->set(':channel', $channel)
-					->execute();
+					->str(':channel', $channel)
+					->run();
 
 				$this->writer->writef(' Initialized channel ['.$channel.'] with [0:0-default]')->eol();
 			}

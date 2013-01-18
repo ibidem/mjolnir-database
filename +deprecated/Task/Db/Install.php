@@ -32,13 +32,13 @@ class Task_Db_Install extends \app\Instantiatable implements \mjolnir\types\Task
 			\app\Task::invoke('db:init')
 				->set('uninstall', false)
 				->writer_is($this->writer)
-				->execute();
+				->run();
 		}
 
 		\app\Task::invoke('db:uninstall')
 			->set('channel', $channel)
 			->writer_is($this->writer)
-			->execute();
+			->run();
 
 		if ($channel !== false)
 		{

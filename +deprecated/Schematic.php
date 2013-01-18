@@ -41,7 +41,7 @@ class Schematic
 					'
 				)
 				->page($page, $reads)
-				->execute()
+				->run()
 				->fetch_all();
 
 			foreach ($patients as & $patient)
@@ -75,7 +75,7 @@ class Schematic
 						),
 					'mysql'
 				)
-				->execute();
+				->run();
 		}
 		catch (\Exception $e)
 		{
@@ -112,7 +112,7 @@ class Schematic
 					),
 				'mysql'
 			)
-			->execute();
+			->run();
 	}
 
 	static function constraints(array $defintions)
@@ -147,7 +147,7 @@ class Schematic
 
 			try
 			{
-				\app\SQL::prepare(__METHOD__, $query, 'mysql')->execute();
+				\app\SQL::prepare(__METHOD__, $query, 'mysql')->run();
 			}
 			catch (\Exception $e)
 			{
@@ -173,7 +173,7 @@ class Schematic
 				'SET foreign_key_checks = FALSE',
 				'mysql'
 			)
-			->execute();
+			->run();
 
 		foreach ($args as $table)
 		{
@@ -183,7 +183,7 @@ class Schematic
 					'DROP TABLE IF EXISTS `'.$table.'`',
 					'mysql'
 				)
-				->execute();
+				->run();
 		}
 
 		\app\SQL::prepare
@@ -192,7 +192,7 @@ class Schematic
 				'SET foreign_key_checks = TRUE',
 				'mysql'
 			)
-			->execute();
+			->run();
 	}
 
 	static function set_channel_serialversion($channel, $serial)
@@ -207,9 +207,9 @@ class Schematic
 				',
 				'mysql'
 			)
-			->set(':serial', $serial)
-			->set(':channel', $channel)
-			->execute();
+			->str(':serial', $serial)
+			->str(':channel', $channel)
+			->run();
 	}
 
 	static function channel_list()
@@ -223,7 +223,7 @@ class Schematic
 				',
 				'mysql'
 			)
-			->execute()
+			->run()
 			->fetch_all();
 	}
 
@@ -494,9 +494,9 @@ class Schematic
 				',
 				'mysql'
 			)
-			->set(':channel', $channel)
-			->set(':serial', $serial)
-			->execute();
+			->str(':channel', $channel)
+			->str(':serial', $serial)
+			->run();
 	}
 
 } # class

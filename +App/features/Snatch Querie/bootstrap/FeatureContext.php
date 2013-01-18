@@ -88,7 +88,7 @@ class FeatureContext extends BehatContext
 					TRUNCATE TABLE test_table
 				'
 			)
-			->execute();
+			->run();
 
 		\app\SQL::begin();
 
@@ -100,13 +100,13 @@ class FeatureContext extends BehatContext
 						(id, title) VALUES (:id, :title)
 				'
 			)
-			->bind_int(':id', $id)
-			->bind(':title', $title);
+			->bindnum(':id', $id)
+			->bindstr(':title', $title);
 
 		foreach ($ids as $idx => $id)
 		{
 			$title = $titles[$idx];
-			$inserter->execute();
+			$inserter->run();
 		}
 
 		\app\SQL::commit();
@@ -170,9 +170,9 @@ class FeatureContext extends BehatContext
 						(id, title) VALUES (:id, :title)
 				'
 			)
-			->set_int(':id', $id)
-			->set(':title', $title)
-			->execute();
+			->num(':id', $id)
+			->str(':title', $title)
+			->run();
 
 		\app\Stash::purge(['my_table_update']);
     }

@@ -32,13 +32,13 @@ class Register
 				',
 				'mysql'
 			)
-			->bind(':key', $key);
+			->bindstr(':key', $key);
 
 		$resultset = [];
 		foreach ($keys as $target)
 		{
 			$key = $target;
-			$resultset[$target] = $statement->execute()->fetch_array()['value'];
+			$resultset[$target] = $statement->run()->fetch_entry()['value'];
 		}
 
 		return $resultset;
@@ -56,9 +56,9 @@ class Register
 				',
 				'mysql'
 			)
-			->set(':key', $key)
-			->set(':value', $value)
-			->execute();
+			->str(':key', $key)
+			->str(':value', $value)
+			->run();
 	}
 
 	static function inject($key, $value)
@@ -75,9 +75,9 @@ class Register
 				',
 				'mysql'
 			)
-			->set(':key', $key)
-			->execute()
-			->fetch_array()
+			->str(':key', $key)
+			->run()
+			->fetch_entry()
 			['COUNT(1)'];
 
 		$count = (int) $count;
@@ -95,9 +95,9 @@ class Register
 					',
 					'mysql'
 				)
-				->set(':key', $key)
-				->set(':value', $value)
-				->execute();
+				->str(':key', $key)
+				->str(':value', $value)
+				->run();
 		}
 		else # count !== 0
 		{

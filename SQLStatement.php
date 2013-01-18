@@ -153,7 +153,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	{
 		try
 		{
-			$this->statement->execute();
+			$this->statement->run();
 		}
 		catch (\Exception $exception)
 		{

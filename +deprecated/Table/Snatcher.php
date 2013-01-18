@@ -204,7 +204,7 @@ class Table_Snatcher extends \app\Instantiatable
 			$statement = \app\SQL::prepare(__METHOD__, $sql)
 				->page($page, $limit, $offset);
 
-			$result = $statement->execute()->fetch_all($field_format);
+			$result = $statement->run()->fetch_all($field_format);
 			\app\Stash::store($cache_key, $result, $this->tags);
 		}
 

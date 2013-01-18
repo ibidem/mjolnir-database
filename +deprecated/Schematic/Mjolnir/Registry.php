@@ -47,14 +47,14 @@ class Schematic_Mjolnir_Registry extends \app\Schematic_Base
 				',
 				'mysql'
 			)
-			->bind(':key', $key)
-			->bind(':value', $value);
+			->bindstr(':key', $key)
+			->bindstr(':value', $value);
 
 		foreach (\app\CFS::config_file('mjolnir/register')['keys'] as $target => $default)
 		{
 			$key = $target;
 			$value = $default;
-			$statement->execute();
+			$statement->run();
 		}
 	}
 

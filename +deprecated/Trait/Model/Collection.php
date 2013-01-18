@@ -74,9 +74,9 @@ trait Trait_Model_Collection
 						 WHERE '.static::unique_key().' = :id
 					'
 				)
-				->set_int(':id', $id)
-				->execute()
-				->fetch_array(static::field_format());
+				->num(':id', $id)
+				->run()
+				->fetch_entry(static::field_format());
 
 			\app\Stash::store($cachekey, $entry, \app\Stash::tags(\get_called_class(), ['change']));
 		}
@@ -239,13 +239,13 @@ trait Trait_Model_Collection
 					 WHERE `'.static::unique_key().'` = :id
 				'
 			)
-			->bind_int(':id', $entry);
+			->bindnum(':id', $entry);
 
 		\app\SQL::begin();
 
 		foreach ($entries as $entry)
 		{
-			$statement->execute();
+			$statement->run();
 			static::clear_entry_cache($entry);
 		}
 
@@ -311,7 +311,7 @@ trait Trait_Model_Collection
 			)
 			->key($cachekey);
 
-		return (int) $statement->fetch_array()['COUNT(1)'];
+		return (int) $statement->fetch_entry()['COUNT(1)'];
 	}
 
 	/**
@@ -340,9 +340,9 @@ trait Trait_Model_Collection
 					   AND NOT '.static::unique_key().' <=> '.($context === null ? 'NULL' : $context).'
 				'
 			)
-			->set(':value', $value)
-			->execute()
-			->fetch_array()['COUNT(1)'];
+			->str(':value', $value)
+			->run()
+			->fetch_entry()['COUNT(1)'];
 
 		return $count !== 0;
 	}
@@ -380,7 +380,7 @@ trait Trait_Model_Collection
 									  FROM :table
 								'
 							)
-							->execute()
+							->run()
 							->fetch_all(),
 						static::unique_key()
 					)

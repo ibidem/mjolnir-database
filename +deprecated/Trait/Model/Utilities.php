@@ -120,7 +120,7 @@ trait Trait_Model_Utilities
 			->mass_set($fields, $keys)
 			->mass_int($fields, $ints)
 			->mass_bool($fields, $bools)
-			->set_int(':id', $id)
+			->num(':id', $id)
 			->timers(\app\Stash::tags(\get_called_class(), ['change']))
 			->table(static::table())
 			->is('change');
