@@ -15,7 +15,8 @@
 	],
 
 	"require": {
-		"php": ">=5.4.4"
+		"php": ">=5.4.4",
+		"doctrine/dbal": "2.2.2"
 	},
 
 	"autoload": {
