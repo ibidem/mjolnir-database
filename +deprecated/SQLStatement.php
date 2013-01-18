@@ -2,14 +2,15 @@
 
 /**
  * @package    mjolnir
- * @category   Base
+ * @category   Database
  * @author     Ibidem Team
  * @copyright  (c) 2012 Ibidem Team
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
  */
-class SQLStatement extends \app\Instantiatable
-	implements \mjolnir\types\SQLStatement
+class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStatement
 {
+	use \app\Trait_SQLStatement;
+	
 	/**
 	 * @var \PDOStatement
 	 */
@@ -21,9 +22,7 @@ class SQLStatement extends \app\Instantiatable
 	protected $query;
 
 	/**
-	 * @param \PDOStatement statement
 	 * @return \app\SQLStatement
-	 * @throws \app\Exception_NotApplicable
 	 */
 	static function instance(\PDOStatement $statement = null, $query = null)
 	{
@@ -38,8 +37,7 @@ class SQLStatement extends \app\Instantiatable
 	}
 
 	/**
-	 * @param \PDOStatement statement
-	 * @return \mjolnir\base\SQLStatement $this
+	 * @return \mjolnir\database\SQLStatement $this
 	 */
 	function statement(\PDOStatement $statement, $query = null)
 	{
@@ -50,9 +48,7 @@ class SQLStatement extends \app\Instantiatable
 	}
 
 	/**
-	 * @param string parameter
-	 * @param string variable
-	 * @return \mjolnir\base\SQLStatement $this
+	 * @return \mjolnir\database\SQLStatement $this
 	 */
 	function bind($parameter, & $variable)
 	{
@@ -61,9 +57,7 @@ class SQLStatement extends \app\Instantiatable
 	}
 
 	/**
-	 * @param string parameter
-	 * @param int variable
-	 * @return \mjolnir\base\SQLStatement $this
+	 * @return \mjolnir\database\SQLStatement $this
 	 */
 	function bind_int($parameter, & $variable)
 	{
@@ -72,8 +66,6 @@ class SQLStatement extends \app\Instantiatable
 	}
 
 	/**
-	 * @param string paramter
-	 * @param string variable
 	 * @return \mjolnir\database\SQLStatement $this
 	 */
 	function bind_date($parameter, & $variable)
@@ -83,8 +75,6 @@ class SQLStatement extends \app\Instantiatable
 	}
 
 	/**
-	 * @param string paramter
-	 * @param string variable
 	 * @return \mjolnir\database\SQLStatement $this
 	 */
 	function bind_bool($parameter, & $variable)
@@ -120,9 +110,7 @@ class SQLStatement extends \app\Instantiatable
 	}
 
 	/**
-	 * @param string parameter
-	 * @param string constant
-	 * @return \mjolnir\base\SQLStatement $this
+	 * @return \mjolnir\database\SQLStatement $this
 	 */
 	function set($parameter, $constant)
 	{
@@ -131,9 +119,7 @@ class SQLStatement extends \app\Instantiatable
 	}
 
 	/**
-	 * @param string parameter
-	 * @param string constant
-	 * @return \mjolnir\base\SQLStatement $this
+	 * @return \mjolnir\database\SQLStatement $this
 	 */
 	function set_int($parameter, $constant)
 	{
@@ -142,9 +128,7 @@ class SQLStatement extends \app\Instantiatable
 	}
 
 	/**
-	 * @param string parameter
-	 * @param string constant
-	 * @return \mjolnir\base\SQLStatement $this
+	 * @return \mjolnir\database\SQLStatement $this
 	 */
 	function set_bool($parameter, $constant)
 	{
@@ -179,9 +163,7 @@ class SQLStatement extends \app\Instantiatable
 	}
 
 	/**
-	 * @param string parameter
-	 * @param string constant
-	 * @return \mjolnir\base\SQLStatement $this
+	 * @return \mjolnir\database\SQLStatement $this
 	 */
 	function set_date($parameter, $constant)
 	{
@@ -192,9 +174,7 @@ class SQLStatement extends \app\Instantiatable
 	/**
 	 * Stored procedure argument.
 	 *
-	 * @param string parameter
-	 * @param string variable
-	 * @return \mjolnir\base\SQLStatement $this
+	 * @return \mjolnir\database\SQLStatement $this
 	 */
 	function bind_arg($parameter, & $variable)
 	{
@@ -209,8 +189,6 @@ class SQLStatement extends \app\Instantiatable
 	}
 
 	/**
-	 * @param array keys
-	 * @param array values
 	 * @return \mjolnir\types\SQLStatement $this
 	 */
 	function mass_set(array $keys, array $values)
@@ -224,8 +202,6 @@ class SQLStatement extends \app\Instantiatable
 	}
 
 	/**
-	 * @param array keys
-	 * @param array values
 	 * @return \mjolnir\types\SQLStatement $this
 	 */
 	function mass_int(array $keys, array $values, $default = null)
@@ -239,9 +215,13 @@ class SQLStatement extends \app\Instantiatable
 	}
 
 	/**
-	 * @param array keys
-	 * @param array values
-	 * @param array key map (eg. 'true_key' => true, 'false_key' => false ... )
+	 * Key map may be in the form of:
+	 * 
+	 *     'true_key' => true, 
+	 *     'false_key' => false
+	 * 
+	 * etc.
+	 * 
 	 * @return \mjolnir\types\SQLStatement $this
 	 */
 	function mass_bool(array $keys, array $values, array $map = null)
@@ -270,16 +250,15 @@ class SQLStatement extends \app\Instantiatable
 	}
 
 	/**
-	 * Automatically sets the :offset and :limit varaibles.
+	 * Automatically calculates and sets :offset and :limit based on a page 
+	 * input. If page or limit are null, the limit will be set to the maximum
+	 * value.
 	 *
-	 * @param int page
-	 * @param int limit
-	 * @param int offset
-	 * @return \mjolnir\base\SQLStatement $thiss
+	 * @return \mjolnir\database\SQLStatement $thiss
 	 */
-	function page($page, $limit, $offset = 0)
+	function page($page, $limit = null, $offset = 0)
 	{
-		if ($page == null)
+		if ($page === null || $limit === null)
 		{
 			// retrieve all rows
 			$this->set_int(':offset', $offset);
@@ -297,9 +276,9 @@ class SQLStatement extends \app\Instantiatable
 	/**
 	 * Execute the statement.
 	 *
-	 * @return \mjolnir\base\SQLStatement $this
+	 * @return \mjolnir\database\SQLStatement $this
 	 */
-	function execute()
+	function run()
 	{
 		try
 		{
@@ -333,9 +312,9 @@ class SQLStatement extends \app\Instantiatable
 	/**
 	 * Fetch associative array of row.
 	 *
-	 * @return array
+	 * @return array or null
 	 */
-	function fetch_array(array $format = null)
+	function fetch_entry(array $format = null)
 	{
 		$result = $this->statement->fetch(\PDO::FETCH_ASSOC);
 
@@ -355,9 +334,8 @@ class SQLStatement extends \app\Instantiatable
 	}
 
 	/**
-	 * Retrieves all remaining rows. Rows are retrieved as arrays.
-	 *
-	 * [!!] May be extremely memory intensive when used on large data sets.
+	 * Retrieves all rows. Rows are retrieved as arrays. Empty result will 
+	 * return an empty array.
 	 *
 	 * @return array
 	 */
@@ -379,6 +357,9 @@ class SQLStatement extends \app\Instantiatable
 		}
 	}
 
+	// ------------------------------------------------------------------------
+	// Helpers
+	
 	/**
 	 * Formats an entry.
 	 */

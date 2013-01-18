@@ -6,7 +6,7 @@
  * \app\SQLDatabase::instance() and then calling the equivalent method.
  * 
  * @package    mjolnir
- * @category   Base
+ * @category   Database
  * @author     Ibidem Team
  * @copyright  (c) 2012 Ibidem Team
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
@@ -21,15 +21,22 @@ class SQL
 	/**
 	 * Sets the default database to be used.
 	 */
-	static function database($database)
+	static function database_key($database)
 	{
 		static::$database = $database;
 	}
 	
 	/**
-	 * @param string key
-	 * @param string statement
-	 * @param string language of statement
+	 * Retrieves the current database key
+	 * 
+	 * @return string
+	 */
+	static function database()
+	{
+		return \app\SQLDatabase::instance(static::$database);
+	}
+	
+	/**
 	 * @return \mjolnir\types\SQLStatement
 	 */
 	static function prepare($key, $statement = null, $lang = null)
@@ -38,7 +45,6 @@ class SQL
 	}
 	
 	/**
-	 * @param string raw version
 	 * @return string quoted version
 	 */
 	static function quote($value)
@@ -47,7 +53,6 @@ class SQL
 	}
 	
 	/**
-	 * @param string name
 	 * @return mixed 
 	 */
 	static function last_inserted_id($name = null)

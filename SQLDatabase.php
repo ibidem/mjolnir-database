@@ -2,18 +2,19 @@
 
 /**
  * @package    mjolnir
- * @category   Base
+ * @category   Database
  * @author     Ibidem Team
  * @copyright  (c) 2012 Ibidem Team
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
  */
-class SQLDatabase extends \app\Instantiatable
-	implements \mjolnir\types\SQLDatabase
+class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatabase
 {
+	use \app\Trait_SQLDatabase;
+	
 	/**
 	 * @var array
 	 */
-	protected static $instances = array();
+	protected static $instances = [];
 
 	/**
 	 * @var boolean
@@ -44,21 +45,6 @@ class SQLDatabase extends \app\Instantiatable
 	 * Database setup; null if already executed.
 	 */
 	protected $setup = null;
-	
-	/**
-	 * @return string
-	 */
-	static function default_timezone_offset()
-	{
-		$now = new \DateTime();  
-		$mins = $now->getOffset() / 60;  
-		$sgn = ($mins < 0 ? -1 : 1);  
-		$mins = \abs($mins);  
-		$hrs = \floor($mins / 60);
-		$mins -= $hrs * 60;
-		
-		return \sprintf('%+d:%02d', $hrs*$sgn, $mins);
-	}
 	
 	/**
 	 * @return \app\SQL
@@ -110,11 +96,7 @@ class SQLDatabase extends \app\Instantiatable
 					}
 					catch (\PDOException $e)
 					{
-						throw new \app\Exception
-							(
-								$e->getMessage(), # message
-								'Database Error' # title
-							);
+						throw new \app\Exception($e->getMessage());
 					}
 				};
 				
@@ -132,6 +114,137 @@ class SQLDatabase extends \app\Instantiatable
 	function __destruct()
 	{
 		$this->dbh = null;
+	}
+	
+	/**
+	 * The key is usually __METHOD__ but any key may be provided so long as
+	 * it accuratly identifies the method. 
+	 * 
+	 * eg.
+	 * 
+	 *     $db->prepare(__METHOD__, 'SELECT * FROM customers');
+	 *     $db->prepare(__METHOD__.':users', 'SELECT * FROM users');
+	 * 
+	 * The : in ':users' above is the keysplit.
+	 * 
+	 * @return \mjolnir\types\SQLStatement
+	 */
+	function prepare($key, $statement = null, $lang = null)
+	{
+		$this->check_setup();
+
+		if ($this->requires_translation($statement, $lang))
+		{
+			return $this->run_stored_statement($key);
+		}
+		else # translation not required
+		{
+			$prepared_statement = $this->dbh->prepare($statement.' -- '.$key);
+			return \app\SQLStatement::instance($prepared_statement, $statement.' -- '.$key);
+		}
+	}
+	
+	/**
+	 * @return string quoted version
+	 */
+	function quote($value)
+	{
+		$this->check_setup();
+		
+		return $this->dbh->quote($value);
+	}
+	
+	/**
+	 * @return mixed
+	 */
+	function last_inserted_id($name = null)
+	{
+		if ($this->setup !== null)
+		{
+			return null;
+		}
+		
+		return $this->dbh->lastInsertId($name);
+	}
+	
+	/**
+	 * Begin transaction or savepoint.
+	 * 
+	 * @return \mjolnir\base\SQLDatabase $this
+	 */
+	function begin()
+	{
+		$this->check_setup();
+		
+		if ($this->savepoint == 0)
+		{
+			$this->dbh->beginTransaction();
+		}
+		else # we are in a transaction
+		{
+			$this->prepare(__METHOD__, 'SAVEPOINT save'.$this->savepoint, 'mysql');
+		}
+		++$this->savepoint;
+		
+		return $this;
+	}
+	
+	/**
+	 * Commit transaction or savepoint.
+	 * 
+	 * @return \mjolnir\base\SQLDatabase $this
+	 */
+	function commit()
+	{		
+		--$this->savepoint;
+		if ($this->savepoint == 0)
+		{
+			$this->dbh->commit();
+		}
+		else # we are still in another transaction
+		{
+			$this->prepare(__METHOD__, 'RELEASE SAVEPOINT save'.$this->savepoint, 'mysql');
+		}
+		
+		return $this;
+	}
+	
+	/**
+	 * Rollback transaction or savepoint.
+	 * 
+	 * @return \mjolnir\base\SQLDatabase $this
+	 */
+	function rollback()
+	{
+		--$this->savepoint;
+		if ($this->savepoint == 0)
+		{
+			$this->dbh->rollBack();
+		}
+		else # we are still in another transaction
+		{
+			$this->prepare(__METHOD__, 'ROLLBACK TO SAVEPOINT save'.$this->savepoint, 'mysql');
+		}
+		
+		return $this;
+	}
+	
+	// ------------------------------------------------------------------------
+	// Helpers
+	
+	/**
+	 * @return string
+	 */
+	protected static function default_timezone_offset()
+	{
+		$now = new \DateTime();  
+		$mins = $now->getOffset() / 60;  
+		$sgn = ($mins < 0 ? -1 : 1);  
+		$mins = \abs($mins);  
+		$hrs = \floor($mins / 60);
+		$mins -= $hrs * 60;
+		
+		return \sprintf('%+d:%02d', $hrs*$sgn, $mins);
 	}
 	
 	/**
@@ -199,114 +312,6 @@ class SQLDatabase extends \app\Instantiatable
 			$setup();
 			$this->setup = null;
 		}
-	}
-	
-	/**
-	 * @param string key
-	 * @param string statement
-	 * @param string language of statement
-	 * @return \mjolnir\types\SQLStatement
-	 */
-	function prepare($key, $statement = null, $lang = null)
-	{
-		$this->check_setup();
-
-		if ($this->requires_translation($statement, $lang))
-		{
-			return $this->run_stored_statement($key);
-		}
-		else # translation not required
-		{
-			$prepared_statement = $this->dbh->prepare($statement.' -- '.$key);
-			return \app\SQLStatement::instance($prepared_statement, $statement.' -- '.$key);
-		}
-	}
-	
-	/**
-	 * @param string raw version
-	 * @return string quoted version
-	 */
-	function quote($value)
-	{
-		$this->check_setup();
-		
-		return $this->dbh->quote($value);
-	}
-	
-	/**
-	 * @param string 
-	 * @return mixed
-	 */
-	function last_inserted_id($name = null)
-	{
-		if ($this->setup !== null)
-		{
-			return null;
-		}
-		
-		return $this->dbh->lastInsertId($name);
-	}
-	
-	/**
-	 * Begin transaction.
-	 * 
-	 * @return \mjolnir\base\SQLDatabase $this
-	 */
-	function begin()
-	{
-		$this->check_setup();
-		
-		if ($this->savepoint == 0)
-		{
-			$this->dbh->beginTransaction();
-		}
-		else # we are in a transaction
-		{
-			$this->prepare(__METHOD__, 'SAVEPOINT save'.$this->savepoint, 'mysql');
-		}
-		++$this->savepoint;
-		
-		return $this;
-	}
-	
-	/**
-	 * Commit transaction.
-	 * 
-	 * @return \mjolnir\base\SQLDatabase $this
-	 */
-	function commit()
-	{		
-		--$this->savepoint;
-		if ($this->savepoint == 0)
-		{
-			$this->dbh->commit();
-		}
-		else # we are still in another transaction
-		{
-			$this->prepare(__METHOD__, 'RELEASE SAVEPOINT save'.$this->savepoint, 'mysql');
-		}
-		
-		return $this;
-	}
-	
-	/**
-	 * Rollback transaction.
-	 * 
-	 * @return \mjolnir\base\SQLDatabase $this
-	 */
-	function rollback()
-	{
-		--$this->savepoint;
-		if ($this->savepoint == 0)
-		{
-			$this->dbh->rollBack();
-		}
-		else # we are still in another transaction
-		{
-			$this->prepare(__METHOD__, 'ROLLBACK TO SAVEPOINT save'.$this->savepoint, 'mysql');
-		}
-		
-		return $this;
 	}
 	
 } # class
