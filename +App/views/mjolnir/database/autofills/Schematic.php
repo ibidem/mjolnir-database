@@ -1,3 +1,5 @@
+	use \app\Trait_Schematic;
+
 	function down()
 	{
 		\app\Schematic::destroy
@@ -5,7 +7,7 @@
 //				\app\Model_Example::table()
 			);
 	}
-	
+
 	function up()
 	{
 //		\app\Schematic::table
@@ -15,17 +17,17 @@
 //					`id`    :key_primary,
 //					`user`  :key_foreign,
 //					`title` :title,
-//					
+//
 //					PRIMARY KEY (`id`)
 //				'
 //			);
 	}
-	
+
 	function move()
 	{
 		// empty
 	}
-	
+
 	function bind()
 	{
 //		\app\Schematic::constraints
@@ -38,7 +40,7 @@
 //				]
 //			);
 	}
-	
+
 	function build()
 	{
 		// empty

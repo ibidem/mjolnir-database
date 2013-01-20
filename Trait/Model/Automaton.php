@@ -20,8 +20,9 @@ trait Trait_Model_Automaton
 	{
 		$errors = isset(static::$automaton['errors']) ? static::$automaton['errors'] : [ 'id' => [ ':exists' => 'Entry does not exist.' ] ];
 
-		$validator = \app\Validator::instance($errors, $fields)
-			->ruleset('not_empty', static::$automaton['fields']);
+		$validator = \app\Validator::instance($fields)
+			->adderrormessages($errors)
+			->rule(static::$automaton['fields'], 'not_empty');
 
 		if (isset(static::$automaton['unique']))
 		{
@@ -42,7 +43,7 @@ trait Trait_Model_Automaton
 
 				}
 
-				$validator->test($field, ':unique', ! static::exists($fields[$field], $field, $context));
+				$validator->rule($field, ':unique', ! static::exists($fields[$field], $field, $context));
 			}
 		}
 

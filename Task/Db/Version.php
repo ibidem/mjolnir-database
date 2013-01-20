@@ -14,7 +14,7 @@ class Task_Db_Version extends \app\Instantiatable implements \mjolnir\types\Task
 	/**
 	 * Execute task.
 	 */
-	function execute()
+	function run()
 	{
 		$force_set = $this->get('force-set', false);
 
@@ -33,7 +33,7 @@ class Task_Db_Version extends \app\Instantiatable implements \mjolnir\types\Task
 			$versions[] = $schematic['channel'].' @ '.$schematic['serial'];
 		}
 
-		$this->writer->writef(' '.\implode($this->writer->eol_string().' ', $versions));
+		$this->writer->writef(' '.\implode($this->writer->eolstring().' ', $versions));
 		$this->writer->eol();
 	}
 

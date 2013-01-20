@@ -3,7 +3,7 @@
 /**
  * @package    mjolnir
  * @category   Database
- * @author     Ibidem
+ * @author     Ibidem Team
  * @copyright  (c) 2012, Ibidem Team
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
  */
@@ -19,31 +19,44 @@ class Task_Db_Init extends \app\Instantiatable implements \mjolnir\types\Task
 		\app\Task::consolewriter($this->writer);
 
 		$uninstall = $this->get('uninstall', false);
+		$forced = $this->get('forced', false);
 
 		if ($uninstall)
 		{
-			\app\Schematic::destroy(\app\Schematic::channel_table());
-			$this->writer->writef(' Schematics table removed.')->eol();
-			$this->writer->eol();
+			$this->uninstall();
 			return;
 		}
 
 		$channel_table = \app\Schematic::channel_table();
 
 		// check if table exists
-		$existing_tables = \app\SQL::prepare(__METHOD__.':show_tables', 'SHOW TABLES', 'mysql')
-			->run()->fetch_all();
+		$current_tables = \app\SQL::prepare
+			(
+				__METHOD__.':show_tables',
+				'SHOW TABLES',
+				'mysql'
+			)
+			->run()
+			->fetch_all();
 
 		$table_exists = false;
 
-		foreach ($existing_tables as $existing_table)
+		foreach ($current_tables as $table)
 		{
-			\reset($existing_table);
-			if (\current($existing_table) == $channel_table)
+			\reset($table);
+			if (\current($table) == $channel_table)
 			{
-				$this->writer->printf('error', 'Table ['.$channel_table.'] already exists.')->eol();
-				$table_exists = true;
-				break;
+				if ( ! $forced)
+				{
+					$this->writer->printf('error', 'Schematics table already exists. Use --forced to use current.')->eol();
+					return;
+				}
+				else # forced
+				{
+					$this->writer->writef(' Altering existing schematics table.')->eol();
+					$table_exists = true;
+					break;
+				}
 			}
 		}
 
@@ -59,7 +72,7 @@ class Task_Db_Init extends \app\Instantiatable implements \mjolnir\types\Task
 					'
 				);
 
-			$this->writer->write(' Created schematics table.')->eol()->eol();
+			$this->writer->writef(' Created schematics table.')->eol();
 		}
 
 		// retrieve all the channels known by the system
@@ -81,7 +94,7 @@ class Task_Db_Init extends \app\Instantiatable implements \mjolnir\types\Task
 		// retrieve current channels
 		$all_channels = \app\Schematic::channel_list();
 
-		$known_channels = array();
+		$known_channels = [];
 		foreach ($all_channels as $entry)
 		{
 			$known_channels[] = $entry['channel'];
@@ -97,20 +110,28 @@ class Task_Db_Init extends \app\Instantiatable implements \mjolnir\types\Task
 						__METHOD__.':init_channel',
 						'
 							INSERT INTO `'.\app\Schematic::channel_table().'`
-								(channel, serial)
-							VALUES
-								(:channel, \'0:0-default\')
+							(channel, serial) VALUES (:channel, \'0:0-default\')
 						',
 						'mysql'
 					)
 					->str(':channel', $channel)
 					->run();
 
-				$this->writer->writef(' Initialized channel ['.$channel.'] with [0:0-default]')->eol();
+				$this->writer->printf('reset');
+				$this->writer->writef(' Initialized channel: '.$channel);
 			}
 		}
+		$this->writer->printf('reset');
+		$this->writer->writef(' Initialized application at 0:0')->eol();
+	}
 
-		$this->writer->eol();
+	/**
+	 * Uninstall channel table.
+	 */
+	protected function uninstall()
+	{
+		\app\Schematic::destroy(\app\Schematic::channel_table());
+			$this->writer->writef(' Schematics table removed.')->eol();
 	}
 
 } # class

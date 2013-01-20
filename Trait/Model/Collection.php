@@ -1,8 +1,6 @@
 <?php namespace mjolnir\database;
 
 /**
- * Assumes Model_Master trait was used, or similar interface is available.
- *
  * @package    mjolnir
  * @category   Database
  * @author     Ibidem Team
@@ -21,7 +19,7 @@ trait Trait_Model_Collection
 			->page($page, $limit, $offset)
 			->order($order)
 			->id(__FUNCTION__)
-			->fetch_all(static::field_format());
+			->fetch_all(static::fieldformat());
 	}
 
 	/**
@@ -52,7 +50,7 @@ trait Trait_Model_Collection
 				'
 			)
 			->key($cache_key)
-			->fetch_all(static::field_format());
+			->fetch_all(static::fieldformat());
 	}
 
 	/**
@@ -76,7 +74,7 @@ trait Trait_Model_Collection
 				)
 				->num(':id', $id)
 				->run()
-				->fetch_entry(static::field_format());
+				->fetch_entry(static::fieldformat());
 
 			\app\Stash::store($cachekey, $entry, \app\Stash::tags(\get_called_class(), ['change']));
 		}

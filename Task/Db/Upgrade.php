@@ -10,6 +10,7 @@
 class Task_Db_Upgrade extends \app\Instantiatable implements \mjolnir\types\Task
 {
 	use \app\Trait_Task;
+	use \app\Trait_Task_Db_Migrations;
 
 	/**
 	 * ...
@@ -28,9 +29,9 @@ class Task_Db_Upgrade extends \app\Instantiatable implements \mjolnir\types\Task
 		{
 			$channels = \app\Schematic::channels();
 
-			$processing_list = $this->processing_list($channels);
+			$channelorder = $this->channelorder($channels);
 
-			foreach ($processing_list as $channel)
+			foreach ($channelorder as $channel)
 			{
 				$this->process_upgrade($channel);
 			}
@@ -44,25 +45,26 @@ class Task_Db_Upgrade extends \app\Instantiatable implements \mjolnir\types\Task
 	{
 		$channel_top = \app\Schematic::top_for_channel($channel, 'default');
 		$channel_serial = \app\Schematic::get_serial_for($channel);
+
 		$trail = \app\Schematic::serial_trail($channel, $channel_serial, $channel_top);
 
 		if (empty($trail))
 		{
-			$this->writer->writef(' System is currently on the latest version.')->eol();
-			exit;
-		}
+			$this->writer->writef(" $channel does not require upgrade.")->eol();
 
-		static::write_trail($this->writer, $channel, $trail);
+			return;
+		}
 
 		$bindings = array();
 		$this->process_trail($channel, $trail, $bindings);
-
-		$this->writer->printf('title', 'Binding');
 
 		foreach ($bindings as $binding)
 		{
 			$binding();
 		}
+
+		$this->writer->printf('reset');
+		$this->writer->writef(' Binding complete.')->eol();
 	}
 
 } # class

@@ -2,6 +2,7 @@
 	(
 		'make:schematic' => array
 			(
+				'category' => 'Database',
 				'description' => array
 					(
 						'Create a schematic class.'
@@ -28,6 +29,7 @@
 			),
 		'db:init' => array
 			(
+				'category' => 'Database',
 				'description' => array
 					(
 						'Initialize database schematic.'
@@ -39,69 +41,18 @@
 								'description' => 'Uninstalls serial/channel tables.',
 								'short' => 'u',
 								'default' => false,
-							)
-					),
-			),
-		'db:upgrade' => array
-			(
-				'description' => array
-					(
-						'Upgrade to new serial version. (Auto-detects current.)'
-					),
-				'flags' => array
-					(
-						'channel' => array
-							(
-								'type' => 'text',
-								'description' => 'Specified a channel when setting version.',
-								'short' => 'c',
-								'default' => 'default',
 							),
-
-						'all' => array
+						'forced' => array
 							(
-								'description' => 'Processes all channels.',
-								'short' => 'a'
+								'description' => 'Force operations.',
+								'short' => 'f',
+								'default' => false,
 							),
-					),
-			),
-//		'db:jump' => array
-//			(
-//				'description' => array
-//					(
-//						'Jump to new serial version (cross-channel, downgrades, etc).'
-//					),
-//				'flags' => array
-//					(
-//						// none
-//					),
-//			),
-		'db:reset' => array
-			(
-				'description' => array
-					(
-						'Reset database to a specified serial version.'
-					),
-				'flags' => array
-					(
-						'channel' => array
-							(
-								'type' => 'text',
-								'description' => 'Specified a channel when setting version.',
-								'short' => 'c',
-								'default' => 'default',
-							),
-						'serial' => array
-							(
-								'type' => 'text',
-								'description' => 'Specified a channel when setting version.',
-								'short' => 'v',
-							)
-
 					),
 			),
 		'db:install' => array
 			(
+				'category' => 'Database',
 				'description' => array
 					(
 						'Cleans up database and re-installs channels.'
@@ -120,13 +71,72 @@
 								'description' => 'Processes all channels.',
 								'short' => 'a'
 							),
+						'show-order' => array
+							(
+								'description' => 'Show order in which channels are processed.',
+								'short' => 's'
+							),
+					),
+			),
+		'db:upgrade' => array
+			(
+				'category' => 'Database',
+				'description' => array
+					(
+						'Upgrade to new serial version. (Auto-detects current.)'
+					),
+				'flags' => array
+					(
+						'channel' => array
+							(
+								'type' => 'text',
+								'description' => 'Specified a channel when setting version.',
+								'short' => 'c',
+								'default' => false,
+							),
+
+						'all' => array
+							(
+								'description' => 'Processes all channels.',
+								'short' => 'a'
+							),
+					),
+			),
+		'db:reset' => array
+			(
+				'category' => 'Database',
+				'description' => array
+					(
+						'Reset database to a specified serial version.'
+					),
+				'flags' => array
+					(
+						'channel' => array
+							(
+								'type' => 'text',
+								'description' => 'Specified a channel when setting version.',
+								'short' => 'c',
+								'default' => false,
+							),
+						'serial' => array
+							(
+								'type' => 'text',
+								'description' => 'Specified a channel when setting version.',
+								'short' => 'v',
+							),
+						'forced' => array
+							(
+								'description' => 'Forces reset even when database is not clean.',
+								'short' => 'f',
+							),
 					),
 			),
 		'db:uninstall' => array
 			(
+				'category' => 'Database',
 				'description' => array
 					(
-						'Resets database to 0:0. Destructive!!'
+						'Resets database to 0:0.'
 					),
 				'flags' => array
 					(
@@ -144,30 +154,9 @@
 							),
 					),
 			),
-//		'db:backup' => array
-//			(
-//				'description' => array
-//					(
-//						'Creates a backup for the current database.'
-//					),
-//				'flags' => array
-//					(
-//						// none
-//					),
-//			),
-//		'db:restore' => array
-//			(
-//				'description' => array
-//					(
-//						'Restores a saved backup.'
-//					),
-//				'flags' => array
-//					(
-//						// none
-//					),
-//			),
 		'db:version' => array
 			(
+				'category' => 'Database',
 				'description' => array
 					(
 						'Shows version numbers for channels.'
@@ -191,6 +180,7 @@
 			),
 		'db:sphinx' => array
 			(
+				'category' => 'Database',
 				'description' => array
 					(
 						'Provides helpers for working with sphinx.'

@@ -15,27 +15,6 @@ trait Trait_Model_Utilities
 	protected static $timers = ['change'];
 
 	/**
-	 * @return \app\SQLCache
-	 */
-	protected static function stash($identifier, $sql)
-	{
-		$identity = \join('', \array_slice(\explode('\\', \get_called_class()), -1));
-		return \app\SQLStash::prepare($identifier, $sql)
-			->timers(\app\Stash::tags(\get_called_class(), ['change']))
-			->table(static::table())
-			->identity($identity);
-	}
-
-	/**
-	 * @return \mjolnir\types\SQLStatement
-	 */
-	protected static function statement($identifier, $sql, $lang = null)
-	{
-		$sql = \strtr($sql, [':table' => static::table()]);
-		return \app\SQL::prepare($identifier, $sql, $lang);
-	}
-
-	/**
 	 * @return \app\Table_Snatcher
 	 */
 	protected static function snatch($args)
@@ -52,11 +31,31 @@ trait Trait_Model_Utilities
 	/**
 	 * @return \app\SQLCache
 	 */
-	protected static function inserter(array $fields, array $keys, array $bools = [], array $ints = [])
+	protected static function stash($identifier, $sql)
 	{
-		foreach ($ints as $int)
+		$identity = \join('', \array_slice(\explode('\\', \get_called_class()), -1));
+		return \app\SQLStash::prepare($identifier, $sql)
+			->timers(\app\Stash::tags(\get_called_class(), ['change']))
+			->table(static::table())
+			->identity($identity);
+	}
+
+	/**
+	 * @return \app\SQLStash
+	 */
+	protected static function inserter(array $fields, array $strs, array $bools = [], array $nums = [])
+	{
+		// compile keys for statement
+
+		$keys = [];
+		foreach ($strs as $str)
 		{
-			$keys[] = $int;
+			$keys[] = $str;
+		}
+
+		foreach ($nums as $num)
+		{
+			$keys[] = $num;
 		}
 
 		foreach ($bools as $bool)
@@ -77,22 +76,30 @@ trait Trait_Model_Utilities
 						('.\implode(', ', $value_keys).')
 				'
 			)
-			->mass_set($fields, $keys)
-			->mass_int($fields, $ints)
-			->mass_bool($fields, $bools)
+			->strs($fields, $strs)
+			->nums($fields, $nums)
+			->bools($fields, $bools)
 			->timers(\app\Stash::tags(\get_called_class(), ['change']))
 			->table(static::table())
 			->is('change');
 	}
 
 	/**
-	 * @return \app\SQLCache
+	 * @return \app\SQLStash
 	 */
-	protected static function updater($id, array $fields, array $keys, array $bools = [], array $ints = [])
+	protected static function updater($id, array $fields, array $strs, array $bools = [], array $nums = [])
 	{
-		foreach ($ints as $int)
+		// compile keys for statement
+
+		$keys = [];
+		foreach ($strs as $str)
 		{
-			$keys[] = $int;
+			$keys[] = $str;
+		}
+
+		foreach ($nums as $num)
+		{
+			$keys[] = $num;
 		}
 
 		foreach ($bools as $bool)
@@ -117,9 +124,9 @@ trait Trait_Model_Utilities
 					 WHERE '.static::unique_key().' = :id
 				'
 			)
-			->mass_set($fields, $keys)
-			->mass_int($fields, $ints)
-			->mass_bool($fields, $bools)
+			->strs($fields, $strs)
+			->nums($fields, $nums)
+			->bools($fields, $bools)
 			->num(':id', $id)
 			->timers(\app\Stash::tags(\get_called_class(), ['change']))
 			->table(static::table())
@@ -127,13 +134,22 @@ trait Trait_Model_Utilities
 	}
 
 	/**
+	 * @return \mjolnir\types\SQLStatement
+	 */
+	protected static function statement($identifier, $sql, $lang = null)
+	{
+		$sql = \strtr($sql, [':table' => static::table()]);
+		return \app\SQL::prepare($identifier, $sql, $lang);
+	}
+
+	/**
 	 * @return array
 	 */
-	static function field_format()
+	static function fieldformat()
 	{
-		if (isset(static::$field_format))
+		if (isset(static::$fieldformat))
 		{
-			return static::$field_format;
+			return static::$fieldformat;
 		}
 		else # no field format set
 		{

@@ -69,7 +69,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 		}
 		else # non-boolean
 		{
-			$this->statement->bindValue($parameter, $this->booleanize($value), \PDO::PARAM_BOOL);
+			$this->statement->bindValue($parameter, $this->booleanize($value, $map), \PDO::PARAM_BOOL);
 		}
 
 		return $this;
@@ -142,7 +142,8 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 		return $this;
 	}
 
-
+	// ------------------------------------------------------------------------
+	// etc
 
 	/**
 	 * Execute the statement.
@@ -153,7 +154,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	{
 		try
 		{
-			$this->statement->run();
+			$this->statement->execute();
 		}
 		catch (\Exception $exception)
 		{
@@ -171,8 +172,6 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	/**
 	 * Featch as object.
 	 *
-	 * @param string class
-	 * @param array paramters to be passed to constructor
 	 * @return mixed
 	 */
 	function fetch_object($class = 'stdClass', array $args = null)
@@ -181,7 +180,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	}
 
 	/**
-	 * Fetch associative array of row.
+	 * Fetch row as associative.
 	 *
 	 * @return array or null
 	 */

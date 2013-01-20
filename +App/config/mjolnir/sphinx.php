@@ -1,16 +1,16 @@
 <?php require_once \app\CFS::dir('vendor/sphinx/').'sphinxapi'.EXT;
 
 $base_config = \app\CFS::config('mjolnir/base');
-$offset = \app\SQLDatabase::default_timezone_offset();
+$offset = \app\Date::default_timezone_offset();
 
 return array
 	(
 		'timeout' => 1,
-	
+
 		'default.matchmode' => SPH_MATCH_ANY,
-	
+
 		'default.sortmode' => SPH_SORT_RELEVANCE,
-	
+
 		'default.src.config' => array
 			(
 				'type'     => 'mysql',
@@ -19,7 +19,7 @@ return array
 				'sql_pass' => null,
 				'sql_db'   => null,
 				'sql_port' => 3306, # optional, default is 3306
-			
+
 				'sql_query_pre' => array
 					(
 						"SET CHARACTER SET '{$base_config['charset']}';",
@@ -27,7 +27,7 @@ return array
 						"SET time_zone='$offset';"
 					),
 			),
-	
+
 		'index' => array
 			(
 				'default.path-prefix' => '@CONFDIR@/data/',
@@ -39,22 +39,22 @@ return array
 				'default.min_stemming_len' => 3,
 				'default.index_exact_words' => 0,
 			),
-	
+
 		'indexer' => array
 			(
 				'mem_limit' => '32M',
 			),
-	
+
 		'searchd' => array
 			(
 				'host' => 'localhost',
-			
+
 				'listen' => array
 					(
-						'api' => '9312', 
+						'api' => '9312',
 						'mysql' => '9306:mysql41',
 					),
-			
+
 				'log' => '@CONFDIR@/log/searchd.log',
 				'query_log' => '@CONFDIR@/log/query.log',
 				'read_timeout' => 5,
@@ -66,5 +66,5 @@ return array
 				'unlink_old' => 1,
 				'workers' => 'threads # for RT to work',
 				'binlog_path' => '@CONFDIR@/data',
-			),	
+			),
 	);

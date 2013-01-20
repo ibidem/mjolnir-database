@@ -27,11 +27,22 @@ class Task_Db_Uninstall extends \app\Instantiatable implements \mjolnir\types\Ta
 			if ($channel === false || $schematic['channel'] === $channel)
 			{
 				$worker = \call_user_func(array($schematic['class'], 'instance'));
-				$this->writer->writef(' Dropping '.$serial)->eol();
+				$this->writer->printf('reset');
+				$this->writer->writef(' Down: '.$serial);
 				$worker->down($schematic['serial']);
 			}
 		}
-		$this->writer->eol();
+
+		$this->writer->printf('reset');
+		if ($channel === false)
+		{
+			$this->writer->writef(' Removed application tables.')->eol();
+		}
+		else # single channel
+		{
+			$this->writer->writef(' Removed channel tables.')->eol();
+		}
+
 		// reset channel
 		if ($channel === false)
 		{
@@ -39,17 +50,18 @@ class Task_Db_Uninstall extends \app\Instantiatable implements \mjolnir\types\Ta
 			$channels = \app\Schematic::channels();
 			foreach ($channels as $channel)
 			{
-				$this->writer->writef(' Resetting channel ['.$channel.'] to 0:0-default')->eol();
+				$this->writer->printf('reset');
+				$this->writer->writef(' Resetting: '.$channel);
 				\app\Schematic::set_channel_serialversion($channel, '0:0-default');
 			}
+			$this->writer->printf('reset');
+			$this->writer->writef(' Reset channels.');
 		}
 		else # got channel
 		{
-			$this->writer->writef(' Resetting channel ['.$channel.'] to 0:0-default')->eol();
 			\app\Schematic::set_channel_serialversion($channel, '0:0-default');
+			$this->writer->writef(' Reset '.$channel);
 		}
-
-		$this->writer->eol();
 	}
 
 } # class

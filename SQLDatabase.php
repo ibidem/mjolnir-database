@@ -10,7 +10,7 @@
 class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatabase
 {
 	use \app\Trait_SQLDatabase;
-	
+
 	/**
 	 * @var array
 	 */
@@ -20,32 +20,32 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 	 * @var boolean
 	 */
 	protected $cleanup = false;
-	
+
 	/**
 	 * @var int
 	 */
 	protected $savepoint = 0;
-	
+
 	/**
-	 * @var string 
+	 * @var string
 	 */
 	protected $dialect_default;
-	
+
 	/**
-	 * @var string 
+	 * @var string
 	 */
 	protected $dialect_target;
-	
+
 	/**
 	 * @var \PDO
 	 */
 	protected $dbh;
-	
+
 	/**
 	 * Database setup; null if already executed.
 	 */
 	protected $setup = null;
-	
+
 	/**
 	 * @return \app\SQL
 	 */
@@ -54,10 +54,10 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 		if ( ! isset(static::$instances[$database]))
 		{
 			$instance = static::$instances[$database] = parent::instance();
-			
+
 			$instance->setup = function () use ($instance, $database)
 				{
-					try 
+					try
 					{
 						// attempt to load configuration
 						$pdo = \app\CFS::config('mjolnir/database');
@@ -72,26 +72,26 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 						// setup database handle
 						$dbh = $instance->dbh = new \PDO
 							(
-								$pdo['connection']['dsn'], 
-								$pdo['connection']['username'], 
+								$pdo['connection']['dsn'],
+								$pdo['connection']['username'],
 								$pdo['connection']['password']
 							);
 						// set error mode
 						$dbh->setAttribute
 							(
-								\PDO::ATTR_ERRMODE, 
-								\PDO::ERRMODE_EXCEPTION 
+								\PDO::ATTR_ERRMODE,
+								\PDO::ERRMODE_EXCEPTION
 							);
 						// default SQL flavor
 						$instance->dialect_default = $pdo['dialect_default'];
 						$instance->dialect_target = $pdo['dialect_target'];
-						
+
 						$base_config = \app\CFS::config('mjolnir/base');
 						// set charset
 						$instance->dbh->exec("SET CHARACTER SET '{$base_config['charset']}'");
 						$instance->dbh->exec("SET NAMES '{$base_config['charset']}'");
 						// set timezone
-						$offset = static::default_timezone_offset();
+						$offset = \app\Date::default_timezone_offset();
 						$instance->dbh->exec("SET time_zone='$offset';");
 					}
 					catch (\PDOException $e)
@@ -99,7 +99,7 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 						throw new \app\Exception($e->getMessage());
 					}
 				};
-				
+
 			return static::$instances[$database];
 		}
 		else # is set
@@ -107,26 +107,26 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 			return static::$instances[$database];
 		}
 	}
-	
+
 	/**
 	 * Cleanup
-	 */	
+	 */
 	function __destruct()
 	{
 		$this->dbh = null;
 	}
-	
+
 	/**
 	 * The key is usually __METHOD__ but any key may be provided so long as
-	 * it accuratly identifies the method. 
-	 * 
+	 * it accuratly identifies the method.
+	 *
 	 * eg.
-	 * 
+	 *
 	 *     $db->prepare(__METHOD__, 'SELECT * FROM customers');
 	 *     $db->prepare(__METHOD__.':users', 'SELECT * FROM users');
-	 * 
+	 *
 	 * The : in ':users' above is the keysplit.
-	 * 
+	 *
 	 * @return \mjolnir\types\SQLStatement
 	 */
 	function prepare($key, $statement = null, $lang = null)
@@ -143,17 +143,17 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 			return \app\SQLStatement::instance($prepared_statement, $statement.' -- '.$key);
 		}
 	}
-	
+
 	/**
 	 * @return string quoted version
 	 */
 	function quote($value)
 	{
 		$this->check_setup();
-		
+
 		return $this->dbh->quote($value);
 	}
-	
+
 	/**
 	 * @return mixed
 	 */
@@ -163,19 +163,19 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 		{
 			return null;
 		}
-		
+
 		return $this->dbh->lastInsertId($name);
 	}
-	
+
 	/**
 	 * Begin transaction or savepoint.
-	 * 
+	 *
 	 * @return \mjolnir\base\SQLDatabase $this
 	 */
 	function begin()
 	{
 		$this->check_setup();
-		
+
 		if ($this->savepoint == 0)
 		{
 			$this->dbh->beginTransaction();
@@ -185,17 +185,17 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 			$this->prepare(__METHOD__, 'SAVEPOINT save'.$this->savepoint, 'mysql');
 		}
 		++$this->savepoint;
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * Commit transaction or savepoint.
-	 * 
+	 *
 	 * @return \mjolnir\base\SQLDatabase $this
 	 */
 	function commit()
-	{		
+	{
 		--$this->savepoint;
 		if ($this->savepoint == 0)
 		{
@@ -205,13 +205,13 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 		{
 			$this->prepare(__METHOD__, 'RELEASE SAVEPOINT save'.$this->savepoint, 'mysql');
 		}
-		
+
 		return $this;
 	}
-	
+
 	/**
 	 * Rollback transaction or savepoint.
-	 * 
+	 *
 	 * @return \mjolnir\base\SQLDatabase $this
 	 */
 	function rollback()
@@ -225,28 +225,13 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 		{
 			$this->prepare(__METHOD__, 'ROLLBACK TO SAVEPOINT save'.$this->savepoint, 'mysql');
 		}
-		
+
 		return $this;
 	}
-	
+
 	// ------------------------------------------------------------------------
 	// Helpers
-	
-	/**
-	 * @return string
-	 */
-	protected static function default_timezone_offset()
-	{
-		$now = new \DateTime();  
-		$mins = $now->getOffset() / 60;  
-		$sgn = ($mins < 0 ? -1 : 1);  
-		$mins = \abs($mins);  
-		$hrs = \floor($mins / 60);
-		$mins -= $hrs * 60;
-		
-		return \sprintf('%+d:%02d', $hrs*$sgn, $mins);
-	}
-	
+
 	/**
 	 * @param string statement
 	 * @param string lang
@@ -254,11 +239,11 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 	 */
 	protected function requires_translation($statement, $lang)
 	{
-		return ($lang && $lang !== $this->dialect_target) 
+		return ($lang && $lang !== $this->dialect_target)
 			|| ($this->dialect_default !== $this->dialect_target)
 			|| $statement === null;
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -271,16 +256,15 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 			(
 				\str_replace
 					(
-						'::', 
-						':', 
+						'::',
+						':',
 						\str_replace('\\', '/', $key)
-					), 
+					),
 				'/'
 			);
 	}
-	
+
 	/**
-	 * @param string key
 	 * @return \mjolnir\types\SQLStatement
 	 */
 	protected function run_stored_statement($key)
@@ -294,7 +278,7 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 		{
 			$file = \mjolnir\cfs\CFSCompatible::CNFDIR
 				. '/sql/'.$this->dialect_target.'/'.$file;
-			
+
 			throw new \app\Exception
 				(
 					'Missing key ['.$key.'] in ['.$file.'].', # message
@@ -303,7 +287,10 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 		}
 		return $statements[$key]($this->dbh);
 	}
-	
+
+	/**
+	 * ...
+	 */
 	protected function check_setup()
 	{
 		if ($this->setup !== null)
@@ -313,5 +300,5 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 			$this->setup = null;
 		}
 	}
-	
+
 } # class

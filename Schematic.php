@@ -2,8 +2,8 @@
 
 /**
  * @package    mjolnir
- * @category   Migrations
- * @author     Ibidem
+ * @category   Database
+ * @author     Ibidem Team
  * @copyright  (c) 2012, Ibidem Team
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
  */
@@ -15,13 +15,150 @@ class Schematic
 	protected static $channel_table = '_schematics';
 
 	/**
-	 * @var string
+	 * @var string table name
 	 */
 	static function channel_table()
 	{
 		$database_config = \app\CFS::config('mjolnir/database');
 		return $database_config['table_prefix'].static::$channel_table;
 	}
+
+	/**
+	 * List of channels, complete with current serial version.
+	 *
+	 * @return array
+	 */
+	static function channel_list()
+	{
+		return \app\SQL::prepare
+			(
+				__METHOD__,
+				'
+					SELECT *
+					  FROM `'.static::channel_table().'`
+				',
+				'mysql'
+			)
+			->run()
+			->fetch_all();
+	}
+
+	/**
+	 * Normalized configuration.
+	 *
+	 * @return array
+	 */
+	static function config()
+	{
+		$config = \app\CFS::config('mjolnir/schematics');
+
+		foreach ($config['steps'] as $nominator => & $schematic)
+		{
+			if ( ! \preg_match('#(.*)-(.*)#', $schematic['serial']))
+			{
+				$schematic['serial'] .= '-default';
+			}
+
+			$schematic['channel'] = static::parse_channel($nominator);
+			$schematic['class'] = static::parse_class($nominator);
+		}
+
+		return $config;
+	}
+
+
+
+	// ------------------------------------------------------------------------
+	// Toolset
+
+	/**
+	 * Drop given tables. Foreign key checks will be ignored.
+	 *
+	 * @param ...
+	 */
+	static function destroy()
+	{
+		$args = \func_get_args();
+
+		\app\SQL::prepare
+			(
+				__METHOD__.':migration_template_droptable_fkcheck',
+				'SET foreign_key_checks = FALSE',
+				'mysql'
+			)
+			->run();
+
+		foreach ($args as $table)
+		{
+			\app\SQL::prepare
+				(
+					__METHOD__,
+					'DROP TABLE IF EXISTS `'.$table.'`',
+					'mysql'
+				)
+				->run();
+		}
+
+		\app\SQL::prepare
+			(
+				__METHOD__.':migration_template_reapply_table_fkcheck',
+				'SET foreign_key_checks = TRUE',
+				'mysql'
+			)
+			->run();
+	}
+
+	/**
+	 * Set version with out performing migrations.
+	 */
+	static function set_channel_serialversion($channel, $serial)
+	{
+		\app\SQL::prepare
+			(
+				__METHOD__,
+				'
+					UPDATE `'.static::channel_table().'`
+					   SET serial = :serial
+					 WHERE channel = :channel
+				',
+				'mysql'
+			)
+			->str(':serial', $serial)
+			->str(':channel', $channel)
+			->run();
+	}
+
+	// ------------------------------------------------------------------------
+	// Utilities
+
+	/**
+	 * Retrieve top serial for channel, given specified tag.
+	 *
+	 * @return string
+	 */
+	static function top_for_channel($channel, $tag = 'default')
+	{
+		$config = static::config();
+
+		$serial_list = array();
+		foreach ($config['steps'] as $schematic)
+		{
+			if ($schematic['channel'] === $channel)
+			{
+				$current = static::decompile($schematic['serial']);
+				if ($current['tag'] === $tag && ! \in_array($current['version'], $serial_list))
+				{
+					$serial_list[] = $current['version'];
+				}
+			}
+		}
+
+		static::sort_serial_list($serial_list);
+
+		return \array_pop($serial_list).'-'.$tag;
+	}
+
+	// ------------------------------------------------------------------------
 
 	static function processor($table, $count, $callback, $reads = 1000)
 	{
@@ -152,80 +289,22 @@ class Schematic
 			catch (\Exception $e)
 			{
 				if (\php_sapi_name() === 'cli')
-			{
-				echo PHP_EOL.PHP_EOL.' Query: '.PHP_EOL;
-				echo \app\Text::baseindent($query);
-				echo PHP_EOL.PHP_EOL;
-			}
+				{
+					echo PHP_EOL.PHP_EOL.' Query: '.PHP_EOL;
+					echo \app\Text::baseindent($query);
+					echo PHP_EOL.PHP_EOL;
+				}
 
 				throw $e;
 			}
 		}
 	}
 
-	static function destroy()
-	{
-		$args = \func_get_args();
 
-		\app\SQL::prepare
-			(
-				__METHOD__.':migration_template_droptable_fkcheck',
-				'SET foreign_key_checks = FALSE',
-				'mysql'
-			)
-			->run();
 
-		foreach ($args as $table)
-		{
-			\app\SQL::prepare
-				(
-					__METHOD__,
-					'DROP TABLE IF EXISTS `'.$table.'`',
-					'mysql'
-				)
-				->run();
-		}
 
-		\app\SQL::prepare
-			(
-				__METHOD__.':migration_template_reapply_table_fkcheck',
-				'SET foreign_key_checks = TRUE',
-				'mysql'
-			)
-			->run();
-	}
 
-	static function set_channel_serialversion($channel, $serial)
-	{
-		\app\SQL::prepare
-			(
-				__METHOD__,
-				'
-					UPDATE `'.static::channel_table().'`
-					   SET serial = :serial
-					 WHERE channel = :channel
-				',
-				'mysql'
-			)
-			->str(':serial', $serial)
-			->str(':channel', $channel)
-			->run();
-	}
 
-	static function channel_list()
-	{
-		return \app\SQL::prepare
-			(
-				__METHOD__,
-				'
-					SELECT *
-					  FROM `'.static::channel_table().'`
-				',
-				'mysql'
-			)
-			->run()
-			->fetch_all();
-	}
 
 	static function channels()
 	{
@@ -387,7 +466,6 @@ class Schematic
 			if ($schematic['channel'] === $channel && $schematic['serial'] === $serial)
 			{
 				$migration = \call_user_func([ $schematic['class'], 'instance' ]);
-				$migration->serial = $serial;
 				$migrations[] = array
 					(
 						'object' => $migration,
@@ -399,74 +477,9 @@ class Schematic
 		return $migrations;
 	}
 
-	static function top_for_channel($channel, $tag = 'default')
-	{
-		$config = static::config();
 
-		$serial_list = array();
-		foreach ($config['steps'] as $schematic)
-		{
-			if ($schematic['channel'] === $channel)
-			{
-				$current = static::decompile($schematic['serial']);
-				if ($current['tag'] === $tag && ! \in_array($current['version'], $serial_list))
-				{
-					$serial_list[] = $current['version'];
-				}
-			}
-		}
 
-		static::sort_serial_list($serial_list);
 
-		return \array_pop($serial_list).'-'.$tag;
-	}
-
-	static function config()
-	{
-		$config = \app\CFS::config('mjolnir/schematics');
-
-		foreach ($config['steps'] as $nominator => & $schematic)
-		{
-			if ( ! \preg_match('#(.*)-(.*)#', $schematic['serial']))
-			{
-				$schematic['serial'] .= '-default';
-			}
-
-			$schematic['channel'] = static::parse_channel($nominator);
-			$schematic['class'] = static::parse_class($nominator);
-		}
-
-		return $config;
-	}
-
-	static function parse_channel($nominator)
-	{
-		if (\preg_match('#^(.*):#', $nominator, $matches))
-		{
-			return $matches[1];
-		}
-
-		// we return default
-		return 'default';
-	}
-
-	static function parse_class($nominator)
-	{
-		$channel = static::parse_channel($nominator);
-
-		\preg_match('#^(.*:)?(.*)$#', $nominator, $matches);
-
-		$class_parts = \explode('-', $matches[2]);
-		$channel = \app\Arr::implode('_', \explode('-', $channel), function ($i, $v) {
-			return \ucfirst($v);
-		});
-
-		\array_unshift($class_parts, 'Schematic', $channel);
-
-		return '\app\\'.\app\Arr::implode('_', $class_parts, function ($k, $value) {
-			return \ucfirst($value);
-		});
-	}
 
 	static function get_serial_for($channel)
 	{
@@ -497,6 +510,48 @@ class Schematic
 			->str(':channel', $channel)
 			->str(':serial', $serial)
 			->run();
+	}
+
+	// ------------------------------------------------------------------------
+	// Helpers
+
+	/**
+	 * Retrieve channel from nominator.
+	 *
+	 * @return string
+	 */
+	static function parse_channel($nominator)
+	{
+		if (\preg_match('#^(.*):#', $nominator, $matches))
+		{
+			return $matches[1];
+		}
+
+		// we return default
+		return 'default';
+	}
+
+	/**
+	 * Retrieve class from nominator.
+	 *
+	 * @return string
+	 */
+	static function parse_class($nominator)
+	{
+		$channel = static::parse_channel($nominator);
+
+		\preg_match('#^(.*:)?(.*)$#', $nominator, $matches);
+
+		$class_parts = \explode('-', $matches[2]);
+		$channel = \app\Arr::implode('_', \explode('-', $channel), function ($i, $v) {
+			return \ucfirst($v);
+		});
+
+		\array_unshift($class_parts, 'Schematic', $channel);
+
+		return '\app\\'.\app\Arr::implode('_', $class_parts, function ($k, $value) {
+			return \ucfirst($value);
+		});
 	}
 
 } # class

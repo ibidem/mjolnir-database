@@ -1,34 +1,51 @@
 <?php namespace mjolnir\database;
 
 /**
- * The register manages key to value pairs in the database.
- *
  * @package    mjolnir
  * @category   Database
- * @author     Ibidem
+ * @author     Ibidem Team
  * @copyright  (c) 2012, Ibidem Team
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
  */
 class Register
 {
+	/**
+	 * @var string
+	 */
 	protected static $table = 'mjolnir_registery';
 
+	/**
+	 * @return string register table
+	 */
 	static function table()
 	{
 		$database_config = \app\CFS::config_file('mjolnir/database');
 		return $database_config['table_prefix'].static::$table;
 	}
 
+	/**
+	 * @return mixed
+	 */
+	static function key($key)
+	{
+		return static::pull([$key])[$key];
+	}
+
+	/**
+	 * Retrieves a set of keys.
+	 *
+	 * @return array
+	 */
 	static function pull(array $keys)
 	{
 		$statement = \app\SQL::prepare
 			(
 				__METHOD__,
 				'
-					SELECT reg.key,
-						   reg.value
-					  FROM `'.static::table().'` reg
-					 WHERE reg.key = :key
+					SELECT registry.key,
+						   registry.value
+					  FROM `'.static::table().'` registry
+					 WHERE registry.key = :key
 				',
 				'mysql'
 			)
@@ -44,15 +61,18 @@ class Register
 		return $resultset;
 	}
 
+	/**
+	 * Update key.
+	 */
 	static function push($key, $value)
 	{
 		\app\SQL::prepare
 			(
 				__METHOD__,
 				'
-					UPDATE `'.static::table().'` reg
-					   SET reg.value = :value
-					 WHERE reg.key = :key
+					UPDATE `'.static::table().'` registry
+					   SET registry.value = :value
+					 WHERE registry.key = :key
 				',
 				'mysql'
 			)
@@ -61,6 +81,9 @@ class Register
 			->run();
 	}
 
+	/**
+	 * Insert new key.
+	 */
 	static function inject($key, $value)
 	{
 		// check if it exists
@@ -69,8 +92,8 @@ class Register
 				__METHOD__.':method_exists',
 				'
 					SELECT COUNT(1)
-					  FROM `'.static::table().'` reg
-					 WHERE reg.key = :key
+					  FROM `'.static::table().'` registry
+					 WHERE registry.key = :key
 					 LIMIT 1
 				',
 				'mysql'
@@ -89,9 +112,7 @@ class Register
 					__METHOD__,
 					'
 						INSERT INTO `'.static::table().'`
-							(`key`, `value`)
-						VALUES
-							(:key, :value)
+						(`key`, `value`) VALUES (:key, :value)
 					',
 					'mysql'
 				)

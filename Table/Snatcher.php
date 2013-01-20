@@ -59,7 +59,6 @@ class Table_Snatcher extends \app\Instantiatable
 	}
 
 	/**
-	 * @param array tags
 	 * @return \app\Table_Snatcher $this
 	 */
 	function timers(array $tags)
@@ -106,7 +105,7 @@ class Table_Snatcher extends \app\Instantiatable
 	/**
 	 * @return array of arrays
 	 */
-	function fetch_all($field_format = [])
+	function fetch_all($fieldformat = [])
 	{
 		$page = $this->paged[0];
 		$limit = $this->paged[1];
@@ -204,7 +203,7 @@ class Table_Snatcher extends \app\Instantiatable
 			$statement = \app\SQL::prepare(__METHOD__, $sql)
 				->page($page, $limit, $offset);
 
-			$result = $statement->run()->fetch_all($field_format);
+			$result = $statement->run()->fetch_all($fieldformat);
 			\app\Stash::store($cache_key, $result, $this->tags);
 		}
 

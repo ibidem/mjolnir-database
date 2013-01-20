@@ -3,7 +3,7 @@
 /**
  * @package    mjolnir
  * @category   Database
- * @author     Ibidem
+ * @author     Ibidem Team
  * @copyright  (c) 2012, Ibidem Team
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
  */
@@ -20,6 +20,10 @@ class Task_Db_Sphinx extends \app\Instantiatable implements \mjolnir\types\Task
 		{
 			$this->regenerate();
 		}
+		else # no command
+		{
+			$this->writer->writef(' No parameters provided.')->eol();
+		}
 	}
 
 	/**
@@ -27,6 +31,8 @@ class Task_Db_Sphinx extends \app\Instantiatable implements \mjolnir\types\Task
 	 */
 	function regenerate()
 	{
+		\app\Task::consolewriter($this->writer);
+
 		$config = \app\CFS::config('mjolnir/sphinx');
 
 		// go though all models on the system and ask them for their sphinx details
@@ -138,7 +144,9 @@ class Task_Db_Sphinx extends \app\Instantiatable implements \mjolnir\types\Task
 		$sph_configuration_file = DRAFTPATH.'sphinx/sphinx.conf.mj';
 		\app\Filesystem::puts($sph_configuration_file, $sph_conf);
 
-		$this->writer->writef(' Created Sphinx configuration: '.$sph_configuration_file);
+		$this->writer->writef(' Created Sphinx configuration in: '.$sph_configuration_file)->eol()->eol();
+
+		$this->writer->writef(' Tip: To customize various generated values overwrite the [mjolnir/sphinx] configuration.')->eol();
 	}
 
 } # class

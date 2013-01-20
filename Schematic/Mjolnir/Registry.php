@@ -2,13 +2,18 @@
 
 /**
  * @package    mjolnir
- * @category   Schematic
- * @author     Ibidem
+ * @category   Database
+ * @author     Ibidem Team
  * @copyright  (c) 2012, Ibidem Team
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
  */
-class Schematic_Mjolnir_Registry extends \app\Schematic_Base
+class Schematic_Mjolnir_Registry extends \app\Instantiatable implements \mjolnir\types\Schematic
 {
+	use \app\Trait_Schematic;
+
+	/**
+	 * ...
+	 */
 	function down()
 	{
 		\app\Schematic::destroy
@@ -17,6 +22,9 @@ class Schematic_Mjolnir_Registry extends \app\Schematic_Base
 			);
 	}
 
+	/**
+	 * ...
+	 */
 	function up()
 	{
 		\app\Schematic::table
@@ -31,6 +39,9 @@ class Schematic_Mjolnir_Registry extends \app\Schematic_Base
 			);
 	}
 
+	/**
+	 * ...
+	 */
 	function build()
 	{
 		// populate register
@@ -41,9 +52,7 @@ class Schematic_Mjolnir_Registry extends \app\Schematic_Base
 				__METHOD__,
 				'
 					INSERT INTO `'.\app\Register::table().'`
-						(`key`, `value`)
-					VALUES
-						(:key, :value)
+					(`key`, `value`) VALUES (:key, :value)
 				',
 				'mysql'
 			)
