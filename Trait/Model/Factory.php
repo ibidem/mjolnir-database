@@ -54,7 +54,7 @@ trait Trait_Model_Factory
 	/**
 	 * Clean up fields
 	 */
-	static function cleanup(array & $fields)
+	static function cleanup(array &$fields)
 	{
 		// empty
 	}

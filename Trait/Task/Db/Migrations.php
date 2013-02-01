@@ -73,7 +73,7 @@ trait Trait_Task_Db_Migrations
 	/**
 	 * @return boolean
 	 */
-	protected static function channel_has_dependencies( & $channel, & $dependencies, & $channelorder)
+	protected static function channel_has_dependencies(&$channel, &$dependencies, &$channelorder)
 	{
 		$result = isset($dependencies[$channel]) && ! empty($dependencies[$channel]);
 
@@ -106,7 +106,7 @@ trait Trait_Task_Db_Migrations
 	/**
 	 * Process trail.
 	 */
-	protected function process_trail($channel, $trail, array & $bindings)
+	protected function process_trail($channel, $trail, array &$bindings)
 	{
 		// remove 0:0-default since it's merely an abstract serial
 		if ($trail[0] === '0:0-default')

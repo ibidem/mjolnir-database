@@ -86,7 +86,7 @@ trait Trait_Model_Collection
 	 * Utility function for creating the search query along with the
 	 * coresponding order by query.
 	 */
-	protected static function search_query_parameters($term, array & $columns, & $where, & $order)
+	protected static function search_query_parameters($term, array &$columns, &$where, &$order)
 	{
 		$term = '%'.$term.'%';
 		$query = 'LIKE '.\app\SQL::quote($term);

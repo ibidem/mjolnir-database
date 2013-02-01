@@ -90,7 +90,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	/**
 	 * @return \mjolnir\database\SQLStatement $this
 	 */
-	function bindstr($parameter, & $variable)
+	function bindstr($parameter, &$variable)
 	{
 		$this->statement->bindParam($parameter, $variable, \PDO::PARAM_STR);
 		return $this;
@@ -99,7 +99,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	/**
 	 * @return \mjolnir\database\SQLStatement $this
 	 */
-	function bindnum($parameter, & $variable)
+	function bindnum($parameter, &$variable)
 	{
 		$this->statement->bindParam($parameter, $variable, \PDO::PARAM_INT);
 		return $this;
@@ -108,7 +108,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	/**
 	 * @return \mjolnir\database\SQLStatement $this
 	 */
-	function bindbool($parameter, & $variable)
+	function bindbool($parameter, &$variable)
 	{
 		$this->statement->bindValue($parameter, $variable, \PDO::PARAM_BOOL);
 
@@ -118,7 +118,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	/**
 	 * @return \mjolnir\database\SQLStatement $this
 	 */
-	function binddate($parameter, & $variable)
+	function binddate($parameter, &$variable)
 	{
 		$this->statement->bindValue($parameter, $variable, \PDO::PARAM_STR);
 		return $this;
@@ -130,7 +130,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	/**
 	 * @return \mjolnir\database\SQLStatement $this
 	 */
-	function arg($parameter, & $variable)
+	function arg($parameter, &$variable)
 	{
 		$this->statement->bindParam
 			(
@@ -218,7 +218,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 		else # format not null
 		{
 			$result = $this->statement->fetchAll(\PDO::FETCH_ASSOC);
-			foreach ($result as & $entry)
+			foreach ($result as &$entry)
 			{
 				$this->format_entry($entry, $formatinfo);
 			}
@@ -233,7 +233,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	/**
 	 * Formats an entry.
 	 */
-	protected function format_entry( & $entry, array & $formatinfo)
+	protected function format_entry(&$entry, array &$formatinfo)
 	{
 		foreach ($formatinfo as $field => $operation)
 		{

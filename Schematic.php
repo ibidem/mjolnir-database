@@ -52,7 +52,7 @@ class Schematic
 	{
 		$config = \app\CFS::config('mjolnir/schematics');
 
-		foreach ($config['steps'] as $nominator => & $schematic)
+		foreach ($config['steps'] as $nominator => &$schematic)
 		{
 			if ( ! \preg_match('#(.*)-(.*)#', $schematic['serial']))
 			{
@@ -181,7 +181,7 @@ class Schematic
 				->run()
 				->fetch_all();
 
-			foreach ($patients as & $patient)
+			foreach ($patients as &$patient)
 			{
 				$callback($patient);
 			}
@@ -448,7 +448,7 @@ class Schematic
 		}
 	}
 
-	static function sort_serial_list( & $list)
+	static function sort_serial_list(&$list)
 	{
 		// order list
 		if (\count($list) > 1)

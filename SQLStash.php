@@ -137,7 +137,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	/**
 	 * @return \app\SQLCache $this
 	 */
-	function bindstr($param, & $variable)
+	function bindstr($param, &$variable)
 	{
 		return $this->str($param, $variable);
 	}
@@ -145,7 +145,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	/**
 	 * @return \app\SQLCache $this
 	 */
-	function bindnum($param, & $variable)
+	function bindnum($param, &$variable)
 	{
 		return $this->num($param, $variable);
 	}
@@ -153,7 +153,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	/**
 	 * @return \app\SQLCache $this
 	 */
-	function bindbool($param, & $variable)
+	function bindbool($param, &$variable)
 	{
 		return $this->bool($param, $variable);
 	}
@@ -161,7 +161,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	/**
 	 * @return \app\SQLCache $this
 	 */
-	function binddate($param, & $variable)
+	function binddate($param, &$variable)
 	{
 		return $this->date($param, $variable);
 	}
@@ -169,7 +169,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	/**
 	 * @return \app\SQLCache $this
 	 */
-	function arg($param, & $variable)
+	function arg($param, &$variable)
 	{
 		throw new \app\Exception('Operation not supported by SQLStash.');
 	}
@@ -177,7 +177,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	/**
 	 * @return \app\SQLCache $this
 	 */
-	function order(array & $order)
+	function order(array &$order)
 	{
 		$this->order = $order;
 

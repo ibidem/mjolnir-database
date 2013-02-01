@@ -77,7 +77,7 @@ class Task_Db_Install extends \app\Instantiatable implements \mjolnir\types\Task
 	/**
 	 * Process a channel.
 	 */
-	function process($channel, array & $bindings)
+	function process($channel, array &$bindings)
 	{
 		$this->verify_no_dataloss($channel);
 
