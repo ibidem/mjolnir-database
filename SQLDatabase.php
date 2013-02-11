@@ -276,7 +276,7 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 		$statements = \app\CFS::config('sql/'.$this->dialect_target.'/'.$file);
 		if ( ! isset($statements[$key]))
 		{
-			$file = \mjolnir\cfs\CFSCompatible::CNFDIR
+			$file = \mjolnir\cfs\CFSInterface::CNFDIR
 				. '/sql/'.$this->dialect_target.'/'.$file;
 
 			throw new \app\Exception
