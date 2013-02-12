@@ -20,12 +20,14 @@
 								'password'   => '',
 								'persistent' => false,
 							),
+					
 						/**
 						 * Extra options
 						 */
 						'charset'      => 'utf8',
 						'caching'      => false,
 						'profiling'    => true,
+					
 						/**
 						 * Dialect options. The default dialect is what will be assumed
 						 * for your statements when no language is specified. The target
@@ -43,4 +45,5 @@
 						'dialect_target' => 'mysql',
 					),
 			),
-	);
+	
+	); # config

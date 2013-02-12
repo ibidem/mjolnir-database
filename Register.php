@@ -19,7 +19,7 @@ class Register
 	 */
 	static function table()
 	{
-		$database_config = \app\CFS::config_file('mjolnir/database');
+		$database_config = \app\CFS::configfile('mjolnir/database');
 		return $database_config['table_prefix'].static::$table;
 	}
 

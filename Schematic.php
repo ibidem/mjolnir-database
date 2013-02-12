@@ -252,6 +252,9 @@ class Schematic
 			->run();
 	}
 
+	/**
+	 * Definition format: Table => [ FkTable, On DELETE, On UPDATE ],
+	 */
 	static function constraints(array $defintions)
 	{
 		foreach ($defintions as $table => $constraints)

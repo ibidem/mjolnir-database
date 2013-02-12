@@ -59,7 +59,7 @@ class Schematic_Mjolnir_Registry extends \app\Instantiatable implements \mjolnir
 			->bindstr(':key', $key)
 			->bindstr(':value', $value);
 
-		foreach (\app\CFS::config_file('mjolnir/register')['keys'] as $target => $default)
+		foreach (\app\CFS::configfile('mjolnir/register')['keys'] as $target => $default)
 		{
 			$key = $target;
 			$value = $default;
