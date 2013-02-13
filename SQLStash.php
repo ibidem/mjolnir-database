@@ -378,10 +378,10 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	 */
 	protected function process_statement($statement)
 	{
-		$statement->strs($this->strs);
-		$statement->nums($this->nums);
-		$statement->bools($this->bools);
-		$statement->dates($this->dates);
+		$statement->strs($this->strs, null, null);
+		$statement->nums($this->nums, null, null);
+		$statement->bools($this->bools, null, null, null);
+		$statement->dates($this->dates, null, null);
 	}
 
 } # class
