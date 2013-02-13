@@ -25,6 +25,7 @@
 				':timestamp' => 'timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP',
 				':boolean' => 'boolean',
 				':currency' => 'decimal(17, 2)', # +/- 999 billion
+				':pageviews' => 'bigint',
 
 				// access control
 				':access' => 'boolean DEFAULT FALSE NOT NULL',
