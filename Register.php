@@ -12,7 +12,7 @@ class Register
 	/**
 	 * @var string
 	 */
-	protected static $table = '_mj_registery';
+	protected static $table = 'mjolnir__registery';
 
 	/**
 	 * @return string register table

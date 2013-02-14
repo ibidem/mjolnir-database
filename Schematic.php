@@ -12,7 +12,7 @@ class Schematic
 	/**
 	 * @var string
 	 */
-	protected static $channel_table = '_schematics';
+	protected static $channel_table = 'mjolnir__schematics';
 
 	/**
 	 * @var string table name
