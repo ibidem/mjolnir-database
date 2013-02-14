@@ -31,6 +31,15 @@
 				':access' => 'boolean DEFAULT FALSE NOT NULL',
 
 				// uncommon
+			
+				# browsers can handle urls of between 1855 - 2047 characters,
+				# depending on vendor; lower for certain applications such as
+				# mailto: in IE. Use this if you believe it's possible a user
+				# might insert a url with a long query
+				':longurl' => 'varchar(1855)',				
+				# url length recomended by standards; use this for non-query 
+				# urls such as website links, etc
+				':url' => 'varchar(255)',
 
 				# systems usually handle paths of 32,000, but 260 is the recomended safe limit for cross-platform compatibility
 				':path' => 'varchar(260)',
@@ -44,10 +53,10 @@
 				':titlename' => 'varchar(80)',
 				# IPv6 length 39 + tunneling IPv4 = 45
 				':ipaddress' => 'varchar(45) CHARACTER SET latin1 COLLATE latin1_bin',
-				# Secure Hash Algorthm (sha512)
+				# general purpose hash, Secure Hash Algorthm (sha512)
 				':secure_hash' => 'char(128) CHARACTER SET latin1 COLLATE latin1_bin',
 				# telephone number
-				':telephone' => 'varchar(255)',
+				':phonenumber' => 'varchar(255)',
 				# sex as m / f
 				':sex' => 'varchar(1)',
 				# universal social security number field; use of localized ssn's is not
