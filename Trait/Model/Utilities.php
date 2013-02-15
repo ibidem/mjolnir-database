@@ -149,7 +149,21 @@ trait Trait_Model_Utilities
 	{
 		if (isset(static::$fieldformat))
 		{
-			return static::$fieldformat;
+			if (\is_array(static::$fieldformat))
+			{
+				return static::$fieldformat;
+			}
+			else # configuration path
+			{
+				if (isset(\app\CFS::config(static::$fieldformat)['fieldformat']))
+				{
+					return \app\CFS::config(static::$fieldformat)['fieldformat'];
+				}
+				else # missing fieldformat key
+				{
+					throw new \app\Exception('Missing key [fieldformat] in configuration file: '.static::$fieldformat);
+				}
+			}
 		}
 		else # no field format set
 		{
