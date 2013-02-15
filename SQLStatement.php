@@ -216,7 +216,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 			return $this->statement->fetchAll(\PDO::FETCH_ASSOC);
 		}
 		else # format not null
-		{
+		{			
 			$result = $this->statement->fetchAll(\PDO::FETCH_ASSOC);
 			foreach ($result as &$entry)
 			{

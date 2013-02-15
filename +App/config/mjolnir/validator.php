@@ -2,8 +2,9 @@
 	(
 		'errors' => array
 			(
-				'not_empty' => 'Field is required.',
-				'valid' => 'Invalid value.'
+				'not_empty' => \app\Lang::term('Field is required.'),
+				'valid' => \app\Lang::term('Invalid value.'),
+				'exists' => \app\Lang::term('Invalid value.'),
 			),
 
 		'rules' => array
