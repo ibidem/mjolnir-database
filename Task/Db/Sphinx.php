@@ -34,7 +34,7 @@ class Task_Db_Sphinx extends \app\Instantiatable implements \mjolnir\types\Task
 		\app\Task::consolewriter($this->writer);
 
 		$config = \app\CFS::config('mjolnir/sphinx');
-
+		
 		// go though all models on the system and ask them for their sphinx details
 		$model_classes = \app\CFS::classmatches('#^Model_.*$#');
 

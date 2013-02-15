@@ -14,6 +14,14 @@ trait Trait_Model_MjolnirSphinx
 	/**
 	 * @return string
 	 */
+	static function sph_joins()
+	{
+		return '';
+	}
+	
+	/**
+	 * @return string
+	 */
 	static function sph_name()
 	{
 		return static::table();
@@ -80,7 +88,15 @@ trait Trait_Model_MjolnirSphinx
 			// we must gurantee id field remains first
 			foreach (static::$sph_fields as $key => $value)
 			{
-				$fields[$key] = $value;
+				if ( !\is_integer($key))
+				{
+					$fields[$value] = $key;
+				}
+				else # value is also key
+				{
+					$fields[$value] = $value;
+				}
+				
 			}
 		}
 		else # no fields defined; defaulting to all string fields and id
@@ -89,9 +105,9 @@ trait Trait_Model_MjolnirSphinx
 
 			$fieldlist = static::fieldlist();
 
-			if (isset($fieldlist['string']))
+			if (isset($fieldlist['strs']))
 			{
-				foreach (static::fieldlist()['string'] as $field)
+				foreach (static::fieldlist()['strs'] as $field)
 				{
 					$fields[$field] = $field;
 				}
@@ -101,18 +117,32 @@ trait Trait_Model_MjolnirSphinx
 		$source_fields = \app\Arr::implode(', ', $fields, function ($key, $definition) {
 			if ($key === $definition)
 			{
-				return '`'.$definition.'`';
+				if (\stripos($definition, '.') === false)
+				{
+					return 'entry.`'.$definition.'`';
+				}
+				else # raw
+				{
+					return $definition;
+				}
 			}
 			else # key !== definition
 			{
-				return '`'.$definition.'` AS `'.$key.'`';
+				if (\stripos($definition, '.') === false)
+				{
+					return 'entry.`'.$definition.'` AS `'.$key.'`';
+				}
+				else # raw
+				{
+					return $definition.' AS `'.$key.'`';
+				}
 			}
 
 		});
 
 		$sph_source
 			.= $source_fields." \\\n"
-			. "\t\tFROM `".static::table()."`\n\n"
+			. "\t\tFROM `".static::table()."` entry ".\preg_replace("[\n\r]", ' ', static::sph_joins())."\n\n"
 			;
 
 		// attributes

@@ -178,5 +178,13 @@ trait Trait_Model_Utilities
 	{
 		\app\Stash::purge(\app\Stash::tags(\get_called_class(), $tags));
 	}
+	
+	/**
+	 * @return array
+	 */
+	static function fieldlist()
+	{
+		return static::$fields;
+	}
 
 } # trait

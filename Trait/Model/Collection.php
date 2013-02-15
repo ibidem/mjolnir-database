@@ -31,7 +31,7 @@ trait Trait_Model_Collection
 	 *
 	 * @return array of arrays
 	 */
-	static function select_entries(array $entries)
+	static function select_entries(array $entries = null)
 	{
 		if (empty($entries))
 		{
