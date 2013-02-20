@@ -13,7 +13,7 @@
 		'definitions' => array
 			(
 				// common
-
+				
 				':key_primary' => "bigint(20) unsigned NOT NULL AUTO_INCREMENT",
 				':key_foreign' => "bigint(20) unsigned",
 				':counter' => "bigint(20) unsigned NOT NULL DEFAULT '0'",
@@ -26,6 +26,7 @@
 				':boolean' => 'boolean',
 				':currency' => 'decimal(17, 2)', # +/- 999 billion
 				':pageviews' => 'bigint',
+				':word' => 'varchar(45)', // longest word in english
 
 				// access control
 				':access' => 'boolean DEFAULT FALSE NOT NULL',
@@ -68,9 +69,9 @@
 				# in the real world tend to be things like 999-9999-99 etc.
 				':identifier' => 'varchar(100) DEFAULT \'\'',
 
-				# zipcodes usually go for around 4 to 9
-				# 16 used for safety (assuming misc characters)
-				':zipcode' => 'varchar(16)',
+				# assumed zipcode by default, zipcodes usually go for 
+				# around 4 to 9; 16 used for safety (assuming misc characters)
+				':postalcode' => 'varchar(16)',
 
 				// general
 
