@@ -22,7 +22,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	protected $query;
 
 	/**
-	 * @return \app\SQLStatement
+	 * @return static
 	 */
 	static function instance(\PDOStatement $statement = null, $query = null)
 	{
@@ -41,7 +41,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	// Basic assignment
 
 	/**
-	 * @return \mjolnir\database\SQLStatement $this
+	 * @return static $this
 	 */
 	function str($parameter, $value)
 	{
@@ -50,7 +50,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	}
 
 	/**
-	 * @return \mjolnir\database\SQLStatement $this
+	 * @return static $this
 	 */
 	function num($parameter, $value)
 	{
@@ -59,7 +59,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	}
 
 	/**
-	 * @return \mjolnir\database\SQLStatement $this
+	 * @return static $this
 	 */
 	function bool($parameter, $value, array $map = null)
 	{
@@ -76,7 +76,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	}
 
 	/**
-	 * @return \mjolnir\database\SQLStatement $this
+	 * @return static $this
 	 */
 	function date($parameter, $value)
 	{
@@ -88,7 +88,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	// Basic Binding
 
 	/**
-	 * @return \mjolnir\database\SQLStatement $this
+	 * @return static $this
 	 */
 	function bindstr($parameter, &$variable)
 	{
@@ -97,7 +97,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	}
 
 	/**
-	 * @return \mjolnir\database\SQLStatement $this
+	 * @return static $this
 	 */
 	function bindnum($parameter, &$variable)
 	{
@@ -106,7 +106,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	}
 
 	/**
-	 * @return \mjolnir\database\SQLStatement $this
+	 * @return static $this
 	 */
 	function bindbool($parameter, &$variable)
 	{
@@ -116,7 +116,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	}
 
 	/**
-	 * @return \mjolnir\database\SQLStatement $this
+	 * @return static $this
 	 */
 	function binddate($parameter, &$variable)
 	{
@@ -128,7 +128,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	// Stored procedure arguments
 
 	/**
-	 * @return \mjolnir\database\SQLStatement $this
+	 * @return static $this
 	 */
 	function arg($parameter, &$variable)
 	{
@@ -148,7 +148,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	/**
 	 * Execute the statement.
 	 *
-	 * @return \mjolnir\database\SQLStatement $this
+	 * @return static $this
 	 */
 	function run()
 	{

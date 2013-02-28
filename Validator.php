@@ -12,7 +12,7 @@ class Validator extends \app\Instantiatable implements \mjolnir\types\Validator
 	use \app\Trait_Validator;
 
 	/**
-	 * @return \mjolnir\database\Validator
+	 * @return static
 	 */
 	static function instance(array $fields = null)
 	{

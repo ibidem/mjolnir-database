@@ -19,7 +19,7 @@ class Table_Snatcher extends \app\Instantiatable
 	protected $constraints = [];
 
 	/**
-	 * @return \app\Table_Snatcher $this
+	 * @return static $this
 	 */
 	function query($query)
 	{
@@ -29,7 +29,7 @@ class Table_Snatcher extends \app\Instantiatable
 	}
 
 	/**
-	 * @return \app\Table_Snatcher $this
+	 * @return static $this
 	 */
 	function identity($identity)
 	{
@@ -39,7 +39,7 @@ class Table_Snatcher extends \app\Instantiatable
 	}
 
 	/**
-	 * @return \app\Table_Snatcher $this
+	 * @return static $this
 	 */
 	function id($id)
 	{
@@ -49,7 +49,7 @@ class Table_Snatcher extends \app\Instantiatable
 	}
 
 	/**
-	 * @return \app\Table_Snatcher $this
+	 * @return static $this
 	 */
 	function table($table)
 	{
@@ -59,7 +59,7 @@ class Table_Snatcher extends \app\Instantiatable
 	}
 
 	/**
-	 * @return \app\Table_Snatcher $this
+	 * @return static $this
 	 */
 	function timers(array $tags)
 	{
@@ -69,7 +69,7 @@ class Table_Snatcher extends \app\Instantiatable
 	}
 
 	/**
-	 * @return \app\SQLStash $this
+	 * @return static $this
 	 */
 	function constraints(array $constraints)
 	{
@@ -79,7 +79,7 @@ class Table_Snatcher extends \app\Instantiatable
 	}
 
 	/**
-	 * @return \app\Table_Snatcher $this
+	 * @return static $this
 	 */
 	function order(array $field_order)
 	{

@@ -47,7 +47,7 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 	protected $setup = null;
 
 	/**
-	 * @return \app\SQL
+	 * @return static
 	 */
 	static function instance($database = 'default')
 	{
@@ -170,7 +170,7 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 	/**
 	 * Begin transaction or savepoint.
 	 *
-	 * @return \mjolnir\base\SQLDatabase $this
+	 * @return static $this
 	 */
 	function begin()
 	{
@@ -192,7 +192,7 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 	/**
 	 * Commit transaction or savepoint.
 	 *
-	 * @return \mjolnir\base\SQLDatabase $this
+	 * @return static $this
 	 */
 	function commit()
 	{
@@ -212,7 +212,7 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 	/**
 	 * Rollback transaction or savepoint.
 	 *
-	 * @return \mjolnir\base\SQLDatabase $this
+	 * @return static $this
 	 */
 	function rollback()
 	{

@@ -52,7 +52,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	}
 
 	/**
-	 * @return \mjolnir\cache\SQLStash $this
+	 * @return static $this
 	 */
 	function identity($identity)
 	{
@@ -62,7 +62,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	}
 
 	/**
-	 * @return \mjolnir\cache\SQLStash $this
+	 * @return static $this
 	 */
 	function constraints(array $constraints)
 	{
@@ -75,7 +75,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	 * Sets the identity of the operation; to be used when processing cache
 	 * effects
 	 *
-	 * @return \app\SQLCache $this
+	 * @return static $this
 	 */
 	function is($identity)
 	{
@@ -85,7 +85,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	}
 
 	/**
-	 * @return \app\SQLCache $this
+	 * @return static $this
 	 */
 	function table($table)
 	{
@@ -95,7 +95,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	}
 
 	/**
-	 * @return \app\SQLCache $this
+	 * @return static $this
 	 */
 	function str($param, $value)
 	{
@@ -105,7 +105,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	}
 
 	/**
-	 * @return \app\SQLCache $this
+	 * @return static $this
 	 */
 	function num($param, $value)
 	{
@@ -115,7 +115,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	}
 
 	/**
-	 * @return \app\SQLCache $this
+	 * @return static $this
 	 */
 	function bool($param, $value, array $map = null)
 	{
@@ -125,7 +125,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	}
 
 	/**
-	 * @return \app\SQLCache $this
+	 * @return static $this
 	 */
 	function date($param, $value)
 	{
@@ -135,7 +135,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	}
 
 	/**
-	 * @return \app\SQLCache $this
+	 * @return static $this
 	 */
 	function bindstr($param, &$variable)
 	{
@@ -143,7 +143,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	}
 
 	/**
-	 * @return \app\SQLCache $this
+	 * @return static $this
 	 */
 	function bindnum($param, &$variable)
 	{
@@ -151,7 +151,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	}
 
 	/**
-	 * @return \app\SQLCache $this
+	 * @return static $this
 	 */
 	function bindbool($param, &$variable)
 	{
@@ -159,7 +159,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	}
 
 	/**
-	 * @return \app\SQLCache $this
+	 * @return static $this
 	 */
 	function binddate($param, &$variable)
 	{
@@ -167,7 +167,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	}
 
 	/**
-	 * @return \app\SQLCache $this
+	 * @return static $this
 	 */
 	function arg($param, &$variable)
 	{
@@ -175,7 +175,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	}
 
 	/**
-	 * @return \app\SQLCache $this
+	 * @return static $this
 	 */
 	function order(array &$order)
 	{
@@ -185,7 +185,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	}
 
 	/**
-	 * @return \mjolnir\cache\SQLStash $this
+	 * @return static $this
 	 */
 	function key($partial_key)
 	{
@@ -195,7 +195,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	}
 
 	/**
-	 * @return \app\SQLStash $this
+	 * @return static $this
 	 */
 	function page($page, $limit = null, $offset = 0)
 	{
@@ -234,7 +234,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	}
 
 	/**
-	 * @return \app\SQLCache $this
+	 * @return static $this
 	 */
 	function fetch_object($class = 'stdClass', array $args = null)
 	{

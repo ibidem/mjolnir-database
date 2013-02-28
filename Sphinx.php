@@ -17,7 +17,7 @@ class Sphinx extends \app\Instantiatable implements \mjolnir\types\Paged
 	protected $sphinx = null;
 
 	/**
-	 * @return \app\Sphinx instance
+	 * @return static
 	 */
 	static function instance()
 	{
@@ -37,7 +37,7 @@ class Sphinx extends \app\Instantiatable implements \mjolnir\types\Paged
 	}
 
 	/**
-	 * @return \app\Sphinx $this
+	 * @return static $this
 	 */
 	function filter($attribute, $values, $exclude = false)
 	{
@@ -46,7 +46,7 @@ class Sphinx extends \app\Instantiatable implements \mjolnir\types\Paged
 	}
 
 	/**
-	 * @return \app\Sphinx $this
+	 * @return static $this
 	 */
 	function matchmode($matchmode)
 	{
@@ -55,7 +55,7 @@ class Sphinx extends \app\Instantiatable implements \mjolnir\types\Paged
 	}
 
 	/**
-	 * @return \app\Sphinx $this
+	 * @return static $this
 	 */
 	function sortmode($sortmode)
 	{
@@ -64,7 +64,7 @@ class Sphinx extends \app\Instantiatable implements \mjolnir\types\Paged
 	}
 
 	/**
-	 * @return \app\Sphinx $this
+	 * @return static $this
 	 */
 	function page($page, $limit = null, $offset = 0)
 	{
