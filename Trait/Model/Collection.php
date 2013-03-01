@@ -223,18 +223,37 @@ trait Trait_Model_Collection
 	}
 
 	/**
-	 * @param array user id's
+	 * Deletes given entries (primary key assumed). Constraints can be used to
+	 * ensure no entries not belonging to the given entity are deleted.
 	 */
-	static function delete(array $entries)
+	static function delete(array $entries, array $constraints = null)
 	{
 		$entry = null;
 		$partial_cachekey = \get_called_class().'_ID';
+		
+		if ($constraints !== null)
+		{
+			$constraintkey = ' AND '.\app\Arr::implode
+				(
+					' AND ', 
+					$constraints, 
+					function ($key, $value) 
+					{
+						return "`$key` <=> $value";
+					}
+				);
+		}
+		else # no constraints
+		{
+			$constraintkey = '';
+		}
+		
 		$statement = static::statement
 			(
 				__METHOD__,
 				'
 					DELETE FROM :table
-					 WHERE `'.static::unique_key().'` = :id
+					 WHERE `'.static::unique_key().'` = :id '.$constraintkey.'
 				'
 			)
 			->bindnum(':id', $entry);
