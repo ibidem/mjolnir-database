@@ -6,16 +6,34 @@
 // HowTo: order honeypot -n 'mjolnir\database'
 
 
-class Register extends \mjolnir\database\Register {  }
+class Register extends \mjolnir\database\Register
+{
+}
 
-class SQL extends \mjolnir\database\SQL {  }
+class SQL extends \mjolnir\database\SQL
+{
+	/** @return \app\SQLStatement */
+	static function prepare($key, $statement = null, $lang = null) { return parent::prepare($key, $statement, $lang); }
+	/** @return \app\SQLDatabase */
+	static function begin() { return parent::begin(); }
+	/** @return \app\SQLDatabase */
+	static function commit() { return parent::commit(); }
+	/** @return \app\SQLDatabase */
+	static function rollback() { return parent::rollback(); }
+}
 
 /**
+ * @method \app\SQLStatement prepare($key, $statement = null, $lang = null)
  * @method \app\SQLDatabase begin()
  * @method \app\SQLDatabase commit()
  * @method \app\SQLDatabase rollback()
+ * @method \app\SQLStatement run_stored_statement($key)
  */
-class SQLDatabase extends \mjolnir\database\SQLDatabase { /** @return \app\SQLDatabase */ static function instance($database = 'default') { return parent::instance($database); } }
+class SQLDatabase extends \mjolnir\database\SQLDatabase
+{
+	/** @return \app\SQLDatabase */
+	static function instance($database = 'default') { return parent::instance($database); }
+}
 
 /**
  * @method \app\SQLStash identity($identity)
@@ -45,7 +63,11 @@ class SQLDatabase extends \mjolnir\database\SQLDatabase { /** @return \app\SQLDa
  * @method \app\SQLStash binddates(array  & $params, array $filter = null, array $map = null, $varkey = ':')
  * @method \app\SQLStash args(array  & $params, array $filter = null, $varkey = ':')
  */
-class SQLStash extends \mjolnir\database\SQLStash { /** @return \app\SQLStash */ static function instance() { return parent::instance(); } }
+class SQLStash extends \mjolnir\database\SQLStash
+{
+	/** @return \app\SQLStash */
+	static function instance() { return parent::instance(); }
+}
 
 /**
  * @method \app\SQLStatement str($parameter, $value)
@@ -69,11 +91,21 @@ class SQLStash extends \mjolnir\database\SQLStash { /** @return \app\SQLStash */
  * @method \app\SQLStatement args(array  & $params, array $filter = null, $varkey = ':')
  * @method \app\SQLStatement page($page, $limit = null, $offset = 0)
  */
-class SQLStatement extends \mjolnir\database\SQLStatement { /** @return \app\SQLStatement */ static function instance($statement = null, $query = null) { return parent::instance($statement, $query); } }
+class SQLStatement extends \mjolnir\database\SQLStatement
+{
+	/** @return \app\SQLStatement */
+	static function instance($statement = null, $query = null) { return parent::instance($statement, $query); }
+}
 
-class Schematic_Mjolnir_Registry extends \mjolnir\database\Schematic_Mjolnir_Registry { /** @return \app\Schematic_Mjolnir_Registry */ static function instance() { return parent::instance(); } }
+class Schematic_Mjolnir_Registry extends \mjolnir\database\Schematic_Mjolnir_Registry
+{
+	/** @return \app\Schematic_Mjolnir_Registry */
+	static function instance() { return parent::instance(); }
+}
 
-class Schematic extends \mjolnir\database\Schematic {  }
+class Schematic extends \mjolnir\database\Schematic
+{
+}
 
 /**
  * @method \app\Sphinx filter($attribute, $values, $exclude = false)
@@ -81,7 +113,11 @@ class Schematic extends \mjolnir\database\Schematic {  }
  * @method \app\Sphinx sortmode($sortmode)
  * @method \app\Sphinx page($page, $limit = null, $offset = 0)
  */
-class Sphinx extends \mjolnir\database\Sphinx { /** @return \app\Sphinx */ static function instance() { return parent::instance(); } }
+class Sphinx extends \mjolnir\database\Sphinx
+{
+	/** @return \app\Sphinx */
+	static function instance() { return parent::instance(); }
+}
 
 /**
  * @method \app\Table_Snatcher query($query)
@@ -92,71 +128,115 @@ class Sphinx extends \mjolnir\database\Sphinx { /** @return \app\Sphinx */ stati
  * @method \app\Table_Snatcher constraints(array $constraints)
  * @method \app\Table_Snatcher order(array $field_order)
  */
-class Table_Snatcher extends \mjolnir\database\Table_Snatcher { /** @return \app\Table_Snatcher */ static function instance() { return parent::instance(); } }
+class Table_Snatcher extends \mjolnir\database\Table_Snatcher
+{
+	/** @return \app\Table_Snatcher */
+	static function instance() { return parent::instance(); }
+}
 
 /**
  * @method \app\Task_Db_Init set($name, $value)
  * @method \app\Task_Db_Init add($name, $value)
  * @method \app\Task_Db_Init metadata_is(array $metadata = null)
  * @method \app\Task_Db_Init writer_is($writer)
+ * @method \app\Writer writer()
  */
-class Task_Db_Init extends \mjolnir\database\Task_Db_Init { /** @return \app\Task_Db_Init */ static function instance() { return parent::instance(); } }
+class Task_Db_Init extends \mjolnir\database\Task_Db_Init
+{
+	/** @return \app\Task_Db_Init */
+	static function instance() { return parent::instance(); }
+}
 
 /**
  * @method \app\Task_Db_Install set($name, $value)
  * @method \app\Task_Db_Install add($name, $value)
  * @method \app\Task_Db_Install metadata_is(array $metadata = null)
  * @method \app\Task_Db_Install writer_is($writer)
+ * @method \app\Writer writer()
  */
-class Task_Db_Install extends \mjolnir\database\Task_Db_Install { /** @return \app\Task_Db_Install */ static function instance() { return parent::instance(); } }
+class Task_Db_Install extends \mjolnir\database\Task_Db_Install
+{
+	/** @return \app\Task_Db_Install */
+	static function instance() { return parent::instance(); }
+}
 
 /**
  * @method \app\Task_Db_Reset set($name, $value)
  * @method \app\Task_Db_Reset add($name, $value)
  * @method \app\Task_Db_Reset metadata_is(array $metadata = null)
  * @method \app\Task_Db_Reset writer_is($writer)
+ * @method \app\Writer writer()
  */
-class Task_Db_Reset extends \mjolnir\database\Task_Db_Reset { /** @return \app\Task_Db_Reset */ static function instance() { return parent::instance(); } }
+class Task_Db_Reset extends \mjolnir\database\Task_Db_Reset
+{
+	/** @return \app\Task_Db_Reset */
+	static function instance() { return parent::instance(); }
+}
 
 /**
  * @method \app\Task_Db_Sphinx set($name, $value)
  * @method \app\Task_Db_Sphinx add($name, $value)
  * @method \app\Task_Db_Sphinx metadata_is(array $metadata = null)
  * @method \app\Task_Db_Sphinx writer_is($writer)
+ * @method \app\Writer writer()
  */
-class Task_Db_Sphinx extends \mjolnir\database\Task_Db_Sphinx { /** @return \app\Task_Db_Sphinx */ static function instance() { return parent::instance(); } }
+class Task_Db_Sphinx extends \mjolnir\database\Task_Db_Sphinx
+{
+	/** @return \app\Task_Db_Sphinx */
+	static function instance() { return parent::instance(); }
+}
 
 /**
  * @method \app\Task_Db_Uninstall set($name, $value)
  * @method \app\Task_Db_Uninstall add($name, $value)
  * @method \app\Task_Db_Uninstall metadata_is(array $metadata = null)
  * @method \app\Task_Db_Uninstall writer_is($writer)
+ * @method \app\Writer writer()
  */
-class Task_Db_Uninstall extends \mjolnir\database\Task_Db_Uninstall { /** @return \app\Task_Db_Uninstall */ static function instance() { return parent::instance(); } }
+class Task_Db_Uninstall extends \mjolnir\database\Task_Db_Uninstall
+{
+	/** @return \app\Task_Db_Uninstall */
+	static function instance() { return parent::instance(); }
+}
 
 /**
  * @method \app\Task_Db_Upgrade set($name, $value)
  * @method \app\Task_Db_Upgrade add($name, $value)
  * @method \app\Task_Db_Upgrade metadata_is(array $metadata = null)
  * @method \app\Task_Db_Upgrade writer_is($writer)
+ * @method \app\Writer writer()
  */
-class Task_Db_Upgrade extends \mjolnir\database\Task_Db_Upgrade { /** @return \app\Task_Db_Upgrade */ static function instance() { return parent::instance(); } }
+class Task_Db_Upgrade extends \mjolnir\database\Task_Db_Upgrade
+{
+	/** @return \app\Task_Db_Upgrade */
+	static function instance() { return parent::instance(); }
+}
 
 /**
  * @method \app\Task_Db_Version set($name, $value)
  * @method \app\Task_Db_Version add($name, $value)
  * @method \app\Task_Db_Version metadata_is(array $metadata = null)
  * @method \app\Task_Db_Version writer_is($writer)
+ * @method \app\Writer writer()
  */
-class Task_Db_Version extends \mjolnir\database\Task_Db_Version { /** @return \app\Task_Db_Version */ static function instance() { return parent::instance(); } }
+class Task_Db_Version extends \mjolnir\database\Task_Db_Version
+{
+	/** @return \app\Task_Db_Version */
+	static function instance() { return parent::instance(); }
+}
 
 /**
  * @method \app\Task_Make_Schematic set($name, $value)
  * @method \app\Task_Make_Schematic add($name, $value)
  * @method \app\Task_Make_Schematic metadata_is(array $metadata = null)
  * @method \app\Task_Make_Schematic writer_is($writer)
+ * @method \app\Writer writer()
  */
-class Task_Make_Schematic extends \mjolnir\database\Task_Make_Schematic { /** @return \app\Task_Make_Schematic */ static function instance() { return parent::instance(); } }
+class Task_Make_Schematic extends \mjolnir\database\Task_Make_Schematic
+{
+	/** @return \app\Task_Make_Schematic */
+	static function instance() { return parent::instance(); }
+}
 trait Trait_Model_Automaton { use \mjolnir\database\Trait_Model_Automaton; }
 trait Trait_Model_Collection { use \mjolnir\database\Trait_Model_Collection; }
 trait Trait_Model_Factory { use \mjolnir\database\Trait_Model_Factory; }
@@ -173,4 +253,8 @@ trait Trait_Task_Db_Migrations { use \mjolnir\database\Trait_Task_Db_Migrations;
  * @method \app\Validator fields_array($fields)
  * @method \app\Validator check()
  */
-class Validator extends \mjolnir\database\Validator { /** @return \app\Validator */ static function instance(array $fields = null) { return parent::instance($fields); } }
+class Validator extends \mjolnir\database\Validator
+{
+	/** @return \app\Validator */
+	static function instance(array $fields = null) { return parent::instance($fields); }
+}
