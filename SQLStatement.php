@@ -161,7 +161,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 			$message = $exception->getMessage();
 			$message .= "\n\n".\app\Text::baseindent($this->query, "\t\t")."\n";
 
-			\mjolnir\masterlog('Database', $message, 'Database/');
+			\mjolnir\masterlog('Database', $message);
 
 			throw $exception;
 		}
