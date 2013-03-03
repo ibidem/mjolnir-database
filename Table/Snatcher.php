@@ -207,7 +207,7 @@ class Table_Snatcher extends \app\Instantiatable
 			\app\Stash::store($cache_key, $result, $this->tags);
 		}
 
-		foreach ($result as $entry)
+		foreach ($result as &$entry)
 		{
 			\app\SQLStatement::format_entry($entry, $fieldformat);
 		}

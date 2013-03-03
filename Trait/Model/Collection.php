@@ -130,7 +130,7 @@ trait Trait_Model_Collection
 			)
 			->page($page, $limit, $offset)
 			->key($cache_key)
-			->fetch_all();
+			->fetch_all(static::fieldformat());
 
 		return $entries;
 	}
