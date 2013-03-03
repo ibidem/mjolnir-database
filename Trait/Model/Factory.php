@@ -31,11 +31,10 @@ trait Trait_Model_Factory
 		{
 			throw new \app\Exception('No table defined.');
 		}
-		
-		$config = \app\CFS::config('mjolnir/database');
-		return $config['table_prefix'].static::$table;
+
+		return \app\CFS::config('mjolnir/database')['table_prefix'].static::$table;
 	}
-	
+
 	/**
 	 * @return array
 	 */

@@ -233,8 +233,13 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	/**
 	 * Formats an entry.
 	 */
-	static function format_entry(&$entry, array &$formatinfo)
+	static function format_entry(&$entry, array $formatinfo = null)
 	{
+		if ($formatinfo === null)
+		{
+			return;
+		}
+
 		foreach ($formatinfo as $field => $operation)
 		{
 			if (\is_string($operation))

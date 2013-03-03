@@ -60,8 +60,8 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 					try
 					{
 						// attempt to load configuration
-						$pdo = \app\CFS::config('mjolnir/database');
-						$pdo = $pdo['databases'][$database];
+						$pdo_config = \app\CFS::config('mjolnir/database');
+						$pdo = $pdo_config['databases'][$database];
 						if (empty($pdo))
 						{
 							$exception = new \app\Exception

@@ -145,7 +145,7 @@ trait Trait_Model_Utilities
 	/**
 	 * @return array
 	 */
-	static function &fieldformat()
+	static function fieldformat()
 	{
 		if (isset(static::$fieldformat))
 		{

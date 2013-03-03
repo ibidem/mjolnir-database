@@ -67,7 +67,7 @@ class Validator extends \app\Instantiatable implements \mjolnir\types\Validator
 			if ($proof === null)
 			{
 				$rules = \app\CFS::config('mjolnir/validator')['rules'];
-				
+
 				if ( ! $rules[$claim]($this->fields, $field))
 				{
 					$this->adderror($field, $claim);

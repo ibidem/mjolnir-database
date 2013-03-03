@@ -19,8 +19,7 @@ class Schematic
 	 */
 	static function channel_table()
 	{
-		$database_config = \app\CFS::config('mjolnir/database');
-		return $database_config['table_prefix'].static::$channel_table;
+		return \app\CFS::config('mjolnir/database')['table_prefix'].static::$channel_table;
 	}
 
 	/**
