@@ -145,7 +145,7 @@ trait Trait_Model_Utilities
 	/**
 	 * @return array
 	 */
-	static function fieldformat()
+	static function &fieldformat()
 	{
 		if (isset(static::$fieldformat))
 		{
@@ -167,7 +167,8 @@ trait Trait_Model_Utilities
 		}
 		else # no field format set
 		{
-			return [];
+			$noformat = [];
+			return $noformat;
 		}
 	}
 
@@ -178,7 +179,7 @@ trait Trait_Model_Utilities
 	{
 		\app\Stash::purge(\app\Stash::tags(\get_called_class(), $tags));
 	}
-	
+
 	/**
 	 * @return array
 	 */

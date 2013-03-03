@@ -196,7 +196,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 		{
 			if ($format !== null)
 			{
-				$this->format_entry($result, $format);
+				static::format_entry($result, $format);
 			}
 
 			return $result;
@@ -216,11 +216,11 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 			return $this->statement->fetchAll(\PDO::FETCH_ASSOC);
 		}
 		else # format not null
-		{			
+		{
 			$result = $this->statement->fetchAll(\PDO::FETCH_ASSOC);
 			foreach ($result as &$entry)
 			{
-				$this->format_entry($entry, $formatinfo);
+				static::format_entry($entry, $formatinfo);
 			}
 
 			return $result;
@@ -233,7 +233,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	/**
 	 * Formats an entry.
 	 */
-	protected function format_entry(&$entry, array &$formatinfo)
+	static function format_entry(&$entry, array &$formatinfo)
 	{
 		foreach ($formatinfo as $field => $operation)
 		{

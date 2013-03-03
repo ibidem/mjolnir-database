@@ -74,9 +74,14 @@ trait Trait_Model_Collection
 				)
 				->num(':id', $id)
 				->run()
-				->fetch_entry(static::fieldformat());
+				->fetch_entry();
 
 			\app\Stash::store($cachekey, $entry, \app\Stash::tags(\get_called_class(), ['change']));
+		}
+
+		if ($entry !== null)
+		{
+			\app\SQLStatement::format_entry($entry, static::fieldformat());
 		}
 
 		return $entry;
@@ -230,14 +235,14 @@ trait Trait_Model_Collection
 	{
 		$entry = null;
 		$partial_cachekey = \get_called_class().'_ID';
-		
+
 		if ($constraints !== null)
 		{
 			$constraintkey = ' AND '.\app\Arr::implode
 				(
-					' AND ', 
-					$constraints, 
-					function ($key, $value) 
+					' AND ',
+					$constraints,
+					function ($key, $value)
 					{
 						return "`$key` <=> $value";
 					}
@@ -247,7 +252,7 @@ trait Trait_Model_Collection
 		{
 			$constraintkey = '';
 		}
-		
+
 		$statement = static::statement
 			(
 				__METHOD__,

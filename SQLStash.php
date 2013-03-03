@@ -346,9 +346,14 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 
 			static::process_statement($statement);
 
-			$result = $statement->run()->fetch_all($format);
+			$result = $statement->run()->fetch_all();
 
 			\app\Stash::store($cachekey, $result, $this->tags);
+		}
+
+		foreach ($result as $entry)
+		{
+			\app\SQLStatement::format_entry($entry, $format);
 		}
 
 		return $result;
