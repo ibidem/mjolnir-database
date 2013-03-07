@@ -26,7 +26,8 @@ class Validator extends \app\Instantiatable implements \mjolnir\types\Validator
 	 * A field will be tested against a claim and validated by the proof, or if
 	 * the proof is null the claim will provide the proof itself.
 	 *s
-	 * Field may be an array, and proof may be a function.
+	 * Field and claim may be an array, and proof may be a function. The array
+	 * version will always be translated down to the non-array version.
 	 *
 	 * eg.
 	 *
@@ -60,6 +61,13 @@ class Validator extends \app\Instantiatable implements \mjolnir\types\Validator
 			foreach ($field as $fieldname)
 			{
 				$this->rule($fieldname, $claim, $proof);
+			}
+		}
+		else if (\is_array($claim))
+		{
+			foreach ($claim as $claimname)
+			{
+				$this->rule($field, $claimname, $proof);
 			}
 		}
 		else # field is non-array
