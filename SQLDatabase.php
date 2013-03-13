@@ -62,13 +62,12 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 						// attempt to load configuration
 						$pdo_config = \app\CFS::config('mjolnir/database');
 						$pdo = $pdo_config['databases'][$database];
+						
 						if (empty($pdo))
 						{
-							$exception = new \app\Exception
-								('Missing database configuration.');
-
-							throw $exception->set_title('Database Error');
+							throw new \app\Exception('Missing database configuration.');
 						}
+						
 						// setup database handle
 						$dbh = $instance->dbh = new \PDO
 							(
@@ -76,12 +75,14 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 								$pdo['connection']['username'],
 								$pdo['connection']['password']
 							);
+						
 						// set error mode
 						$dbh->setAttribute
 							(
 								\PDO::ATTR_ERRMODE,
 								\PDO::ERRMODE_EXCEPTION
 							);
+						
 						// default SQL flavor
 						$instance->dialect_default = $pdo['dialect_default'];
 						$instance->dialect_target = $pdo['dialect_target'];
