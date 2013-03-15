@@ -28,10 +28,12 @@ trait Trait_Model_Collection
 	 * consequence this function will treat it as such.
 	 *
 	 * For different behaviour re-implement this function in your class.
+	 * 
+	 * You may pass constraints as a security check.
 	 *
 	 * @return array of arrays
 	 */
-	static function select_entries(array $entries = null)
+	static function select_entries(array $entries = null, array $constraints = null)
 	{
 		if (empty($entries))
 		{
@@ -40,13 +42,24 @@ trait Trait_Model_Collection
 
 		$cache_key = __FUNCTION__.'__entries'.\implode(',', $entries);
 
+		$constraintskey = '';
+		if ( ! empty($constraints))
+		{
+			$constraintskey = \app\SQL::parseconstraints($constraints);
+			if ( ! empty($constraintskey))
+			{
+				$constraintskey = ' AND '.$constraintskey;
+			}
+		}
+		
 		return static::stash
 			(
 				__METHOD__,
 				'
 					SELECT *
 					  FROM :table
-					 WHERE `'.static::unique_key().'` IN ('.\implode(', ', $entries).')
+					 WHERE `'.static::unique_key().'` IN ('.\app\Arr::implode(', ', $entries, function ($i, $v) { return \app\SQL::quote($v); }).')
+						   '.$constraintskey.'
 				'
 			)
 			->key($cache_key)
@@ -54,22 +67,35 @@ trait Trait_Model_Collection
 	}
 
 	/**
+	 * You may pass constraints to ensure any security conditions. Constraints
+	 * won't be taken into account when caching.
+	 * 
 	 * @return array
 	 */
-	static function entry($id)
+	static function entry($id, array $constraints = null)
 	{
 		$cachekey = \get_called_class().'_ID'.$id;
 		$entry = \app\Stash::get($cachekey, null);
 
 		if ($entry === null)
 		{
+			$constraintskey = '';
+			if ( ! empty($constraints))
+			{
+				$constraintskey = \app\SQL::parseconstraints($constraints);
+				if ( ! empty($constraintskey))
+				{
+					$constraintskey = ' AND '.$constraintskey;
+				}
+			}
+			
 			$entry = static::statement
 				(
 					__METHOD__,
 					'
 						SELECT *
 						  FROM :table
-						 WHERE '.static::unique_key().' = :id
+						 WHERE '.static::unique_key().' = :id '.$constraintskey.'
 					'
 				)
 				->num(':id', $id)
@@ -164,7 +190,8 @@ trait Trait_Model_Collection
 	}
 
 	/**
-	 * @shorthand for entries
+	 * Shorthand for entries.
+	 * 
 	 * @return array of arrays
 	 */
 	static function find(array $criteria, $page = null, $limit = null, $offset = null)
@@ -173,7 +200,8 @@ trait Trait_Model_Collection
 	}
 
 	/**
-	 * @shorthand for entries
+	 * Shorthand for find when retrieving single entry.
+	 * 
 	 * @return array or null
 	 */
 	static function find_entry(array $criteria)
@@ -221,7 +249,7 @@ trait Trait_Model_Collection
 		{
 			return static::$unique_key;
 		}
-		else
+		else # standard field name
 		{
 			return 'id';
 		}
@@ -234,19 +262,14 @@ trait Trait_Model_Collection
 	static function delete(array $entries, array $constraints = null)
 	{
 		$entry = null;
-		$partial_cachekey = \get_called_class().'_ID';
 
-		if ($constraints !== null)
+		if ( ! empty($constraints))
 		{
-			$constraintkey = ' AND '.\app\Arr::implode
-				(
-					' AND ',
-					$constraints,
-					function ($key, $value)
-					{
-						return "`$key` <=> $value";
-					}
-				);
+			$constraintkey = \app\SQL::parseconstraints($constraints);
+			if ( ! empty($constraintkey))
+			{
+				$constraintkey = ' AND '.$constraintkey;
+			}
 		}
 		else # no constraints
 		{
@@ -273,7 +296,7 @@ trait Trait_Model_Collection
 
 		\app\SQL::commit();
 
-		\app\Stash::purge(\app\Stash::tags(\get_called_class(), ['change']));
+		static::clear_cache();
 
 		// reset related caches
 		foreach (static::related_caches() as $related_cache)
@@ -285,42 +308,18 @@ trait Trait_Model_Collection
 	/**
 	 * @return int
 	 */
-	static function count($constraints = [])
+	static function count($constraints = null)
 	{
 		$cachekey = __FUNCTION__;
 		$where = '';
 		if ( ! empty($constraints))
 		{
-			$where = 'WHERE ';
-			$where .= \app\Arr::implode
-				(
-					' AND ', # delimiter
-					$constraints, # source
-
-					function ($k, $value) {
-
-						$k = \strpbrk($k, ' .()') === false ? '`'.$k.'`' : $k;
-
-						if (\is_bool($value))
-						{
-							return $k.' = '.($value ? 'TRUE' : 'FALSE');
-						}
-						else if (\is_numeric($value))
-						{
-							return $k.' = '.$value;
-						}
-						else if (\is_null($value))
-						{
-							return $k.' IS NULL';
-						}
-						else # string, or string compatible
-						{
-							return $k.' = '.\app\SQL::quote($value);
-						}
-					}
-				);
-
-			$cachekey .= '__'.\sha1($where);
+			$where = \app\SQL::parseconstraints($constraints);
+			if ( ! empty($where))
+			{
+				$where = 'WHERE '.$where;
+				$cachekey .= '__'.\sha1($where);
+			}	
 		}
 
 		$statement = static::stash

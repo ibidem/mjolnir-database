@@ -270,37 +270,12 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 		$sql = $this->sql;
 		if ( ! empty($this->constraints))
 		{
-			$constraints = ' WHERE ';
-			$constraints .= \app\Arr::implode
-				(
-					' AND ', # delimiter
-					$this->constraints, # source
-
-					function ($k, $value) {
-
-						$k = \strpbrk($k, ' .()') === false ? '`'.$k.'`' : $k;
-
-						if (\is_bool($value))
-						{
-							return $k.' = '.($value ? 'TRUE' : 'FALSE');
-						}
-						else if (\is_numeric($value))
-						{
-							return $k.' = '.$value;
-						}
-						else if (\is_null($value))
-						{
-							return $k.' IS NULL';
-						}
-						else # string, or string compatible
-						{
-							return $k.' = '.\app\SQL::quote($value);
-						}
-					}
-				);
-
-			$sql .= $constraints;
-			$cachekey .= '__con'.\sha1($constraints);
+			$constraints = \app\SQL::parseconstraints($this->constraints);
+			if ( ! empty($constraints))
+			{
+				$sql .= ' WHERE '.$constraints;
+				$cachekey .= '__con'.\sha1($constraints);
+			}
 		}
 
 		if ( ! empty($this->group_by))

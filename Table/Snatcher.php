@@ -144,38 +144,15 @@ class Table_Snatcher extends \app\Instantiatable
 		}
 
 		// where hash
-		$where = \app\Arr::implode
-			(
-				' AND ', # delimiter
-				$this->constraints, # source
-
-				function ($k, $value) {
-
-					$k = \strpbrk($k, ' .()') === false ? '`'.$k.'`' : $k;
-
-					if (\is_bool($value))
-					{
-						return $k.' = '.($value ? 'TRUE' : 'FALSE');
-					}
-					else if (\is_numeric($value))
-					{
-						return $k.' = '.$value;
-					}
-					else if (\is_null($value))
-					{
-						return $k.' IS NULL';
-					}
-					else # string, or string compatible
-					{
-						return $k.' = '.\app\SQL::quote($value);
-					}
-				}
-			);
-
-		if ( ! empty($where))
+		$where = '';
+		if ( ! empty($this->constraints))
 		{
-			$where = 'WHERE '.$where;
-			$cache_key .= '__'.\sha1($where);
+			$constraints = \app\SQL::parseconstraints($this->constraints);
+			if ( ! empty($constraints))
+			{
+				$where = 'WHERE '.$constraints;
+				$cache_key .= '__'.\sha1($where);
+			}
 		}
 
 		$result = \app\Stash::get($cache_key, null);

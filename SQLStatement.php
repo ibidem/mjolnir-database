@@ -34,6 +34,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 		$instance = parent::instance();
 		$instance->statement = $statement;
 		$instance->query = $query;
+		
 		return $instance;
 	}
 
