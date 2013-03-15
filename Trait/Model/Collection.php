@@ -410,4 +410,51 @@ trait Trait_Model_Collection
 		static::clear_cache();
 	}
 
+	/**
+	 * Re-assignes ID. The id key is based on unique_key.
+	 */
+	static function reforge_id($old_id)
+	{
+		$idkey = static::unique_key();
+		
+		static::statement
+			(
+				__METHOD__,
+				'
+					INSERT :table (`'.$idkey.'`) VALUES (null)
+				'
+			)
+			->run();
+		
+		$new_id = \app\SQL::last_inserted_id();
+		
+		static::statement
+			(
+				__METHOD__,
+				'
+					DELETE FROM :table
+					 WHERE `'.$idkey.'` = :new_id
+				'
+			)
+			->num(':new_id', $new_id)
+			->run();
+		
+		static::statement
+			(
+				__METHOD__,
+				'
+					UPDATE :table
+					   SET `'.$idkey.'` = :new_id
+					 WHERE `'.$idkey.'` = :old_id
+				'
+			)
+			->num(':old_id', $old_id)
+			->num(':new_id', $new_id)
+			->run();
+		
+		static::clear_cache();
+		
+		return $new_id;
+	}
+	
 } # trait
