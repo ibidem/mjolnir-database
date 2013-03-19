@@ -159,14 +159,14 @@ class SQL
 					// to all of the following
 					if (\preg_match('#in#', \strtolower($operator)))
 					{
-						return "$k $operator ".\app\Arr::implode
+						return "$k $operator (".\app\Arr::implode
 							(
 								', ', $value,
 								function ($i, $value)
 								{
 									return \app\SQL::quote($value);
 								}
-							);
+							).')';
 					}
 					else if (\preg_match('#between#', \strtolower($operator)))
 					{

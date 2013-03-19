@@ -81,6 +81,11 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	 */
 	function date($parameter, $value)
 	{
+		if (empty($value))
+		{
+			$value = null;
+		}
+		
 		$this->statement->bindValue($parameter, $value, \PDO::PARAM_STR);
 		return $this;
 	}
