@@ -356,11 +356,11 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	/**
 	 * Include all sets in statement
 	 */
-	protected function process_statement($statement)
+	protected function process_statement(\mjolnir\types\SQLStatement $statement)
 	{
 		$statement->strs($this->strs, null, null);
 		$statement->nums($this->nums, null, null);
-		$statement->bools($this->bools, null, null, null);
+		$statement->bools($this->bools, null, null);
 		$statement->dates($this->dates, null, null);
 	}
 
