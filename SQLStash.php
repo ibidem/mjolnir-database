@@ -360,7 +360,7 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	{
 		$statement->strs($this->strs, null, null);
 		$statement->nums($this->nums, null, null);
-		$statement->bools($this->bools, null, null);
+		$statement->bools($this->bools, null, null, null);
 		$statement->dates($this->dates, null, null);
 	}
 
