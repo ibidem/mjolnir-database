@@ -10,16 +10,26 @@ class Register extends \mjolnir\database\Register
 {
 }
 
-class SQL extends \mjolnir\database\SQL
+class Schematic_Mjolnir_Registry extends \mjolnir\database\Schematic_Mjolnir_Registry
 {
-	/** @return \app\SQLStatement */
-	static function prepare($key, $statement = null, $lang = null) { return parent::prepare($key, $statement, $lang); }
-	/** @return \app\SQLDatabase */
-	static function begin() { return parent::begin(); }
-	/** @return \app\SQLDatabase */
-	static function commit() { return parent::commit(); }
-	/** @return \app\SQLDatabase */
-	static function rollback() { return parent::rollback(); }
+	/** @return \app\Schematic_Mjolnir_Registry */
+	static function instance() { return parent::instance(); }
+}
+
+class Schematic extends \mjolnir\database\Schematic
+{
+}
+
+/**
+ * @method \app\Sphinx filter($attribute, $values, $exclude = false)
+ * @method \app\Sphinx matchmode($matchmode)
+ * @method \app\Sphinx sortmode($sortmode)
+ * @method \app\Sphinx page($page, $limit = null, $offset = 0)
+ */
+class Sphinx extends \mjolnir\database\Sphinx
+{
+	/** @return \app\Sphinx */
+	static function instance() { return parent::instance(); }
 }
 
 /**
@@ -33,6 +43,18 @@ class SQLDatabase extends \mjolnir\database\SQLDatabase
 {
 	/** @return \app\SQLDatabase */
 	static function instance($database = 'default') { return parent::instance($database); }
+}
+
+class SQL extends \mjolnir\database\SQL
+{
+	/** @return \app\SQLStatement */
+	static function prepare($key, $statement = null, $lang = null) { return parent::prepare($key, $statement, $lang); }
+	/** @return \app\SQLDatabase */
+	static function begin() { return parent::begin(); }
+	/** @return \app\SQLDatabase */
+	static function commit() { return parent::commit(); }
+	/** @return \app\SQLDatabase */
+	static function rollback() { return parent::rollback(); }
 }
 
 /**
@@ -56,11 +78,11 @@ class SQLDatabase extends \mjolnir\database\SQLDatabase
  * @method \app\SQLStash strs(array $params, array $filter = null, $varkey = ':')
  * @method \app\SQLStash nums(array $params, array $filter = null, $varkey = ':')
  * @method \app\SQLStash bools(array $params, array $filter = null, array $map = null, $varkey = ':')
- * @method \app\SQLStash dates(array $params, array $filter = null, array $map = null, $varkey = ':')
+ * @method \app\SQLStash dates(array $params, array $filter = null, $varkey = ':')
  * @method \app\SQLStash bindstrs(array  & $params, array $filter = null, $varkey = ':')
  * @method \app\SQLStash bindnums(array  & $params, array $filter = null, $varkey = ':')
  * @method \app\SQLStash bindbools(array  & $params, array $filter = null, $varkey = ':')
- * @method \app\SQLStash binddates(array  & $params, array $filter = null, array $map = null, $varkey = ':')
+ * @method \app\SQLStash binddates(array  & $params, array $filter = null, $varkey = ':')
  * @method \app\SQLStash args(array  & $params, array $filter = null, $varkey = ':')
  */
 class SQLStash extends \mjolnir\database\SQLStash
@@ -83,11 +105,11 @@ class SQLStash extends \mjolnir\database\SQLStash
  * @method \app\SQLStatement strs(array $params, array $filter = null, $varkey = ':')
  * @method \app\SQLStatement nums(array $params, array $filter = null, $varkey = ':')
  * @method \app\SQLStatement bools(array $params, array $filter = null, array $map = null, $varkey = ':')
- * @method \app\SQLStatement dates(array $params, array $filter = null, array $map = null, $varkey = ':')
+ * @method \app\SQLStatement dates(array $params, array $filter = null, $varkey = ':')
  * @method \app\SQLStatement bindstrs(array  & $params, array $filter = null, $varkey = ':')
  * @method \app\SQLStatement bindnums(array  & $params, array $filter = null, $varkey = ':')
  * @method \app\SQLStatement bindbools(array  & $params, array $filter = null, $varkey = ':')
- * @method \app\SQLStatement binddates(array  & $params, array $filter = null, array $map = null, $varkey = ':')
+ * @method \app\SQLStatement binddates(array  & $params, array $filter = null, $varkey = ':')
  * @method \app\SQLStatement args(array  & $params, array $filter = null, $varkey = ':')
  * @method \app\SQLStatement page($page, $limit = null, $offset = 0)
  */
@@ -95,28 +117,6 @@ class SQLStatement extends \mjolnir\database\SQLStatement
 {
 	/** @return \app\SQLStatement */
 	static function instance($statement = null, $query = null) { return parent::instance($statement, $query); }
-}
-
-class Schematic_Mjolnir_Registry extends \mjolnir\database\Schematic_Mjolnir_Registry
-{
-	/** @return \app\Schematic_Mjolnir_Registry */
-	static function instance() { return parent::instance(); }
-}
-
-class Schematic extends \mjolnir\database\Schematic
-{
-}
-
-/**
- * @method \app\Sphinx filter($attribute, $values, $exclude = false)
- * @method \app\Sphinx matchmode($matchmode)
- * @method \app\Sphinx sortmode($sortmode)
- * @method \app\Sphinx page($page, $limit = null, $offset = 0)
- */
-class Sphinx extends \mjolnir\database\Sphinx
-{
-	/** @return \app\Sphinx */
-	static function instance() { return parent::instance(); }
 }
 
 /**
@@ -247,11 +247,11 @@ trait Trait_Task_Db_Migrations { use \mjolnir\database\Trait_Task_Db_Migrations;
 /**
  * @method \app\Validator rule($field, $claim, $proof = null)
  * @method \app\Validator test($field, $proof = null)
+ * @method \app\Validator fields_array($fields)
  * @method \app\Validator inheriterrors($validator)
  * @method \app\Validator adderrormessages(array $errormesssages = null)
- * @method \app\Validator adderror($field, $claim, $message = null)
- * @method \app\Validator fields_array($fields)
  * @method \app\Validator check()
+ * @method \app\Validator adderror($field, $claim, $message = null)
  */
 class Validator extends \mjolnir\database\Validator
 {

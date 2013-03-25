@@ -2,7 +2,7 @@
 	(
 		'mjolnir\database' => array
 			(
-				'major' => '1',
+				'major' => '2',
 				'minor' => '0',
 				'tag' => 'liquid'
 			)
