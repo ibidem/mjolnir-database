@@ -2,7 +2,7 @@
 
 return array
 	(
-		'mjolnir\theme' => array
+		'mjolnir\database' => array
 			(
 				 'extension=php_pdo_mysql' => function ()
 					{
@@ -12,6 +12,16 @@ return array
 						}
 
 						return 'failed';
+					},
+				'database keys' => function ()
+					{
+						$database = \app\CFS::config('mjolnir/database')['databases']['default'];
+						if ($database['connection']['username'] !== null && $database['connection']['password'] !== null)
+						{
+							return 'available';
+						}
+
+						return 'error';
 					}
 			),
 	);
