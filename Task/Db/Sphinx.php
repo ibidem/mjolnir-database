@@ -44,7 +44,7 @@ class Task_Db_Sphinx extends \app\Instantiatable implements \mjolnir\types\Task
 			. "# To update use ./order db:sphinx -r\n#\n"
 			. "# @generator Mjolnir\n"
 			. "# @created   ".\date_create('now')->format('Y-m-d H:i:s')."\n"
-			. "# @project   ".\app\CFS::config('mjolnir/base')['site:title']."\n"
+			. "# @project   ".\app\CFS::config('mjolnir/base')['system']['title']."\n"
 			. "#\n\n";
 
 		foreach ($model_classes as $classname => $namespace)
