@@ -141,7 +141,7 @@ class Task_Db_Sphinx extends \app\Instantiatable implements \mjolnir\types\Task
 
 		$sph_conf .= $searchd;
 
-		$sph_configuration_file = DRAFTPATH.'sphinx/sphinx.conf.mj';
+		$sph_configuration_file = \app\Env::key('sys.path').'drafts/sphinx/sphinx.conf.mj';
 		\app\Filesystem::puts($sph_configuration_file, $sph_conf);
 
 		$this->writer->writef(' Created Sphinx configuration in: '.$sph_configuration_file)->eol()->eol();
