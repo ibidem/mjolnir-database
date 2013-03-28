@@ -227,7 +227,19 @@ trait Trait_Model_MjolnirSphinx
 			{
 				foreach ($attributes as $attr => $attr_value)
 				{
-					$sphinx->filter($attr, $attr_value);
+					if ( ! \is_int($attr_value))
+					{
+						$attr_value = \intval($attr_value);
+					}
+					
+					if (\is_array($attr_value))
+					{
+						$sphinx->filter($attr, $attr_value);
+					}
+					else # attr_value is not an array
+					{
+						$sphinx->filter($attr, [ $attr_value ]);
+					}
 				}
 			}
 
