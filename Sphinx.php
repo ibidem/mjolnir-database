@@ -83,7 +83,11 @@ class Sphinx extends \app\Instantiatable implements \mjolnir\types\Paged
 	{
 		$result = $this->sphinx->Query($search, $index);
 
-		if (empty($result['error']))
+		if ($result === false)
+		{
+			throw new \Exception('Sphinx Error - '.$this->sphinx->GetLastError());
+		}
+		else if (empty($result['error']))
 		{
 			return empty($result['matches']) ? [] : \array_keys($result['matches']);
 		}
