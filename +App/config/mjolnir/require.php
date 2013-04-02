@@ -8,7 +8,7 @@ return array
 					{
 						if (\extension_loaded('pdo_mysql'))
 						{
-							return 'available';
+							return 'satisfied';
 						}
 
 						return 'failed';
@@ -18,7 +18,7 @@ return array
 						$database = \app\CFS::config('mjolnir/database')['databases']['default'];
 						if ($database['connection']['username'] !== null && $database['connection']['password'] !== null)
 						{
-							return 'available';
+							return 'satisfied';
 						}
 
 						return 'error';
