@@ -9,8 +9,6 @@
  */
 class Task_Db_Uninstall extends \app\Task_Base
 {
-	use \app\Trait_Task;
-
 	/**
 	 * Execute task.
 	 */
