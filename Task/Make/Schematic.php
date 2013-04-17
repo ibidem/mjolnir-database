@@ -7,10 +7,8 @@
  * @copyright  (c) 2012, Ibidem Team
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
  */
-class Task_Make_Schematic extends \app\Instantiatable implements \mjolnir\types\Task
+class Task_Make_Schematic extends \app\Task_Base
 {
-	use \app\Trait_Task;
-
 	/**
 	 * ...
 	 */
