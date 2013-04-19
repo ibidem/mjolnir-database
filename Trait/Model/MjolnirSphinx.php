@@ -227,7 +227,7 @@ trait Trait_Model_MjolnirSphinx
 			{
 				foreach ($attributes as $attr => $attr_value)
 				{
-					if ( ! \is_int($attr_value))
+					if ( ! \is_int($attr_value) && ! \is_array($attr_value))
 					{
 						$attr_value = \intval($attr_value);
 					}
