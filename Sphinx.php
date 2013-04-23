@@ -83,6 +83,25 @@ class Sphinx extends \app\Instantiatable implements \mjolnir\types\Paged
 	{
 		$result = $this->sphinx->Query($search, $index);
 
+		// check for errors
+		
+		$error = $this->sphinx->GetLastError();
+		
+		if ( ! empty($error))
+		{
+			\mjolnir\log('Sphinx', $error);
+			throw new \Exception($error);
+		}
+		
+		// check for warnings
+		
+		$warning = $this->sphinx->GetLastWarning();
+		
+		if ( ! empty($warning))
+		{
+			\mjolnir\log('Sphinx', $warning);
+		}
+		
 		if ($result === false)
 		{
 			throw new \Exception('Sphinx Error - '.$this->sphinx->GetLastError());
@@ -93,7 +112,8 @@ class Sphinx extends \app\Instantiatable implements \mjolnir\types\Paged
 		}
 		else # got error
 		{
-			throw new \Exception('Sphinx Error - '.$result['error']);
+			\mjolnir\log('Sphinx', $result['error']);
+			throw new \Exception($result['error']);
 		}
 	}
 

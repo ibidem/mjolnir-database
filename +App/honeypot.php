@@ -10,26 +10,16 @@ class Register extends \mjolnir\database\Register
 {
 }
 
-class Schematic_Mjolnir_Registry extends \mjolnir\database\Schematic_Mjolnir_Registry
+class SQL extends \mjolnir\database\SQL
 {
-	/** @return \app\Schematic_Mjolnir_Registry */
-	static function instance() { return parent::instance(); }
-}
-
-class Schematic extends \mjolnir\database\Schematic
-{
-}
-
-/**
- * @method \app\Sphinx filter($attribute, $values, $exclude = false)
- * @method \app\Sphinx matchmode($matchmode)
- * @method \app\Sphinx sortmode($sortmode)
- * @method \app\Sphinx page($page, $limit = null, $offset = 0)
- */
-class Sphinx extends \mjolnir\database\Sphinx
-{
-	/** @return \app\Sphinx */
-	static function instance() { return parent::instance(); }
+	/** @return \app\SQLStatement */
+	static function prepare($key, $statement = null, $lang = null) { return parent::prepare($key, $statement, $lang); }
+	/** @return \app\SQLDatabase */
+	static function begin() { return parent::begin(); }
+	/** @return \app\SQLDatabase */
+	static function commit() { return parent::commit(); }
+	/** @return \app\SQLDatabase */
+	static function rollback() { return parent::rollback(); }
 }
 
 /**
@@ -43,18 +33,6 @@ class SQLDatabase extends \mjolnir\database\SQLDatabase
 {
 	/** @return \app\SQLDatabase */
 	static function instance($database = 'default') { return parent::instance($database); }
-}
-
-class SQL extends \mjolnir\database\SQL
-{
-	/** @return \app\SQLStatement */
-	static function prepare($key, $statement = null, $lang = null) { return parent::prepare($key, $statement, $lang); }
-	/** @return \app\SQLDatabase */
-	static function begin() { return parent::begin(); }
-	/** @return \app\SQLDatabase */
-	static function commit() { return parent::commit(); }
-	/** @return \app\SQLDatabase */
-	static function rollback() { return parent::rollback(); }
 }
 
 /**
@@ -117,6 +95,34 @@ class SQLStatement extends \mjolnir\database\SQLStatement
 {
 	/** @return \app\SQLStatement */
 	static function instance($statement = null, $query = null) { return parent::instance($statement, $query); }
+}
+
+class Schematic_Base extends \mjolnir\database\Schematic_Base
+{
+	/** @return \app\Schematic_Base */
+	static function instance() { return parent::instance(); }
+}
+
+class Schematic_Mjolnir_Registry extends \mjolnir\database\Schematic_Mjolnir_Registry
+{
+	/** @return \app\Schematic_Mjolnir_Registry */
+	static function instance() { return parent::instance(); }
+}
+
+class Schematic extends \mjolnir\database\Schematic
+{
+}
+
+/**
+ * @method \app\Sphinx filter($attribute, $values, $exclude = false)
+ * @method \app\Sphinx matchmode($matchmode)
+ * @method \app\Sphinx sortmode($sortmode)
+ * @method \app\Sphinx page($page, $limit = null, $offset = 0)
+ */
+class Sphinx extends \mjolnir\database\Sphinx
+{
+	/** @return \app\Sphinx */
+	static function instance() { return parent::instance(); }
 }
 
 /**
