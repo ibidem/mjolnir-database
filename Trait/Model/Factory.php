@@ -127,7 +127,7 @@ trait Trait_Model_Factory
 	}
 
 	/**
-	 * @return \app\Validator
+	 * @return \mjolnir\types\Validator
 	 */
 	static function update_check($id, array $fields)
 	{

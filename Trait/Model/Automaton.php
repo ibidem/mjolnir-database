@@ -13,8 +13,7 @@ trait Trait_Model_Automaton
 	// Factory interface
 
 	/**
-	 * @param array fields
-	 * @return array
+	 * @return \mjolnir\types\Validator
 	 */
 	static function check(array $fields, $context = null)
 	{
@@ -51,7 +50,7 @@ trait Trait_Model_Automaton
 	}
 
 	/**
-	 * @param array fields
+	 * ...
 	 */
 	static function process(array $fields)
 	{
@@ -66,8 +65,7 @@ trait Trait_Model_Automaton
 	}
 
 	/**
-	 * @param int id
-	 * @param array fields
+	 * ...
 	 */
 	static function update_process($id, array $fields)
 	{

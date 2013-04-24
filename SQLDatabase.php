@@ -45,7 +45,7 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 	 * Database setup; null if already executed.
 	 */
 	protected $setup = null;
-
+	
 	/**
 	 * @return static
 	 */
@@ -54,7 +54,7 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 		if ( ! isset(static::$instances[$database]))
 		{
 			$instance = static::$instances[$database] = parent::instance();
-
+			
 			$instance->setup = function () use ($instance, $database)
 				{
 					try

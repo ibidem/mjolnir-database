@@ -6,6 +6,46 @@
 // HowTo: order honeypot -n 'mjolnir\database'
 
 
+/**
+ * @method \app\Marionette registerdriver($driver_id, $driver)
+ */
+class Marionette extends \mjolnir\database\Marionette
+{
+	/** @return \app\Marionette */
+	static function instance($db = null) { return parent::instance($db); }
+}
+
+/**
+ * @method \app\MarionetteModel model($model = null)
+ * @method \app\MarionetteCollection put(array $collection)
+ * @method \app\MarionetteCollection delete()
+ * @method \app\MarionetteCollection registerdriver($driver_id, $driver)
+ */
+class MarionetteCollection extends \mjolnir\database\MarionetteCollection
+{
+	/** @return \app\MarionetteCollection */
+	static function instance($db = null) { return parent::instance($db); }
+}
+
+class MarionetteDriver_Reference extends \mjolnir\database\MarionetteDriver_Reference
+{
+	/** @return \app\MarionetteDriver_Reference */
+	static function instance() { return parent::instance(); }
+}
+
+/**
+ * @method \app\MarionetteModel collection($collection = null)
+ * @method \app\MarionetteModel put($id, $entry)
+ * @method \app\MarionetteModel patch($id, $partial_entry)
+ * @method \app\MarionetteModel delete($id)
+ * @method \app\MarionetteModel registerdriver($driver_id, $driver)
+ */
+class MarionetteModel extends \mjolnir\database\MarionetteModel
+{
+	/** @return \app\MarionetteModel */
+	static function instance($db = null) { return parent::instance($db); }
+}
+
 class Register extends \mjolnir\database\Register
 {
 }
@@ -249,18 +289,3 @@ trait Trait_Model_Factory { use \mjolnir\database\Trait_Model_Factory; }
 trait Trait_Model_MjolnirSphinx { use \mjolnir\database\Trait_Model_MjolnirSphinx; }
 trait Trait_Model_Utilities { use \mjolnir\database\Trait_Model_Utilities; }
 trait Trait_Task_Db_Migrations { use \mjolnir\database\Trait_Task_Db_Migrations; }
-
-/**
- * @method \app\Validator rule($field, $claim, $proof = null)
- * @method \app\Validator test($field, $proof = null)
- * @method \app\Validator fields_array($fields)
- * @method \app\Validator inheriterrors($validator)
- * @method \app\Validator adderrormessages(array $errormesssages = null)
- * @method \app\Validator check()
- * @method \app\Validator adderror($field, $claim, $message = null)
- */
-class Validator extends \mjolnir\database\Validator
-{
-	/** @return \app\Validator */
-	static function instance(array $fields = null) { return parent::instance($fields); }
-}
