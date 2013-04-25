@@ -39,6 +39,8 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 		return $in;
 	}
 
+	// -- Utility -------------------------------------------------------------
+	
 	/**
 	 * @return string
 	 */
@@ -75,32 +77,6 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 	}
 	
 	/**
-	 * @return string
-	 */
-	static function keyfield()
-	{
-		return static::config()['key'];
-	}
-	
-	/**
-	 * @return string
-	 */
-	static function singular()
-	{
-		return static::config()['name'];
-	}
-	
-	/**
-	 * @return string
-	 */
-	static function plural()
-	{
-		$config = static::config();
-		\app\Debug::dump('vardump', $config);
-		return isset($config['plural']) or $config['name'].'s';
-	}
-	
-	/**
 	 * @return array
 	 */
 	protected static function normalize_config(array & $config)
@@ -116,6 +92,89 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 			}
 		}
 	}
+	
+	// -- Context -------------------------------------------------------------
+	
+	/**
+	 * @return string
+	 */
+	static function singular()
+	{
+		return static::config()['name'];
+	}
+	
+	/**
+	 * @return string
+	 */
+	static function plural()
+	{
+		$config = static::config();
+		return isset($config['plural']) ? $config['plural'] : $config['name'].'s';
+	}
+	
+	/**
+	 * @return string
+	 */
+	static function keyfield()
+	{
+		return static::config()['key'];
+	}
+	
+	/**
+	 * @return array normalized fieldlist
+	 */
+	protected function make_fieldlist($spec, array $filter = null)
+	{
+		$fieldlist = [ 'nums' => [], 'strs' => [], 'bools' => [] ];
+		foreach ($spec['fields'] as $field => $fieldinfo)
+		{
+			// do not handle model key
+			if ($field === $spec['key'])
+			{
+				continue;
+			}
+			
+			if ($filter !== null && ! \in_array($field, $filter))
+			{
+				continue;
+			}
+			
+			if ( ! isset($fieldinfo['type']) && ! isset($fieldinfo['driver']))
+			{
+				throw new \app\Exception("Missing type for $field");
+			}
+			else if (isset($fieldinfo['driver']))
+			{
+				continue;
+			}
+			
+			// filter abstract type to usable transport type
+			switch ($fieldinfo['type'])
+			{
+				case 'id':
+					$fieldlist['nums'][] = $field;
+					break;
+				case 'number':
+					$fieldlist['nums'][] = $field;
+					break;
+				case 'string':
+					$fieldlist['strs'][] = $field;
+					break;
+				case 'datetime':
+					$fieldlist['strs'][] = $field;
+					break;
+				case 'currency':
+					$fieldlist['nums'][] = $field;
+					break;
+				default:
+					throw new \app\Exception("Unsuported field type: {$fieldinfo['type']}");
+			}
+		}
+		
+		return $fieldlist;
+	}
+	
+	// -- Drivers -------------------------------------------------------------
 	
 	/**
 	 * @return static $this
@@ -160,5 +219,24 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 		
 		return '\app\MarionetteDriver_'.$classname;
 	}
-
+	
+	/**
+	 * @return return processed entry
+	 */
+	protected function run_drivers(array $entry)
+	{
+		$spec = static::config();
+		
+		foreach ($spec['fields'] as $field => $fieldinfo)
+		{
+			if (isset($fieldinfo['driver']))
+			{
+				$driver = $this->getdriver($fieldinfo['driver']);
+				$entry = $driver->compile($field, $entry, $fieldinfo);
+			}
+		}
+		
+		return $entry;
+	}
+	
 } # class

@@ -24,7 +24,7 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 		}
 		else if ($collection_instance === null)
 		{
-			$class = $this->camelsingular().'Collection';
+			$class = '\app\\'.$this->camelsingular().'Collection';
 			$collection_instance = $class::instance($this->db);
 		}
 		
@@ -42,7 +42,18 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 	 */
 	function get($id)
 	{
-		throw new \app\Exception_NotImplemented();
+		return $this->db->prepare
+			(
+				__METHOD__,
+				'
+					SELECT *
+					  FROM `'.static::table().'`
+					 WHERE `'.static::keyfield().'` = :id
+				'
+			)
+			->num(':id', $id)
+			->run()
+			->fetch_entry();
 	}
 	
 #
@@ -56,7 +67,29 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 	 */
 	function put($id, $entry)
 	{
-		throw new \app\Exception_NotImplemented();
+		// @todo: check if all fields are present for more robust PUT
+		
+		return $this->patch($id, $entry);
+	}
+	
+	/**
+	 * Normalizing value format, filling in optional components, etc.
+	 * 
+	 * @return array normalized entry
+	 */
+	function parse(array $input)
+	{
+		return $input;
+	}
+	
+	/**
+	 * Auditor should always handle parsed values.
+	 * 
+	 * @return \mjolnir\types\Validator
+	 */
+	function auditor()
+	{
+		return \app\Auditor::instance();
 	}
 	
 #
@@ -70,9 +103,90 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 	 */
 	function patch($id, $partial_entry)
 	{
-		throw new \app\Exception_NotImplemented();
-	}
+		$entry = $this->parse($partial_entry);
+		$auditor = $this->auditor();
 		
+		try
+		{
+			$this->db->begin();
+			$entry = $this->run_drivers($entry);
+			if ($auditor->fields_array($entry)->check())
+			{
+				$entry_id = $this->do_patch($id, $entry);
+				
+				// success?
+				if ($entry_id !== null)
+				{
+					$this->db->commit();
+					return $this->get($entry_id);
+				}
+				else # recoverable failure
+				{
+					$this->db->rollback();
+					return null;
+				}
+			}
+			else # failed validation; recoverable failure
+			{
+				$this->db->rollback();
+				return null;
+			}
+		}
+		catch (\Exception $e)
+		{
+			$this->db->rollback();	
+			throw $e;
+		}
+	}
+	
+	/**
+	 * @return static $this
+	 */
+	function do_patch($id, $entry)
+	{
+		// create field list
+		$spec = static::config();
+		$fieldlist = $this->make_fieldlist($spec, \array_keys($entry));
+
+		// create templates
+		$fields = [];
+		foreach ($fieldlist as $type => $list)
+		{
+			foreach ($list as $fieldname)
+			{
+				$fields[] = $fieldname;
+			}
+		}
+		
+		$setfields = \app\Arr::implode
+			(
+				', ', 
+				$fields, 
+				function ($key, $in)
+				{
+					return "`$in` = :$in";
+				}
+			);
+		
+		$this->db->prepare
+			(
+				__METHOD__,
+				'
+					UPDATE `'.static::table().'` 
+					   SET '.$setfields.'
+					 WHERE `id` = :id
+				'
+			)
+			->num(':id', $id)
+			->strs($entry, $fieldlist['strs'])
+			->nums($entry, $fieldlist['nums'])
+			->bools($entry, $fieldlist['bools'])
+			->run();
+		
+		// the update may be the entire entry being replaced by another
+		return $id;
+	}
+
 #
 # The DELETE process
 #
@@ -84,7 +198,18 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 	 */
 	function delete($id)
 	{
-		throw new \app\Exception_NotImplemented();
+		$this->db->prepare
+			(
+				__METHOD__,
+				'
+					DELETE FROM `'.static::table().'`
+					 WHERE `'.static::keyfield().'` = :id
+				'
+			)
+			->num(':id', $id)
+			->run();
+				
+		return $this;
 	}
 	
 } # class

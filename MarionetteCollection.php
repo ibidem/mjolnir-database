@@ -24,7 +24,7 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 		}
 		else if ($model_instance === null)
 		{
-			$class = $this->camelsingular().'Model';
+			$class = '\app\\'.$this->camelsingular().'Model';
 			$model_instance = $class::instance($this->db);
 		}
 		
@@ -42,7 +42,16 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 	 */
 	function get(array $conf)
 	{
-		throw new \app\Exception_NotImplemented();
+		return $this->db->prepare
+			(
+				__METHOD__,
+				'
+					SELECT *
+					  FROM `'.static::table().'`
+				'
+			)
+			->run()
+			->fetch_all();
 	}
 	
 #
@@ -65,21 +74,22 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 	function post(array $entry)
 	{
 		$entry = $this->parse($entry);
-		$auditor = $this->auditor();
 		
 		try
 		{
 			$this->db->begin();
 			$entry = $this->run_drivers($entry);
+			
+			$auditor = $this->auditor();
 			if ($auditor->fields_array($entry)->check())
 			{
-				$new_entry = $this->do_post($entry);
+				$entry_id = $this->do_post($entry);
 				
 				// success?
-				if ($new_entry !== null)
+				if ($entry_id !== null)
 				{
 					$this->db->commit();
-					return $new_entry;
+					return $this->model()->get($entry_id);
 				}
 				else # recoverable failure
 				{
@@ -107,9 +117,9 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 	 * 
 	 * @return array normalized entry
 	 */
-	function parse(array $input)
+	final function parse(array $input)
 	{
-		return $input;
+		return $this->model()->parse($input);
 	}
 	
 	# 2. check for errors
@@ -119,36 +129,19 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 	 * 
 	 * @return \mjolnir\types\Validator
 	 */
-	function auditor()
+	final function auditor()
 	{
-		return \app\Auditor::instance();
+		return $this->model()->auditor();
 	}
 	
 	# 3. run drivers against entry
 	
-	/**
-	 * @return return processed entry
-	 */
-	protected function run_drivers(array $entry)
-	{
-		$spec = static::config();
-		
-		foreach ($spec['fields'] as $field => $fieldinfo)
-		{
-			if (isset($fieldinfo['driver']))
-			{
-				$driver = $this->getdriver($fieldinfo['driver']);
-				$entry = $driver->compile($field, $entry, $fieldinfo);
-			}
-		}
-		
-		return $entry;
-	}
+		# see: Marionette
 	
 	# 4. persist to database
 	
 	/**
-	 * @return array
+	 * @return int new entry id
 	 */
 	protected function do_post($entry)
 	{
@@ -190,69 +183,17 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 			(
 				__METHOD__,
 				'
-					INSERT INTO :table 
-					       ('.$sqlfields.') 
+					INSERT INTO `'.static::table().'` 
+					       ('.$sqlfields.')
 					VALUES ('.$keyfields.')
 				'
 			)
 			->strs($entry, $fieldlist['strs'])
 			->nums($entry, $fieldlist['nums'])
 			->bools($entry, $fieldlist['bools'])
-			->str(':table', static::table())
 			->run();
 		
-		$entry_id = $this->db->last_inserted_id();
-		
-		return $this->model()->get($entry_id);
-	}
-	
-	/**
-	 * @return array normalized fieldlist
-	 */
-	protected function make_fieldlist($spec)
-	{
-		$fieldlist = [ 'nums' => [], 'strs' => [], 'bools' => [] ];
-		foreach ($spec['fields'] as $field => $fieldinfo)
-		{
-			// do not handle model key
-			if ($field === $spec['key'])
-			{
-				continue;
-			}
-			
-			if ( ! isset($fieldinfo['type']) && ! isset($fieldinfo['driver']))
-			{
-				throw new \app\Exception("Missing type for $field");
-			}
-			else if (isset($fieldinfo['driver']))
-			{
-				continue;
-			}
-			
-			// filter abstract type to usable transport type
-			switch ($fieldinfo['type'])
-			{
-				case 'id':
-					$fieldlist['nums'][] = $field;
-					break;
-				case 'number':
-					$fieldlist['nums'][] = $field;
-					break;
-				case 'string':
-					$fieldlist['strs'][] = $field;
-					break;
-				case 'datetime':
-					$fieldlist['strs'][] = $field;
-					break;
-				case 'currency':
-					$fieldlist['nums'][] = $field;
-					break;
-				default:
-					throw new \app\Exception("Unsuported field type: {$fieldinfo['type']}");
-			}
-		}
-		
-		return $fieldlist;
+		return $this->db->last_inserted_id();
 	}
 	
 #
