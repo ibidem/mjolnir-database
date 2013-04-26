@@ -42,7 +42,27 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 	 */
 	function get(array $conf = null)
 	{
+		// forbid JOIN injection
+		$conf['joins'] = null;
+		
+		$defaults = array
+			(
+				'fields' => null,
+				'joins' => null,
+				'group_by' => null,
+				'constraints' => null,
+				'limit' => null,
+				'offset' => 0,
+			);
+		
+		$conf = \app\Arr::merge($defaults, $conf);
+		
+		$this->run_drivers_inject($conf);
+		
+		// join format: ['table' => static::table(), 'ref' => 'something.id', 'for' => 'this.something'];
+		
 		$constraints = null;
+		$joins = null;
 		$limit = null;
 		$offset = 0;
 		
@@ -109,7 +129,7 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 			$this->db->begin();
 			
 			// 2. run drivers against entry
-			$entry = $this->run_drivers($entry);
+			$entry = $this->run_drivers_compile($entry);
 			
 			// 3. check for errors
 			$auditor = $this->auditor();
@@ -182,6 +202,9 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 		$spec = static::config();
 		$fieldlist = $this->make_fieldlist($spec);
 
+		// inject driver based dependencies
+		$fieldlist = $this->run_drivers_compilefields($fieldlist);
+		
 		// create templates
 		$fields = [];
 		foreach ($fieldlist as $type => $list)

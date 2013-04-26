@@ -221,9 +221,9 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 	}
 	
 	/**
-	 * @return return processed entry
+	 * @return array processed entry
 	 */
-	protected function run_drivers(array $entry)
+	protected function run_drivers_compile(array $entry)
 	{
 		$spec = static::config();
 		
@@ -237,6 +237,44 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 		}
 		
 		return $entry;
+	}
+	
+	/**
+	 * @return array processed fieldlist
+	 */
+	protected function run_drivers_compilefields(array $fieldlist)
+	{
+		$spec = static::config();
+		
+		foreach ($spec['fields'] as $field => $fieldinfo)
+		{
+			if (isset($fieldinfo['driver']))
+			{
+				$driver = $this->getdriver($fieldinfo['driver']);
+				$fieldlist = $driver->compilefields($field, $fieldlist, $fieldinfo);
+			}
+		}
+		
+		return $fieldlist;
+	}
+	
+	/**
+	 * @return array processed execution plan
+	 */
+	protected function run_drivers_inject(array $plan)
+	{
+		$spec = static::config();
+		
+		foreach ($spec['fields'] as $field => $fieldinfo)
+		{
+			if (isset($fieldinfo['driver']))
+			{
+				$driver = $this->getdriver($fieldinfo['driver']);
+				$plan = $driver->inject($field, $plan, $fieldinfo);
+			}
+		}
+		
+		return $plan;
 	}
 	
 } # class

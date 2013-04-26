@@ -59,4 +59,13 @@ class MarionetteDriver_Reference extends \app\Instantiatable implements \mjolnir
 		return $entry;
 	}
 
+	/**
+	 * @return array
+	 */
+	function compilefields($field, array $fieldlist, array $conf = null)
+	{
+		$fieldlist['nums'][] = $field;
+		return $fieldlist;
+	}
+	
 } # class
