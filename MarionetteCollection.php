@@ -40,14 +40,42 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 	 * 
 	 * @return array
 	 */
-	function get(array $conf)
+	function get(array $conf = null)
 	{
+		$constraints = null;
+		$limit = null;
+		$offset = 0;
+		
+		if ($conf !== null)
+		{
+			if (isset($conf['limit']))
+			{
+				$limit = \intval($conf['limit']);
+			}
+			
+			if (isset($conf['offset']))
+			{
+				$offset = \intval($conf['offset']);
+			}
+			
+			if (isset($conf['constraints']))
+			{
+				$constraints .= \app\SQL::parseconstraints($conf['constraints']);
+			}
+		}
+		
+		$constraints = \trim($constraints);
+		empty($constraints) or $constraints = "WHERE $constraints";
+		empty($limit) or $limit = "LIMIT $limit OFFSET $offset";
+		
 		return $this->db->prepare
 			(
 				__METHOD__,
 				'
 					SELECT *
 					  FROM `'.static::table().'`
+					'.$constraints.'  
+					'.$limit.'
 				'
 			)
 			->run()

@@ -30,13 +30,14 @@ class MarionetteCollection extends \mjolnir\database\MarionetteCollection
 class MarionetteDriver_Reference extends \mjolnir\database\MarionetteDriver_Reference
 {
 	/** @return \app\MarionetteDriver_Reference */
-	static function instance() { return parent::instance(); }
+	static function instance($db = null) { return parent::instance($db); }
 }
 
 /**
  * @method \app\MarionetteModel collection($collection = null)
  * @method \app\MarionetteModel put($id, $entry)
  * @method \app\MarionetteModel patch($id, $partial_entry)
+ * @method \app\MarionetteModel do_patch($id, $entry)
  * @method \app\MarionetteModel delete($id)
  * @method \app\MarionetteModel registerdriver($driver_id, $driver)
  */
