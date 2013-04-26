@@ -73,16 +73,21 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 	 */
 	function post(array $entry)
 	{
+		// 1. normalize entry
 		$entry = $this->parse($entry);
 		
 		try
 		{
 			$this->db->begin();
+			
+			// 2. run drivers against entry
 			$entry = $this->run_drivers($entry);
 			
+			// 3. check for errors
 			$auditor = $this->auditor();
 			if ($auditor->fields_array($entry)->check())
 			{
+				// 4. persist to database
 				$entry_id = $this->do_post($entry);
 				
 				// success?
@@ -122,7 +127,11 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 		return $this->model()->parse($input);
 	}
 	
-	# 2. check for errors
+	# 2. run drivers against entry
+	
+		# see: Marionette
+	
+	# 3. check for errors
 	
 	/**
 	 * Auditor should always handle parsed values.
@@ -133,10 +142,6 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 	{
 		return $this->model()->auditor();
 	}
-	
-	# 3. run drivers against entry
-	
-		# see: Marionette
 	
 	# 4. persist to database
 	
@@ -207,7 +212,25 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 	 */
 	function put(array $collection)
 	{
-		throw new \app\Exception_NotImplemented();
+		$this->db->begin();
+		
+		try
+		{
+			$this->delete();
+			foreach ($collection as $entry)
+			{
+				$this->post($entry);
+			}
+			
+			$this->commit();
+		}
+		catch (\Exception $e)
+		{
+			$this->db->rollback();
+			throw $e;
+		}
+		
+		return $this;
 	}
 
 #
@@ -221,7 +244,14 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 	 */
 	function delete()
 	{
-		throw new \app\Exception_NotImplemented();
+		$this->db->prepare
+			(
+				__METHOD__,
+				'
+					DELETE FROM `'.static::table().'`
+				'
+			)
+			->run();
 	}
 	
 } # class
