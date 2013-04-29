@@ -49,17 +49,15 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 			(
 				'fields' => null,
 				'joins' => null,
-				'group_by' => null,
 				'constraints' => null,
 				'limit' => null,
 				'offset' => 0,
+				'postprocessors' => null
 			);
 		
 		$conf = \app\Arr::merge($defaults, $conf);
 		
 		$this->run_drivers_inject($conf);
-		
-		// join format: ['table' => static::table(), 'ref' => 'something.id', 'for' => 'this.something'];
 		
 		$constraints = null;
 		$joins = null;
@@ -78,6 +76,11 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 				$offset = \intval($conf['offset']);
 			}
 			
+			if (isset($conf['joins']))
+			{
+				$joins = \app\SQL::parsejoins($conf['joins']);
+			}
+			
 			if (isset($conf['constraints']))
 			{
 				$constraints .= \app\SQL::parseconstraints($conf['constraints']);
@@ -88,11 +91,12 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 		empty($constraints) or $constraints = "WHERE $constraints";
 		empty($limit) or $limit = "LIMIT $limit OFFSET $offset";
 		
-		return $this->db->prepare
+		$entries = $this->db->prepare
 			(
 				__METHOD__,
 				'
 					SELECT *
+					'.$joins.'
 					  FROM `'.static::table().'`
 					'.$constraints.'  
 					'.$limit.'
@@ -100,6 +104,21 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 			)
 			->run()
 			->fetch_all();
+		
+		if ($conf['postprocessors'] !== null)
+		{
+			foreach ($entries as $entry)
+			{
+				foreach ($conf['postprocessors'] as $processors)
+				{
+					$entry = $processor($entry);
+				}
+			}
+		}
+		else # no postprocessors step
+		{
+			return $entries;
+		}
 	}
 	
 #

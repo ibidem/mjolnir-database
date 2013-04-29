@@ -94,6 +94,28 @@ class SQL
 	// General Helpers
 	
 	/**
+	 * join format: 
+	 * [
+	 *	'table' => static::table(), 
+	 *	'ref' => 'something.id', 
+	 *	'key' => 'this.something'
+	 * ];
+	 * 
+	 * @return string compiled joins
+	 */
+	static function parsejoins(array $joins)
+	{
+		$joins = '';
+		
+		foreach ($joins as $join)
+		{
+			$joins .= "JOIN `{$join['table']}` ON {$join['ref']} = {$join['key']}";
+		}
+		
+		return $joins;
+	}
+	
+	/**
 	 * [!!] Intentionally not permitting null for constraints, please perform 
 	 * the check in context because this method only returns the parameters to
 	 * a WHERE clause not the entire WHERE clause.
