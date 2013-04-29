@@ -14,34 +14,34 @@ class Task_Db_Reset extends \app\Task
 	 */
 	function execute()
 	{
-		$channel = $this->config['channel'];
 		$serial = $this->config['serial'];
 		
 		$uninstall = Task_Db_Uninstall::instance()
+			->writer($this->writer)
 			->config
 			(
-				array
-				(
-					'channel' => $channel,
-				)
+				[
+					'channel' => false,
+					'all' => true,
+				]
 			);
 		
 		$uninstall->execute();
 		
-		if ($channel !== false)
+		$channels = \app\Schematic::channels();
+
+		$processing_list = $this->processing_list($channels);
+
+		foreach ($processing_list as $channel)
 		{
-			$this->process_reset($channel, $serial);
+			$bindings = [];
+			$this->process_reset($channel, $serial, $bindings);
 		}
-		else # process channels 
+		
+		$this->writer->eol()->eol();
+		foreach ($bindings as $binding) 
 		{
-			$channels = \app\Schematic::channels();
-			
-			$processing_list = $this->processing_list($channels);
-			
-			foreach ($processing_list as $channel)
-			{
-				$this->process_reset($channel, $serial);
-			}
+			$binding();
 		}
 	}
 	
@@ -133,31 +133,50 @@ class Task_Db_Reset extends \app\Task
 	/**
 	 * Reset task.
 	 */
-	function process_reset($channel, $serial)
+	function process_reset($channel, $serial, array & $bindings)
 	{
-		$this->verify_no_dataloss($channel);
+		if ($this->verify_no_dataloss($channel, true)) 
+		{
+			$this->writer->write(' Potential data loss for '.$channel.'. Skipped.')->eol();
+			return;
+		}
 		
 		$trail = \app\Schematic::serial_trail($channel, '0:0-default', $serial);
 		\array_unshift($trail, '0:0-default');
 		
+		$this->writer->eol();
 		static::write_trail($this->writer, $channel, $trail);
+		
+		$writer = $this->writer;
+		$bindings[] = function () use ($writer, $channel, $trail)
+			{
+				\app\Task_Db_Reset::write_trail($writer, $channel, $trail);
+			};
 
-		$this->process_trail($channel, $trail);
+		$this->process_trail($channel, $trail, $bindings);
 	}
 	
 	/**
 	 * Verify data loss will not happened.
 	 */
-	function verify_no_dataloss($channel)
+	function verify_no_dataloss($channel, $return = false)
 	{
 		// verify system is at 0:0-default
 		$serial = \app\Schematic::get_serial_for($channel);
-		
 		if ($serial !== '0:0-default')
 		{
 			$this->writer->error('The database is not at [0:0-default]. Potential data-loss, terminating.')->eol();
-			die(1);
+			if ($return)
+			{
+				return true;
+			}
+			else 
+			{
+				die(1);
+			}
 		}
+		
+		return false;
 	}
 	
 	/**

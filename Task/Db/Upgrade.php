@@ -12,8 +12,9 @@ class Task_Db_Upgrade extends \app\Task_Db_Reset
 	function execute()
 	{
 		$channel = $this->config['channel'];
+		$all = $this->config['all'];
 		
-		if ($channel !== false)
+		if ( ! $all && $channel !== false)
 		{
 			$this->process_upgrade($channel);
 		}
@@ -38,8 +39,8 @@ class Task_Db_Upgrade extends \app\Task_Db_Reset
 		
 		if (empty($trail))
 		{
-			$this->writer->write(' System is currently on the latest version.')->eol();
-			exit;
+			$this->writer->write(' Channel '.$channel.' - System is currently on the latest version.')->eol();
+			return;
 		}
 		
 		static::write_trail($this->writer, $channel, $trail);
@@ -47,7 +48,7 @@ class Task_Db_Upgrade extends \app\Task_Db_Reset
 		$bindings = array();
 		$this->process_trail($channel, $trail, $bindings);
 		
-		$this->writer->header(' Binding');
+		$this->writer->eol()->header(' Binding');
 
 		foreach ($bindings as $binding)
 		{

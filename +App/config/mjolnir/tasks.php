@@ -84,13 +84,13 @@
 					),
 				'flags' => array
 					(
-						'channel' => array
-							(
-								'type' => '\mjolnir\base\Flags::text',
-								'description' => 'Specified a channel when setting version.',
-								'short' => 'c',
-								'default' => 'default',
-							),
+//						'channel' => array
+//							(
+//								'type' => '\mjolnir\base\Flags::text',
+//								'description' => 'Specified a channel when setting version.',
+//								'short' => 'c',
+//								'default' => 'default',
+//							),
 						'serial' => array
 							(
 								'type' => '\mjolnir\base\Flags::text',

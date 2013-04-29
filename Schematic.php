@@ -473,7 +473,7 @@ class Schematic
 		$list = static::channel_list();
 		foreach ($list as $entry)
 		{
-			if ($entry['channel'] === $channel)
+			if ($entry['channel'] == $channel)
 			{
 				return $entry['serial'];
 			}
