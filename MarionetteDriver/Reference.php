@@ -1,7 +1,11 @@
 <?php namespace mjolnir\database;
 
 /**
- * PROTOTYPE - subject to change
+ * The Reference driver allows you to link a field to the public version of 
+ * another field in another table. The reference field in the parent table is
+ * a numeric id and will be linked via keyfield of the referenced collection.
+ * 
+ * On get the field will be translated to an array of the reference table.
  * 
  * @package    mjolnir
  * @category   Database
@@ -66,6 +70,33 @@ class MarionetteDriver_Reference extends \app\Instantiatable implements \mjolnir
 	{
 		$fieldlist['nums'][] = $field;
 		return $fieldlist;
+	}
+	
+	/**
+	 * @return array updated execution plan
+	 */
+	function inject($field, array $plan, array $conf = null)
+	{
+		// retrieve reference collection class
+		if (\strpos($conf['collection'], '\\') === false)
+		{
+			$class = '\app\\'.$conf['collection'];
+		}
+		else # namespaced class
+		{
+			$class = $conf['collection'];
+		}
+		
+		$collection = $class::instance($this->db);
+		$model = $collection->model();
+		
+		$plan['postprocessors'][] = function ($entry) use ($field, $model) 
+			{
+				$entry[$field] = $model->get($entry[$field]);
+				return $entry;
+			};
+		
+		return $plan;
 	}
 	
 } # class

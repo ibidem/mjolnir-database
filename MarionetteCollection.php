@@ -40,9 +40,9 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 	 * 
 	 * @return array
 	 */
-	function get(array $conf = null)
+	function get(array $conf = [])
 	{
-		// forbid JOIN injection
+		// forbid direct JOIN injection
 		$conf['joins'] = null;
 		
 		$defaults = array
@@ -55,65 +55,33 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 				'postprocessors' => null
 			);
 		
-		$conf = \app\Arr::merge($defaults, $conf);
-		
-		$this->run_drivers_inject($conf);
-		
-		$constraints = null;
-		$joins = null;
-		$limit = null;
-		$offset = 0;
-		
-		if ($conf !== null)
-		{
-			if (isset($conf['limit']))
-			{
-				$limit = \intval($conf['limit']);
-			}
-			
-			if (isset($conf['offset']))
-			{
-				$offset = \intval($conf['offset']);
-			}
-			
-			if (isset($conf['joins']))
-			{
-				$joins = \app\SQL::parsejoins($conf['joins']);
-			}
-			
-			if (isset($conf['constraints']))
-			{
-				$constraints .= \app\SQL::parseconstraints($conf['constraints']);
-			}
-		}
-		
-		$constraints = \trim($constraints);
-		empty($constraints) or $constraints = "WHERE $constraints";
-		empty($limit) or $limit = "LIMIT $limit OFFSET $offset";
+		$plan = $this->generate_executation_plan($conf, $defaults);
 		
 		$entries = $this->db->prepare
 			(
 				__METHOD__,
 				'
-					SELECT *
-					'.$joins.'
+					SELECT '.$plan['fields'].'
+					'.$plan['joins'].'
 					  FROM `'.static::table().'`
-					'.$constraints.'  
-					'.$limit.'
+					'.$plan['constraints'].'
+					'.$plan['limit'].'
 				'
 			)
 			->run()
 			->fetch_all();
 		
-		if ($conf['postprocessors'] !== null)
+		if ($plan['postprocessors'] !== null)
 		{
-			foreach ($entries as $entry)
+			foreach ($entries as & $entry)
 			{
-				foreach ($conf['postprocessors'] as $processors)
+				foreach ($plan['postprocessors'] as $processor)
 				{
 					$entry = $processor($entry);
 				}
 			}
+			
+			return $entries;
 		}
 		else # no postprocessors step
 		{
@@ -238,7 +206,7 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 			(
 				', ', 
 				$fields, 
-				function ($key, $in)
+				function ($k, $in)
 				{
 					return "`$in`";
 				}
@@ -248,7 +216,7 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 			(
 				', ', 
 				$fields, 
-				function ($key, $in)
+				function ($k, $in)
 				{
 					return ":$in "; # space is intentional
 				}

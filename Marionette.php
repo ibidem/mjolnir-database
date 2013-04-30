@@ -88,7 +88,14 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 		{
 			if (\is_string($fieldconf))
 			{
-				$fieldconf = [ 'type' => $fieldconf ];
+				$fieldconf = [ 'type' => $fieldconf, 'visibility' => 'public' ];
+			}
+			else # array
+			{
+				if ( ! isset($fieldconf['visibility']))
+				{
+					$fieldconf['visibility'] = 'public';
+				}
 			}
 		}
 	}
@@ -275,6 +282,101 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 		}
 		
 		return $plan;
+	}
+	
+	/**
+	 * @return array
+	 */
+	protected function basicfieldhandlers($conf)
+	{
+		$spec = static::config();
+		
+		foreach ($spec['fields'] as $field => $fieldinfo)
+		{
+			if ($fieldinfo['visibility'] === 'public')
+			{
+				$conf['fields'][] = $field;
+			}
+		}
+		
+		return $conf;
+	}
+	
+	/**
+	 * Generates sql injectable version of configuration.
+	 * 
+	 * @return array
+	 */
+	protected function generate_executation_plan($conf, $defaults)
+	{
+		$conf = \app\Arr::merge($defaults, $conf);
+		$conf = $this->basicfieldhandlers($conf);
+		$conf = $this->run_drivers_inject($conf);
+		
+		$constraints = null;
+		$joins = null;
+		$limit = null;
+		$offset = 0;
+		
+		if ($conf !== null)
+		{
+			if (isset($conf['limit']))
+			{
+				$limit = \intval($conf['limit']);
+			}
+			
+			if (isset($conf['offset']))
+			{
+				$offset = \intval($conf['offset']);
+			}
+			
+			if (isset($conf['joins']))
+			{
+				$joins = \app\SQL::parsejoins($conf['joins']);
+			}
+			
+			if (isset($conf['constraints']))
+			{
+				$constraints .= \app\SQL::parseconstraints($conf['constraints']);
+			}
+		}
+		
+		$constraints = \trim($constraints);
+		empty($constraints) or $constraints = "WHERE $constraints";
+		empty($limit) or $limit = "LIMIT $limit OFFSET $offset";
+		
+		if (empty($conf['fields'])) 
+		{
+			$fields = '*';
+		}
+		else // fields
+		{
+			$fields = \app\Arr::implode
+				(
+					', ', 
+					$conf['fields'], 
+					function ($k, $field)
+					{
+						if (\strpos($field, '.') === false)
+						{
+							return "`$field`";
+						}
+						else # field contains dot, may be reference from table
+						{
+							return $field;
+						}
+					}
+				);
+		}
+		
+		return array
+			(
+				'fields' => $fields,
+				'joins' => $joins,
+				'limit' => $limit,
+				'constraints' => $constraints,
+				'postprocessors' => & $conf['postprocessors']
+			);
 	}
 	
 } # class

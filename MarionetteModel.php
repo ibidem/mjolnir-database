@@ -42,18 +42,44 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 	 */
 	function get($id)
 	{
-		return $this->db->prepare
+		$defaults = array
+			(
+				'fields' => null,
+				'joins' => null,
+				'constraints' => [ static::keyfield() => $id ],
+				'limit' => 1,
+				'offset' => 0,
+				'postprocessors' => null,
+			);
+		
+		$plan = $this->generate_executation_plan([], $defaults);
+				
+		$entry = $this->db->prepare
 			(
 				__METHOD__,
 				'
-					SELECT *
+					SELECT '.$plan['fields'].'
+					'.$plan['joins'].'
 					  FROM `'.static::table().'`
-					 WHERE `'.static::keyfield().'` = :id
+					'.$plan['constraints'].'
 				'
 			)
-			->num(':id', $id)
 			->run()
 			->fetch_entry();
+		
+		if ($plan['postprocessors'] !== null)
+		{
+			foreach ($plan['postprocessors'] as $processor)
+			{
+				$entry = $processor($entry);
+			}
+			
+			return $entry;
+		}
+		else # no postprocessors step
+		{
+			return $entry;
+		}
 	}
 	
 #
