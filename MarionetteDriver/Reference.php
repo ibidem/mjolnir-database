@@ -18,27 +18,23 @@ class MarionetteDriver_Reference extends \app\Instantiatable implements \mjolnir
 	use \app\Trait_MarionetteDriver;
 	
 	/**
-	 * @return array
+	 * On POST, resolve input dependencies (happens before validation).
+	 * 
+	 * @return array updated entry
 	 */
-	function compile($field, array $entry, array $conf = null)
+	function compile(array $entry)
 	{
+		$conf = $this->config;
+		$field = $this->field;
+		
 		if (empty($entry[$field]))
 		{
 			$entry[$field] = null;
 		}
 		else # got entry
 		{
-			// retrieve reference collection class
-			if (\strpos($conf['collection'], '\\') === false)
-			{
-				$class = '\app\\'.$conf['collection'];
-			}
-			else # namespaced class
-			{
-				$class = $conf['collection'];
-			}
-			
-			$keyfield = $class::keyfield();
+			$collection = $this->collection();
+			$keyfield = $collection->keyfield();
 			
 			if (isset($entry[$field][$keyfield]))
 			{
@@ -46,7 +42,6 @@ class MarionetteDriver_Reference extends \app\Instantiatable implements \mjolnir
 			}
 			else # new model for given collection
 			{
-				$collection = $class::instance($this->db);
 				$new_ref = $collection->post($entry[$field]);
 				
 				if ($new_ref !== null)
@@ -64,30 +59,27 @@ class MarionetteDriver_Reference extends \app\Instantiatable implements \mjolnir
 	}
 
 	/**
-	 * @return array
+	 * On POST, field processing before POST database communication.
+	 * 
+	 * @return array updated fieldlist
 	 */
-	function compilefields($field, array $fieldlist, array $conf = null)
+	function compilefields(array $fieldlist)
 	{
-		$fieldlist['nums'][] = $field;
+		$fieldlist['nums'][] = $this->field;
 		return $fieldlist;
 	}
 	
 	/**
+	 * On GET, manipulate execution plan.
+	 * 
 	 * @return array updated execution plan
 	 */
-	function inject($field, array $plan, array $conf = null)
+	function inject(array $plan)
 	{
-		// retrieve reference collection class
-		if (\strpos($conf['collection'], '\\') === false)
-		{
-			$class = '\app\\'.$conf['collection'];
-		}
-		else # namespaced class
-		{
-			$class = $conf['collection'];
-		}
+		$field = $this->field;
 		
-		$collection = $class::instance($this->db);
+		$plan['fields'][] = $field;
+		$collection = $this->collection();
 		$model = $collection->model();
 		
 		$plan['postprocessors'][] = function ($entry) use ($field, $model) 

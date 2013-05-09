@@ -11,26 +11,6 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 {
 	use \app\Trait_MarionetteCollection;
 	
-	/**
-	 * @return \mjolnir\types\MarionetteModel for this collection
-	 */
-	function model(\mjolnir\types\MarionetteModel $model = null)
-	{
-		static $model_instance = null;
-		
-		if ($model !== null)
-		{
-			$model_instance = $model;
-		}
-		else if ($model_instance === null)
-		{
-			$class = '\app\\'.$this->camelsingular().'Model';
-			$model_instance = $class::instance($this->db);
-		}
-		
-		return $model_instance;
-	}
-	
 #
 # The GET process
 #
@@ -40,8 +20,10 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 	 * 
 	 * @return array
 	 */
-	function get(array $conf = [])
+	function get(array $conf = null)
 	{
+		$conf !== null or $conf = [];
+		
 		// forbid direct JOIN injection
 		$conf['joins'] = null;
 		
@@ -112,24 +94,38 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 		$entry = $this->parse($entry);
 		
 		try
-		{
+		{			
 			$this->db->begin();
 			
-			// 2. run drivers against entry
-			$entry = $this->run_drivers_compile($entry);
+			// 2. run compile steps against entry
+			$input = $this->run_drivers_compile($entry);
 			
 			// 3. check for errors
 			$auditor = $this->auditor();
-			if ($auditor->fields_array($entry)->check())
+			if ($auditor->fields_array($input)->check())
 			{
 				// 4. persist to database
-				$entry_id = $this->do_post($entry);
+				$entry_id = $this->do_post($input);
 				
 				// success?
 				if ($entry_id !== null)
 				{
-					$this->db->commit();
-					return $this->model()->get($entry_id);
+					// get entry
+					$entry = $this->model()->get($entry_id);
+					
+					// 5. run latecompile steps against entry
+					$entry = $this->run_drivers_latecompile($entry, $input);
+					
+					if ($entry !== null)
+					{
+						$this->db->commit();
+						return $entry;
+					}
+					else # failed latecompile
+					{
+						$this->db->rollback();
+						return null;
+					}
 				}
 				else # recoverable failure
 				{

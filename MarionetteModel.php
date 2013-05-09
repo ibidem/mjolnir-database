@@ -10,26 +10,6 @@
 class MarionetteModel extends \app\Marionette implements \mjolnir\types\MarionetteModel
 {
 	use \app\Trait_MarionetteModel;
-
-	/**
-	 * @return \mjolnir\types\MarionetteModel for this collection
-	 */
-	function collection(\mjolnir\types\MarionetteCollection $collection = null)
-	{
-		static $collection_instance = null;
-		
-		if ($collection !== null)
-		{
-			$collection_instance = $collection;
-		}
-		else if ($collection_instance === null)
-		{
-			$class = '\app\\'.$this->camelsingular().'Collection';
-			$collection_instance = $class::instance($this->db);
-		}
-		
-		return $collection_instance;
-	}
 	
 #
 # The GET process
@@ -91,7 +71,7 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 	 * 
 	 * @return static $this
 	 */
-	function put($id, $entry)
+	function put($id, array $entry)
 	{
 		// @todo: check if all fields are present for more robust PUT
 		
@@ -127,7 +107,7 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 	 * 
 	 * @return static $this
 	 */
-	function patch($id, $partial_entry)
+	function patch($id, array $partial_entry)
 	{
 		$entry = $this->parse($partial_entry);
 		$auditor = $this->auditor();
@@ -168,7 +148,7 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 	/**
 	 * @return static $this
 	 */
-	function do_patch($id, $entry)
+	function do_patch($id, array $entry)
 	{
 		// create field list
 		$spec = static::config();
