@@ -32,9 +32,9 @@ class Task_Db_Reset extends \app\Task
 
 		$processing_list = $this->processing_list($channels);
 
+		$bindings = [];
 		foreach ($processing_list as $channel)
 		{
-			$bindings = [];
 			$this->process_reset($channel, $serial, $bindings);
 		}
 		

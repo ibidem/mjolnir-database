@@ -126,9 +126,19 @@ class Schematic
 			foreach ($constraints as $key => $constraint)
 			{
 				++$idx;
+				
+				if ( ! isset($constraint[3]))
+				{
+					$constraint_key = "_mjolnirfk_".$idx;
+				}
+				else # constraint key set
+				{
+					$constraint_key = '_'.$constraint[3];
+				}
+				
 				$query .=
 					"
-						ADD CONSTRAINT `".$table."_mjolnirfk_".$idx."`
+						ADD CONSTRAINT `".$table.$constraint_key."`
 						   FOREIGN KEY (`".$key."`)
 							REFERENCES `".$constraint[0]."` (`id`)
 							 ON DELETE ".$constraint[1]."	
@@ -163,6 +173,18 @@ class Schematic
 		}
 	}
 
+	static function drop_constraint($table, $key)
+	{
+		try 
+		{
+			\app\SQL::prepare(__METHOD__, 'ALTER TABLE `'.$table.'` DROP FOREIGN KEY `'.$table.'_'.$key.'`')->execute();
+		}
+		catch (\Exception $e)
+		{
+			// on failure assume constraint is not present
+		}
+	}
+	
 	static function destroy()
 	{
 		$args = \func_get_args();
