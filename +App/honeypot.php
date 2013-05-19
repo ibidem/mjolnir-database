@@ -8,6 +8,9 @@
 
 /**
  * @method \app\Marionette registerdriver($driver_id, $driver)
+ * @method \app\MarionetteDriver getdriver($field, $driver_id, $driverconfig)
+ * @method \app\MarionetteModel collection()
+ * @method \app\MarionetteModel model()
  */
 class Marionette extends \mjolnir\database\Marionette
 {
@@ -16,10 +19,13 @@ class Marionette extends \mjolnir\database\Marionette
 }
 
 /**
- * @method \app\MarionetteModel model($model = null)
+ * @method \app\Validator auditor()
  * @method \app\MarionetteCollection put(array $collection)
  * @method \app\MarionetteCollection delete()
  * @method \app\MarionetteCollection registerdriver($driver_id, $driver)
+ * @method \app\MarionetteDriver getdriver($field, $driver_id, $driverconfig)
+ * @method \app\MarionetteCollection collection()
+ * @method \app\MarionetteModel model()
  */
 class MarionetteCollection extends \mjolnir\database\MarionetteCollection
 {
@@ -27,19 +33,44 @@ class MarionetteCollection extends \mjolnir\database\MarionetteCollection
 	static function instance($db = null) { return parent::instance($db); }
 }
 
+/**
+ * @method \app\MarionetteDriver_Reference database_is($db)
+ * @method \app\MarionetteDriver_Reference context_is($context)
+ * @method \app\MarionetteDriver_Reference field_is($field)
+ * @method \app\MarionetteDriver_Reference config_is($config)
+ * @method \app\MarionetteCollection collection()
+ * @method \app\MarionetteCollection model()
+ */
 class MarionetteDriver_Reference extends \mjolnir\database\MarionetteDriver_Reference
 {
 	/** @return \app\MarionetteDriver_Reference */
-	static function instance($db = null) { return parent::instance($db); }
+	static function instance($db = null, $context = null, $field = null, array $config = null) { return parent::instance($db, $context, $field, $config); }
 }
 
 /**
- * @method \app\MarionetteModel collection($collection = null)
- * @method \app\MarionetteModel put($id, $entry)
- * @method \app\MarionetteModel patch($id, $partial_entry)
- * @method \app\MarionetteModel do_patch($id, $entry)
+ * @method \app\MarionetteDriver_Tags database_is($db)
+ * @method \app\MarionetteDriver_Tags context_is($context)
+ * @method \app\MarionetteDriver_Tags field_is($field)
+ * @method \app\MarionetteDriver_Tags config_is($config)
+ * @method \app\MarionetteCollection collection()
+ * @method \app\MarionetteCollection model()
+ */
+class MarionetteDriver_Tags extends \mjolnir\database\MarionetteDriver_Tags
+{
+	/** @return \app\MarionetteDriver_Tags */
+	static function instance($db = null, $context = null, $field = null, array $config = null) { return parent::instance($db, $context, $field, $config); }
+}
+
+/**
+ * @method \app\MarionetteModel put($id, array $entry)
+ * @method \app\Validator auditor()
+ * @method \app\MarionetteModel patch($id, array $partial_entry)
+ * @method \app\MarionetteModel do_patch($id, array $entry)
  * @method \app\MarionetteModel delete($id)
  * @method \app\MarionetteModel registerdriver($driver_id, $driver)
+ * @method \app\MarionetteDriver getdriver($field, $driver_id, $driverconfig)
+ * @method \app\MarionetteModel collection()
+ * @method \app\MarionetteModel model()
  */
 class MarionetteModel extends \mjolnir\database\MarionetteModel
 {
