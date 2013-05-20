@@ -78,6 +78,12 @@ class MarionetteModel extends \mjolnir\database\MarionetteModel
 	static function instance($db = null) { return parent::instance($db); }
 }
 
+class Pdx extends \mjolnir\database\Pdx
+{
+	/** @return \app\Pdx */
+	static function instance() { return parent::instance(); }
+}
+
 class Register extends \mjolnir\database\Register
 {
 }
@@ -181,10 +187,6 @@ class Schematic_Mjolnir_Registry extends \mjolnir\database\Schematic_Mjolnir_Reg
 	static function instance() { return parent::instance(); }
 }
 
-class Schematic extends \mjolnir\database\Schematic
-{
-}
-
 /**
  * @method \app\Sphinx filter($attribute, $values, $exclude = false)
  * @method \app\Sphinx matchmode($matchmode)
@@ -213,45 +215,6 @@ class Table_Snatcher extends \mjolnir\database\Table_Snatcher
 }
 
 /**
- * @method \app\Task_Db_Init set($name, $value)
- * @method \app\Task_Db_Init add($name, $value)
- * @method \app\Task_Db_Init metadata_is(array $metadata = null)
- * @method \app\Task_Db_Init writer_is($writer)
- * @method \app\Writer writer()
- */
-class Task_Db_Init extends \mjolnir\database\Task_Db_Init
-{
-	/** @return \app\Task_Db_Init */
-	static function instance() { return parent::instance(); }
-}
-
-/**
- * @method \app\Task_Db_Install set($name, $value)
- * @method \app\Task_Db_Install add($name, $value)
- * @method \app\Task_Db_Install metadata_is(array $metadata = null)
- * @method \app\Task_Db_Install writer_is($writer)
- * @method \app\Writer writer()
- */
-class Task_Db_Install extends \mjolnir\database\Task_Db_Install
-{
-	/** @return \app\Task_Db_Install */
-	static function instance() { return parent::instance(); }
-}
-
-/**
- * @method \app\Task_Db_Reset set($name, $value)
- * @method \app\Task_Db_Reset add($name, $value)
- * @method \app\Task_Db_Reset metadata_is(array $metadata = null)
- * @method \app\Task_Db_Reset writer_is($writer)
- * @method \app\Writer writer()
- */
-class Task_Db_Reset extends \mjolnir\database\Task_Db_Reset
-{
-	/** @return \app\Task_Db_Reset */
-	static function instance() { return parent::instance(); }
-}
-
-/**
  * @method \app\Task_Db_Sphinx set($name, $value)
  * @method \app\Task_Db_Sphinx add($name, $value)
  * @method \app\Task_Db_Sphinx metadata_is(array $metadata = null)
@@ -263,61 +226,8 @@ class Task_Db_Sphinx extends \mjolnir\database\Task_Db_Sphinx
 	/** @return \app\Task_Db_Sphinx */
 	static function instance() { return parent::instance(); }
 }
-
-/**
- * @method \app\Task_Db_Uninstall set($name, $value)
- * @method \app\Task_Db_Uninstall add($name, $value)
- * @method \app\Task_Db_Uninstall metadata_is(array $metadata = null)
- * @method \app\Task_Db_Uninstall writer_is($writer)
- * @method \app\Writer writer()
- */
-class Task_Db_Uninstall extends \mjolnir\database\Task_Db_Uninstall
-{
-	/** @return \app\Task_Db_Uninstall */
-	static function instance() { return parent::instance(); }
-}
-
-/**
- * @method \app\Task_Db_Upgrade set($name, $value)
- * @method \app\Task_Db_Upgrade add($name, $value)
- * @method \app\Task_Db_Upgrade metadata_is(array $metadata = null)
- * @method \app\Task_Db_Upgrade writer_is($writer)
- * @method \app\Writer writer()
- */
-class Task_Db_Upgrade extends \mjolnir\database\Task_Db_Upgrade
-{
-	/** @return \app\Task_Db_Upgrade */
-	static function instance() { return parent::instance(); }
-}
-
-/**
- * @method \app\Task_Db_Version set($name, $value)
- * @method \app\Task_Db_Version add($name, $value)
- * @method \app\Task_Db_Version metadata_is(array $metadata = null)
- * @method \app\Task_Db_Version writer_is($writer)
- * @method \app\Writer writer()
- */
-class Task_Db_Version extends \mjolnir\database\Task_Db_Version
-{
-	/** @return \app\Task_Db_Version */
-	static function instance() { return parent::instance(); }
-}
-
-/**
- * @method \app\Task_Make_Schematic set($name, $value)
- * @method \app\Task_Make_Schematic add($name, $value)
- * @method \app\Task_Make_Schematic metadata_is(array $metadata = null)
- * @method \app\Task_Make_Schematic writer_is($writer)
- * @method \app\Writer writer()
- */
-class Task_Make_Schematic extends \mjolnir\database\Task_Make_Schematic
-{
-	/** @return \app\Task_Make_Schematic */
-	static function instance() { return parent::instance(); }
-}
 trait Trait_Model_Automaton { use \mjolnir\database\Trait_Model_Automaton; }
 trait Trait_Model_Collection { use \mjolnir\database\Trait_Model_Collection; }
 trait Trait_Model_Factory { use \mjolnir\database\Trait_Model_Factory; }
 trait Trait_Model_MjolnirSphinx { use \mjolnir\database\Trait_Model_MjolnirSphinx; }
 trait Trait_Model_Utilities { use \mjolnir\database\Trait_Model_Utilities; }
-trait Trait_Task_Db_Migrations { use \mjolnir\database\Trait_Task_Db_Migrations; }

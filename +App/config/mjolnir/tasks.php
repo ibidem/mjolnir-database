@@ -6,23 +6,23 @@
 				'description' => array
 					(
 						'Reset database. Latest version if no version is provided.',
-						'When resetting to a specific version you must provide the root '.
+						'When resetting to a specific version you must provide the pivot '.
 						'channel to be used when determining which channels need to be '.
-						'at which version to for teh migration.'
+						'at which version for the migration.'
 					),
 				'flags' => array
 					(
 						'version' => array
 							(
 								'type' => 'text',
-								'description' => 'Channel version; channel must also be provided.',
+								'description' => 'Channel version; pivot channel must also be provided.',
 								'short' => 'v',
 								'default' => false,
 							),
 						'app' => array
 							(
 								'type' => 'text',
-								'description' => 'Application channel or main channel.',
+								'description' => 'Pivot channel, should be main application channel.',
 								'short' => 'a',
 								'default' => false,
 							),
