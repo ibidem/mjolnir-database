@@ -527,10 +527,11 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 					{
 						$active_version = $this->binversion($active['channel'], $active['version']);
 						$checkpoint_version = $this->binversion($checkpoint['channel'], $checkpoint['version']);
-						// we only test with >= on version because we know that
-						// if a channel did require that specific version that
-						// is lower then they would have initiated the process,
-						// thereby rendering it impossible to cause conflict
+						// we test with >= on the version because we know that
+						// if a channel did require that specific version then
+						// they would have initiated the process, thereby
+						// rendering it impossible to cause conflict, ie.
+						// requirement should have been satisfied already
 						if ($active['channel'] == $checkpoint['channel'] && $active_version >= $checkpoint_version)
 						{
 							$skip = true;
