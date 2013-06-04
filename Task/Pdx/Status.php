@@ -14,7 +14,7 @@ class Task_Pdx_Status extends \app\Task_Base
 	 */
 	function run()
 	{
-		if ( ! Pdx::uninstall())
+		if ( ! Pdx::status())
 		{
 			$this->writer->writef(' The database is locked; only non-destructive operations allowed.')->eol();
 		}

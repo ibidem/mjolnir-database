@@ -81,7 +81,7 @@ class MarionetteModel extends \mjolnir\database\MarionetteModel
 class Pdx extends \mjolnir\database\Pdx
 {
 	/** @return \app\Pdx */
-	static function instance() { return parent::instance(); }
+	static function instance($db = null, $writer = null) { return parent::instance($db, $writer); }
 }
 
 class Register extends \mjolnir\database\Register
@@ -224,6 +224,58 @@ class Table_Snatcher extends \mjolnir\database\Table_Snatcher
 class Task_Db_Sphinx extends \mjolnir\database\Task_Db_Sphinx
 {
 	/** @return \app\Task_Db_Sphinx */
+	static function instance() { return parent::instance(); }
+}
+
+/**
+ * @method \app\Task_Pdx_Reset set($name, $value)
+ * @method \app\Task_Pdx_Reset add($name, $value)
+ * @method \app\Task_Pdx_Reset metadata_is(array $metadata = null)
+ * @method \app\Task_Pdx_Reset writer_is($writer)
+ * @method \app\Writer writer()
+ */
+class Task_Pdx_Reset extends \mjolnir\database\Task_Pdx_Reset
+{
+	/** @return \app\Task_Pdx_Reset */
+	static function instance() { return parent::instance(); }
+}
+
+/**
+ * @method \app\Task_Pdx_Status set($name, $value)
+ * @method \app\Task_Pdx_Status add($name, $value)
+ * @method \app\Task_Pdx_Status metadata_is(array $metadata = null)
+ * @method \app\Task_Pdx_Status writer_is($writer)
+ * @method \app\Writer writer()
+ */
+class Task_Pdx_Status extends \mjolnir\database\Task_Pdx_Status
+{
+	/** @return \app\Task_Pdx_Status */
+	static function instance() { return parent::instance(); }
+}
+
+/**
+ * @method \app\Task_Pdx_Uninstall set($name, $value)
+ * @method \app\Task_Pdx_Uninstall add($name, $value)
+ * @method \app\Task_Pdx_Uninstall metadata_is(array $metadata = null)
+ * @method \app\Task_Pdx_Uninstall writer_is($writer)
+ * @method \app\Writer writer()
+ */
+class Task_Pdx_Uninstall extends \mjolnir\database\Task_Pdx_Uninstall
+{
+	/** @return \app\Task_Pdx_Uninstall */
+	static function instance() { return parent::instance(); }
+}
+
+/**
+ * @method \app\Task_Pdx_Upgrade set($name, $value)
+ * @method \app\Task_Pdx_Upgrade add($name, $value)
+ * @method \app\Task_Pdx_Upgrade metadata_is(array $metadata = null)
+ * @method \app\Task_Pdx_Upgrade writer_is($writer)
+ * @method \app\Writer writer()
+ */
+class Task_Pdx_Upgrade extends \mjolnir\database\Task_Pdx_Upgrade
+{
+	/** @return \app\Task_Pdx_Upgrade */
 	static function instance() { return parent::instance(); }
 }
 trait Trait_Model_Automaton { use \mjolnir\database\Trait_Model_Automaton; }
