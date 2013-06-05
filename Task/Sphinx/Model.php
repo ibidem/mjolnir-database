@@ -7,7 +7,7 @@
  * @copyright  (c) 2012, Ibidem Team
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
  */
-class Task_Db_Sphinx extends \app\Task_Base
+class Task_Sphinx_Model extends \app\Task_Base
 {
 	/**
 	 * Execute task.

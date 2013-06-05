@@ -81,7 +81,13 @@ class MarionetteModel extends \mjolnir\database\MarionetteModel
 class Pdx extends \mjolnir\database\Pdx
 {
 	/** @return \app\Pdx */
-	static function instance($db = null, $writer = null) { return parent::instance($db, $writer); }
+	static function instance($writer = null, $verbose = null) { return parent::instance($writer, $verbose); }
+}
+
+class PdxVersionInterval extends \mjolnir\database\PdxVersionInterval
+{
+	/** @return \app\PdxVersionInterval */
+	static function instance() { return parent::instance(); }
 }
 
 class Register extends \mjolnir\database\Register
@@ -215,15 +221,15 @@ class Table_Snatcher extends \mjolnir\database\Table_Snatcher
 }
 
 /**
- * @method \app\Task_Db_Sphinx set($name, $value)
- * @method \app\Task_Db_Sphinx add($name, $value)
- * @method \app\Task_Db_Sphinx metadata_is(array $metadata = null)
- * @method \app\Task_Db_Sphinx writer_is($writer)
+ * @method \app\Task_Pdx_History set($name, $value)
+ * @method \app\Task_Pdx_History add($name, $value)
+ * @method \app\Task_Pdx_History metadata_is(array $metadata = null)
+ * @method \app\Task_Pdx_History writer_is($writer)
  * @method \app\Writer writer()
  */
-class Task_Db_Sphinx extends \mjolnir\database\Task_Db_Sphinx
+class Task_Pdx_History extends \mjolnir\database\Task_Pdx_History
 {
-	/** @return \app\Task_Db_Sphinx */
+	/** @return \app\Task_Pdx_History */
 	static function instance() { return parent::instance(); }
 }
 
@@ -276,6 +282,19 @@ class Task_Pdx_Uninstall extends \mjolnir\database\Task_Pdx_Uninstall
 class Task_Pdx_Upgrade extends \mjolnir\database\Task_Pdx_Upgrade
 {
 	/** @return \app\Task_Pdx_Upgrade */
+	static function instance() { return parent::instance(); }
+}
+
+/**
+ * @method \app\Task_Sphinx_Model set($name, $value)
+ * @method \app\Task_Sphinx_Model add($name, $value)
+ * @method \app\Task_Sphinx_Model metadata_is(array $metadata = null)
+ * @method \app\Task_Sphinx_Model writer_is($writer)
+ * @method \app\Writer writer()
+ */
+class Task_Sphinx_Model extends \mjolnir\database\Task_Sphinx_Model
+{
+	/** @return \app\Task_Sphinx_Model */
 	static function instance() { return parent::instance(); }
 }
 trait Trait_Model_Automaton { use \mjolnir\database\Trait_Model_Automaton; }

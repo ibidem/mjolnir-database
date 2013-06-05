@@ -85,7 +85,7 @@
 						// empty
 					),
 			),
-		'db:sphinx' => array
+		'sphinx:model' => array
 			(
 				'category' => 'Database',
 				'description' => array
@@ -100,5 +100,5 @@
 								'short' => 'r',
 							),
 					),
-			)
+			),
 	);

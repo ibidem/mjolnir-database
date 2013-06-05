@@ -473,21 +473,19 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 						}
 						else if ($status['state'][$required_channel] > $versionbin)
 						{
-							// the required version has been passed; this is
-							// horrible; since the state of the channel may
-							// change from even the smallest of changes
-							// versions being passed is not acceptable
+							// the required version has been passed; since the 
+							// state of the channel may change from even the 
+							// smallest of changes; versions being passed is 
+							// not acceptable
 
-							// provide feedback on loop
-							! $this->verbose or $this->writer->eol();
-							$this->writer->writef(' Race backtrace:')->eol();
-							foreach ($status['active'] as $activeinfo)
-							{
-								$this->writer->writef('  - '.$activeinfo['channel'].' '.$activeinfo['version'])->eol();
-							}
-							$this->writer->eol();
-
-							throw new \app\Exception('Target version breached by race condition on '.$channel.' '.$target_version);
+							$this->dependency_race_error
+								(
+									// the scene
+									$status, 
+									// the victim
+									$channel, 
+									$target_version
+								);
 						}
 
 						// else: version is lower, pass through
@@ -541,8 +539,55 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 
 					if ($skip)
 					{
-						$this->shout('Skipping', $checkpoint['channel'], $checkpoint['version'], '-- '.$channel.' '.$litversion);
+						$this->shout('pass:point', $checkpoint['channel'], $checkpoint['version'], '-- '.$channel.' '.$litversion);
 						continue; // requested version already being processed
+					}
+					
+					// are all requirements of given checkpoint complete? if 
+					// the checkpoint starts resolving requirements of it's own
+					// it's possible for it to indirectly loop back
+					
+					$cp = $channels[$checkpoint['channel']]['versions'][$checkpoint['version']];
+					$skip_checkpoint = false;
+					if (isset($cp['require']) && ! empty($cp['require']))
+					{
+						foreach ($cp['require'] as $required_channel => $required_version)
+						{
+							if (isset($status['state'][$required_channel]))
+							{
+								// check if version is satisfied
+								$versionbin = $this->binversion($required_channel, $required_version);
+								if ($status['state'][$required_channel] == $versionbin)
+								{
+									continue; // dependency satisfied
+								}
+								else if ($status['state'][$required_channel] > $versionbin)
+								{
+									// the required version has been passed; since the state 
+									// of the channel may change from even the smallest of 
+									// changes; versions being passed is not acceptable
+
+									$this->dependency_race_error
+										(
+											// the scene
+											$status, 
+											// the victim
+											$checkpoint['channel'], 
+											$checkpoint['version']
+										);
+								}
+
+								// else: version is lower, pass through
+							}
+
+							$skip_checkpoint = true;
+						}
+					}
+					
+					if ($skip_checkpoint)
+					{
+						$this->shout('hold:point', $checkpoint['channel'], $checkpoint['version'], '-- '.$channel.' '.$litversion);
+						continue; // checkpoint still has unfilled requirements
 					}
 
 					$this->shout('checklist', $checkpoint['channel'], $checkpoint['version'], '<< '.$channel.' '.$litversion);
@@ -567,9 +612,27 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 			}
 		}
 
-		$status['active'] = $new_active;;
+		$status['active'] = $new_active;
 	}
 
+	/**
+	 * Error report for situation where dependencies race against each other 
+	 * and a channels fall behind another in the requirement war.
+	 */
+	protected function dependency_race_error(array $status, $channel, $version)
+	{
+		// provide feedback on loop
+		! $this->verbose or $this->writer->eol();
+		$this->writer->writef(' Race backtrace:')->eol();
+		foreach ($status['active'] as $activeinfo)
+		{
+			$this->writer->writef('  - '.$activeinfo['channel'].' '.$activeinfo['version'])->eol();
+		}
+		$this->writer->eol();
+
+		throw new \app\Exception('Target version breached by race condition on '.$channel.' '.$version);
+	}
+	
 	/**
 	 * @return array
 	 */
