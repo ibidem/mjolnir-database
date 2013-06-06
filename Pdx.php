@@ -17,7 +17,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 	/**
 	 * @var string version table base name
 	 */
-	protected static $table = 'mjolnir__paradox';
+	protected static $table = 'mjolnir__timeline';
 
 	/**
 	 * @return string version table
@@ -38,6 +38,25 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 	// Migration Utilities & Helpers
 	// ------------------------------------------------------------------------
 
+	/**
+	 * Loads a paradox file from the path config/paradox/$filepath and merges
+	 * require array into it before outputting. The default EXT will be used.
+	 * 
+	 * This function is meant to be used inside the main pradox files to keep 
+	 * everything readable; in particular to keep require statements readable.
+	 * 
+	 * Please do not add functionality to the method, simply create your own
+	 * version that's called by another name; this is why the method not named
+	 * load and so forth.
+	 * 
+	 * @return array configuration
+	 */
+	static function gate($filepath, $require = null, $ext = EXT)
+	{
+		$require != null or $require = [];
+		return \app\Arr::merge(\app\CFS::config("timeline/$filepath".$ext), ['require' => $require]);
+	}
+	
 	/**
 	 * When converting from one database structure to another it is often
 	 * required to translate one structure to another, which involves going
@@ -78,7 +97,280 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 			$db->commit();
 		}
 	}
+	
+	/**
+	 * Performs safe insert into table given values and keys. This is a very 
+	 * primitive function, which gurantees the integrity of the operation 
+	 * inside the migration.
+	 * 
+	 * Do not use api powered insertion commands since they will break as the 
+	 * source code changes. Since the migration gurantees the integrity of the
+	 * api commands, the migration can not rely on them, since that would cause
+	 * a circular dependency chain.
+	 * 
+	 * Fortunately since insert operations in migrations are unlikely to pull 
+	 * any user data hardcoding them like this is very straight forward and 
+	 * safe.
+	 * 
+	 * @return int ID
+	 */
+	static function insert($key, \mjolnir\types\SQLDatabase $db, $table, array $values, $map = null)
+	{
+		$map !== null or $map = [];
+		$map['nums'] !== null or $map['nums'] = [];
+		$map['bools'] !== null or $map['bools'] = [];
+		$map['dates'] !== null or $map['dates'] = [];
+		
+		$rawkeys = \array_keys($values);
+		$keys = \app\Arr::implode(', ', $rawkeys, function ($i, $key) {
+			return "`$key`";
+		});
+		$refs = \app\Arr::implode(', ', $rawkeys, function ($i, $key) {
+			return ":$key";
+		});
+		
+		$statement = $db->prepare
+			(
+				$key,
+				'
+					INSERT INTO `'.$table.'` ('.$keys.') VALUES ('.$refs.')
+				'
+			);
+		
+		// populate statement
+		foreach ($values as $key => $value)
+		{
+			if (\in_array($key, $map['nums']))
+			{
+				$statement->num(":$key", $value);
+			}
+			else if (\in_array($key, $map['bools']))
+			{
+				$statement->bool(":$key", $value);
+			}
+			else if (\in_array($key, $map['dates']))
+			{
+				$statement->date(":$key", $value);
+			}
+			else # assume string
+			{
+				$statement->str(":$key", $value);
+			}
+		}
+		
+		$statement->run();
+	}
+	
+	/**
+	 * ...
+	 */
+	static function create_table(\mjolnir\database\SQLDatabase $db, $table, $definition, $engine, $charset)
+	{
+		return; // @todo remove
+		
+		$shorthands = \app\CFS::config('mjolnir/paradox-sql-definitions');
+		$shorthands = $shorthands + [':engine' => $engine, ':default_charset' => $charset];
+		
+		try
+		{
+			$db->prepare
+				(
+					__METHOD__,
+					\strtr
+						(
+							'
+								CREATE TABLE `'.$table.'`
+									(
+										'.$definition.'
+									)
+								ENGINE=:engine DEFAULT CHARSET=:default_charset
+							',
+							$shorthands
+						),
+					'mysql'
+				)
+				->run();
+		}
+		catch (\Exception $e)
+		{
+			if (\php_sapi_name() === 'cli')
+			{
+				$this->write->eol()->eol();
+				$this->writer->writef(' SQL: ')->eol();
+				
+				$this->writer->writef
+					(
+						\strtr
+							(
+								\app\Text::baseindent($definition),
+								$shorthands
+							)
+					);
 
+				$this->writer->eol()->eol();
+			}
+
+			throw $e;
+		}
+	}
+	
+	/**
+	 * Remove specified bindings.
+	 */
+	static function remove_bindings(\mjolnir\database\SQLDatabase $db, $table, array $bindings)
+	{
+		return; // @todo remove
+		
+		foreach ($bindings as $key)
+		{
+			$db->prepare
+				(
+					__METHOD__, 
+					'
+						ALTER TABLE `'.$table.'` 
+						 DROP FOREIGN KEY `'.$key.'`
+					'
+				)
+				->run();
+		}
+	}
+
+	// ------------------------------------------------------------------------
+	// Migration Operations
+	
+	/**
+	 * Performs any necesary migration configuration.
+	 */
+	protected static function migration_configure(\mjolnir\types\SQLDatabase $db, array $handlers, array & $state)
+	{
+		if ( ! isset($handlers['configure']))
+		{
+			return;
+		}
+
+		if (\is_array($handlers['configure']))
+		{
+			if (isset($handlers['configure']['tables']))
+			{
+				foreach ($handlers['configure']['tables'] as $table)
+				{
+					if ( ! \in_array($state['tables']))
+					{
+						$state['tables'][] = $table;
+					}
+				}
+			}
+		}
+		else if (\is_callable($handlers['configure']))
+		{
+			$handlers['configure']($state);
+		}
+		
+		// else: unsuported format
+	}
+	
+	/**
+	 * Perform removal operations.
+	 */
+	protected static function migration_cleanup(\mjolnir\types\SQLDatabase $db, array $handlers, array & $state)
+	{
+		if ( ! isset($handlers['cleanup']))
+		{
+			return;
+		}
+		
+		if (\is_array($handlers['cleanup']))
+		{
+			if (isset($handlers['cleanup']['bindings']))
+			{
+				foreach ($handlers['cleanup']['bindings'] as $table => $constraints)
+				{
+					static::remove_bindings($table, $constraints);
+				}
+			}
+		}
+		else if (\is_callable($handlers['cleanup']))
+		{
+			$handlers['cleanup']($state);
+		}
+		
+		// else: unsuported format
+	}
+	
+	/**
+	 * Table creation operations
+	 */
+	protected static function migration_tables(\mjolnir\types\SQLDatabase $db, array $handlers, array & $state)
+	{
+		if ( ! isset($handlers['tables']))
+		{
+			return;
+		}
+		
+		if (\is_array($handlers['tables']))
+		{
+			foreach ($handlers['tables'] as $table => $def)
+			{
+				if (\is_string($def))
+				{
+					static::create_table($db, $table, $def, $state['sql']['default']['engine'], $state['sql']['default']['charset']);
+				}
+				else if (\is_array($def))
+				{
+					static::create_table($db, $table, $def['definition'], $def['engine'], $def['charset']);
+				}
+				else if (\is_callable($def))
+				{
+					$def($state);
+				}				
+			}
+		}
+		else if (\is_callable($handlers['tables']))
+		{
+			$handlers['tables']($state);
+		}
+		
+		// else: unsuported format
+	}
+	
+	/**
+	 * Table creation operations
+	 */
+	protected static function migration_modify(\mjolnir\types\SQLDatabase $db, array $handlers, array & $state)
+	{
+		if ( ! isset($handlers['modify']))
+		{
+			return;
+		}
+		
+		if (\is_array($handlers['modify']))
+		{
+			$definitions = \app\CFS::config('mjolnir/paradox-sql-definitions');
+			foreach ($handlers['modify'] as $table => $def)
+			{
+				$db->prepare
+					(
+						__METHOD__,
+						\strtr
+						(
+							'
+								ALTER TABLE `'.$table.'`
+								'.$def.'
+							',
+							$definitions
+						)
+					)
+					->run();
+			}
+		}
+		else if (\is_callable($handlers['tables']))
+		{
+			$handlers['modify']($state);
+		}
+		
+		// else: unsuported format
+	}
+	
 	// ------------------------------------------------------------------------
 	// Migration Command Interface
 
@@ -296,6 +588,13 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 				{
 					// just return the step history
 					return $status['history'];
+				}
+				
+				// execute the history
+				foreach ($status['history'] as $entry)
+				{
+					// execute migration
+					$this->processmigration($channels, $entry['channel'], $entry['version'], $entry['hotfix']);					
 				}
 			}
 			else # pivot !== null
@@ -724,9 +1023,79 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 				'
 			)
 			->str(':table', static::table())
-			->run();
+			->run()
+			->fetch_all();
 
 		return ! empty($tables);
 	}
-
+	
+	/**
+	 * Hook.
+	 * 
+	 * @return array state
+	 */
+	protected function initialize_migration_state(array & $channelinfo, $channel, $version, $hotfix)
+	{
+		return array
+			(
+				'channelinfo' => & $channelinfo, 
+				'tables' => [],
+				'identity' => array
+					(
+						'channel' => $channel,
+						'version' => $version,
+						'hotfix'  => $hotfix,
+					),
+				'sql' => array
+					(
+						'default' => array
+							(
+								'engine' => 'InnoDB',
+								'charset' => 'utf8',
+							),
+					),
+			);
+	}
+	
+	/**
+	 * Performs migration steps and creates entry in timeline.
+	 * 
+	 * To add steps add them under the configuration mjolnir/paradox-steps and 
+	 * overwrite this class accordingly. See: [migration_configure] for an 
+	 * example.
+	 */
+	protected function processmigration(array $channels, $channel, $version, $hotfix)
+	{
+		$this->writer->eol();
+		
+		$steps = \app\CFS::config('mjolnir/paradox-steps');
+		
+		\asort($steps);
+		
+		$chaninfo = $channels[$channel];
+		$state = $this->initialize_migration_state($chaninfo, $channel, $version, $hotfix);
+		
+		foreach ($steps as $step => $priority)
+		{
+			$this->writer->writef(\str_repeat(' ', 78)."\r");
+			
+			$this->writer->writef
+				(
+					' %15s %-9s %s %s', 
+					$step,
+					$version, 
+					$channel, 
+					empty($hotfix) ? '' : '/ '.$hotfix
+				)
+				->eol();
+			
+			$stepmethod = "migration_$step";
+			static::{$stepmethod}($chaninfo['db'], $chaninfo['versions'][$version], $state);
+		}
+		
+		$this->writer->writef(\str_repeat(' ', 78)."\r");
+		
+		// @todo save to database
+	}
+	
 } # class
