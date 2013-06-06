@@ -12,8 +12,16 @@
  * @copyright  (c) 2013, Ibidem Team
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
  */
-class Pdx /* "Paradox" */ extends \app\Instantiatable
+class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\Versioned
 {
+	use \app\Trait_Versioned
+		{
+			coreversion as private trait_coreversion;
+		}
+
+	// version of the class and associated features
+	const VERSION = '1.0.0';
+
 	/**
 	 * @var string version table base name
 	 */
@@ -35,20 +43,28 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 		return 'default';
 	}
 
+	/**
+	 * @return array
+	 */
+	static function coreversion()
+	{
+		return static::trait_coreversion() + \app\PdxVersionMatcher::coreversion();
+	}
+
 	// Migration Utilities & Helpers
 	// ------------------------------------------------------------------------
 
 	/**
 	 * Loads a paradox file from the path config/paradox/$filepath and merges
 	 * require array into it before outputting. The default EXT will be used.
-	 * 
-	 * This function is meant to be used inside the main pradox files to keep 
+	 *
+	 * This function is meant to be used inside the main pradox files to keep
 	 * everything readable; in particular to keep require statements readable.
-	 * 
+	 *
 	 * Please do not add functionality to the method, simply create your own
 	 * version that's called by another name; this is why the method not named
 	 * load and so forth.
-	 * 
+	 *
 	 * @return array configuration
 	 */
 	static function gate($filepath, $require = null, $ext = EXT)
@@ -56,7 +72,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 		$require != null or $require = [];
 		return \app\Arr::merge(\app\CFS::config("timeline/$filepath".$ext), ['require' => $require]);
 	}
-	
+
 	/**
 	 * When converting from one database structure to another it is often
 	 * required to translate one structure to another, which involves going
@@ -97,21 +113,21 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 			$db->commit();
 		}
 	}
-	
+
 	/**
-	 * Performs safe insert into table given values and keys. This is a very 
-	 * primitive function, which gurantees the integrity of the operation 
+	 * Performs safe insert into table given values and keys. This is a very
+	 * primitive function, which gurantees the integrity of the operation
 	 * inside the migration.
-	 * 
-	 * Do not use api powered insertion commands since they will break as the 
+	 *
+	 * Do not use api powered insertion commands since they will break as the
 	 * source code changes. Since the migration gurantees the integrity of the
 	 * api commands, the migration can not rely on them, since that would cause
 	 * a circular dependency chain.
-	 * 
-	 * Fortunately since insert operations in migrations are unlikely to pull 
-	 * any user data hardcoding them like this is very straight forward and 
+	 *
+	 * Fortunately since insert operations in migrations are unlikely to pull
+	 * any user data hardcoding them like this is very straight forward and
 	 * safe.
-	 * 
+	 *
 	 * @return int ID
 	 */
 	static function insert($key, \mjolnir\types\SQLDatabase $db, $table, array $values, $map = null)
@@ -120,7 +136,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 		$map['nums'] !== null or $map['nums'] = [];
 		$map['bools'] !== null or $map['bools'] = [];
 		$map['dates'] !== null or $map['dates'] = [];
-		
+
 		$rawkeys = \array_keys($values);
 		$keys = \app\Arr::implode(', ', $rawkeys, function ($i, $key) {
 			return "`$key`";
@@ -128,7 +144,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 		$refs = \app\Arr::implode(', ', $rawkeys, function ($i, $key) {
 			return ":$key";
 		});
-		
+
 		$statement = $db->prepare
 			(
 				$key,
@@ -136,7 +152,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 					INSERT INTO `'.$table.'` ('.$keys.') VALUES ('.$refs.')
 				'
 			);
-		
+
 		// populate statement
 		foreach ($values as $key => $value)
 		{
@@ -157,20 +173,20 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 				$statement->str(":$key", $value);
 			}
 		}
-		
+
 		$statement->run();
 	}
-	
+
 	/**
 	 * ...
 	 */
 	static function create_table(\mjolnir\database\SQLDatabase $db, $table, $definition, $engine, $charset)
 	{
 		return; // @todo remove
-		
+
 		$shorthands = \app\CFS::config('mjolnir/paradox-sql-definitions');
 		$shorthands = $shorthands + [':engine' => $engine, ':default_charset' => $charset];
-		
+
 		try
 		{
 			$db->prepare
@@ -197,7 +213,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 			{
 				$this->write->eol()->eol();
 				$this->writer->writef(' SQL: ')->eol();
-				
+
 				$this->writer->writef
 					(
 						\strtr
@@ -213,21 +229,21 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 			throw $e;
 		}
 	}
-	
+
 	/**
 	 * Remove specified bindings.
 	 */
 	static function remove_bindings(\mjolnir\database\SQLDatabase $db, $table, array $bindings)
 	{
 		return; // @todo remove
-		
+
 		foreach ($bindings as $key)
 		{
 			$db->prepare
 				(
-					__METHOD__, 
+					__METHOD__,
 					'
-						ALTER TABLE `'.$table.'` 
+						ALTER TABLE `'.$table.'`
 						 DROP FOREIGN KEY `'.$key.'`
 					'
 				)
@@ -237,7 +253,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 
 	// ------------------------------------------------------------------------
 	// Migration Operations
-	
+
 	/**
 	 * Performs any necesary migration configuration.
 	 */
@@ -263,12 +279,12 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 		}
 		else if (\is_callable($handlers['configure']))
 		{
-			$handlers['configure']($state);
+			$handlers['configure']($db, $state);
 		}
-		
+
 		// else: unsuported format
 	}
-	
+
 	/**
 	 * Perform removal operations.
 	 */
@@ -278,7 +294,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 		{
 			return;
 		}
-		
+
 		if (\is_array($handlers['cleanup']))
 		{
 			if (isset($handlers['cleanup']['bindings']))
@@ -291,12 +307,12 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 		}
 		else if (\is_callable($handlers['cleanup']))
 		{
-			$handlers['cleanup']($state);
+			$handlers['cleanup']($db, $state);
 		}
-		
+
 		// else: unsuported format
 	}
-	
+
 	/**
 	 * Table creation operations
 	 */
@@ -306,7 +322,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 		{
 			return;
 		}
-		
+
 		if (\is_array($handlers['tables']))
 		{
 			foreach ($handlers['tables'] as $table => $def)
@@ -322,19 +338,19 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 				else if (\is_callable($def))
 				{
 					$def($state);
-				}				
+				}
 			}
 		}
 		else if (\is_callable($handlers['tables']))
 		{
-			$handlers['tables']($state);
+			$handlers['tables']($db, $state);
 		}
-		
+
 		// else: unsuported format
 	}
-	
+
 	/**
-	 * Table creation operations
+	 * Alterations to current structure.
 	 */
 	protected static function migration_modify(\mjolnir\types\SQLDatabase $db, array $handlers, array & $state)
 	{
@@ -342,7 +358,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 		{
 			return;
 		}
-		
+
 		if (\is_array($handlers['modify']))
 		{
 			$definitions = \app\CFS::config('mjolnir/paradox-sql-definitions');
@@ -363,14 +379,126 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 					->run();
 			}
 		}
-		else if (\is_callable($handlers['tables']))
+		else if (\is_callable($handlers['modify']))
 		{
-			$handlers['modify']($state);
+			$handlers['modify']($db, $state);
 		}
-		
+
 		// else: unsuported format
 	}
-	
+
+	/**
+	 * Bindings.
+	 */
+	protected static function migration_bindings(\mjolnir\types\SQLDatabase $db, array $handlers, array & $state)
+	{
+		if ( ! isset($handlers['bindings']))
+		{
+			return;
+		}
+
+		if (\is_array($handlers['bindings']))
+		{
+			foreach ($handlers['bindings'] as $table => $constraints)
+			{
+				$query = "ALTER TABLE `".$table."` ";
+
+				$idx = 0;
+				$count = \count($constraints);
+				foreach ($constraints as $key => $constraint)
+				{
+					++$idx;
+
+					if ( ! isset($constraint[3]))
+					{
+						$constraint_key = $key;
+					}
+					else # constraint key set
+					{
+						$constraint_key = $constraint[3];
+					}
+
+					$query .=
+						'
+							ADD CONSTRAINT `'.$constraint_key.'`
+							   FOREIGN KEY (`'.$key.'`)
+								REFERENCES `'.$constraint[0].'` (`id`)
+								 ON DELETE '.$constraint[1].'
+								 ON UPDATE '.$constraint[2].'
+						';
+
+					if ($idx < $count)
+					{
+						$query .= ', ';
+					}
+					else # last element
+					{
+						$query .= ';';
+					}
+				}
+
+				try
+				{
+					$db->prepare(__METHOD__, $query)->run();
+				}
+				catch (\Exception $e)
+				{
+					if (\php_sapi_name() === 'cli')
+					{
+						$this->writer->eol()->eol();
+						$this->writer->writef(' Query: ')->eol();
+						$this->writer->writef(\app\Text::baseindent($query));
+						$this->Writer->eol()->eol();
+					}
+
+					throw $e;
+				}
+			}
+		}
+		else if (\is_callable($handlers['bindings']))
+		{
+			$handlers['bindings']($db, $state);
+		}
+
+		// else: unsuported format
+	}
+
+	/**
+	 * Post-binding cleanup.
+	 */
+	protected static function migration_normalize(\mjolnir\types\SQLDatabase $db, array $handlers, array & $state)
+	{
+		if ( ! isset($handlers['normalize']))
+		{
+			return;
+		}
+
+		if (\is_callable($handlers['normalize']))
+		{
+			$handlers['normalize']($db, $state);
+		}
+
+		// else: unsuported format
+	}
+
+	/**
+	 * populate tables with pre-required data.
+	 */
+	protected static function migration_populate(\mjolnir\types\SQLDatabase $db, array $handlers, array & $state)
+	{
+		if ( ! isset($handlers['populate']))
+		{
+			return;
+		}
+
+		if (\is_callable($handlers['populate']))
+		{
+			$handlers['populate']($db, $state);
+		}
+
+		// else: unsuported format
+	}
+
 	// ------------------------------------------------------------------------
 	// Migration Command Interface
 
@@ -589,12 +717,12 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 					// just return the step history
 					return $status['history'];
 				}
-				
+
 				// execute the history
 				foreach ($status['history'] as $entry)
 				{
 					// execute migration
-					$this->processmigration($channels, $entry['channel'], $entry['version'], $entry['hotfix']);					
+					$this->processmigration($channels, $entry['channel'], $entry['version'], $entry['hotfix']);
 				}
 			}
 			else # pivot !== null
@@ -772,17 +900,17 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 						}
 						else if ($status['state'][$required_channel] > $versionbin)
 						{
-							// the required version has been passed; since the 
-							// state of the channel may change from even the 
-							// smallest of changes; versions being passed is 
+							// the required version has been passed; since the
+							// state of the channel may change from even the
+							// smallest of changes; versions being passed is
 							// not acceptable
 
 							$this->dependency_race_error
 								(
 									// the scene
-									$status, 
+									$status,
 									// the victim
-									$channel, 
+									$channel,
 									$target_version
 								);
 						}
@@ -841,11 +969,11 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 						$this->shout('pass:point', $checkpoint['channel'], $checkpoint['version'], '-- '.$channel.' '.$litversion);
 						continue; // requested version already being processed
 					}
-					
-					// are all requirements of given checkpoint complete? if 
+
+					// are all requirements of given checkpoint complete? if
 					// the checkpoint starts resolving requirements of it's own
 					// it's possible for it to indirectly loop back
-					
+
 					$cp = $channels[$checkpoint['channel']]['versions'][$checkpoint['version']];
 					$skip_checkpoint = false;
 					if (isset($cp['require']) && ! empty($cp['require']))
@@ -862,16 +990,16 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 								}
 								else if ($status['state'][$required_channel] > $versionbin)
 								{
-									// the required version has been passed; since the state 
-									// of the channel may change from even the smallest of 
+									// the required version has been passed; since the state
+									// of the channel may change from even the smallest of
 									// changes; versions being passed is not acceptable
 
 									$this->dependency_race_error
 										(
 											// the scene
-											$status, 
+											$status,
 											// the victim
-											$checkpoint['channel'], 
+											$checkpoint['channel'],
 											$checkpoint['version']
 										);
 								}
@@ -882,7 +1010,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 							$skip_checkpoint = true;
 						}
 					}
-					
+
 					if ($skip_checkpoint)
 					{
 						$this->shout('hold:point', $checkpoint['channel'], $checkpoint['version'], '-- '.$channel.' '.$litversion);
@@ -915,7 +1043,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 	}
 
 	/**
-	 * Error report for situation where dependencies race against each other 
+	 * Error report for situation where dependencies race against each other
 	 * and a channels fall behind another in the requirement war.
 	 */
 	protected function dependency_race_error(array $status, $channel, $version)
@@ -931,7 +1059,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 
 		throw new \app\Exception('Target version breached by race condition on '.$channel.' '.$version);
 	}
-	
+
 	/**
 	 * @return array
 	 */
@@ -1028,17 +1156,17 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 
 		return ! empty($tables);
 	}
-	
+
 	/**
 	 * Hook.
-	 * 
+	 *
 	 * @return array state
 	 */
 	protected function initialize_migration_state(array & $channelinfo, $channel, $version, $hotfix)
 	{
 		return array
 			(
-				'channelinfo' => & $channelinfo, 
+				'channelinfo' => & $channelinfo,
 				'tables' => [],
 				'identity' => array
 					(
@@ -1056,46 +1184,78 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable
 					),
 			);
 	}
-	
+
 	/**
 	 * Performs migration steps and creates entry in timeline.
-	 * 
-	 * To add steps add them under the configuration mjolnir/paradox-steps and 
-	 * overwrite this class accordingly. See: [migration_configure] for an 
+	 *
+	 * To add steps add them under the configuration mjolnir/paradox-steps and
+	 * overwrite this class accordingly. See: [migration_configure] for an
 	 * example.
 	 */
 	protected function processmigration(array $channels, $channel, $version, $hotfix)
 	{
+		$stepformat = ' %15s %-9s %s %s';
+
 		$this->writer->eol();
-		
+
 		$steps = \app\CFS::config('mjolnir/paradox-steps');
-		
+
 		\asort($steps);
-		
+
 		$chaninfo = $channels[$channel];
 		$state = $this->initialize_migration_state($chaninfo, $channel, $version, $hotfix);
-		
+
 		foreach ($steps as $step => $priority)
 		{
-			$this->writer->writef(\str_repeat(' ', 78)."\r");
-			
+			//$this->writer->writef("\r".\str_repeat(' ', 79));
+
 			$this->writer->writef
 				(
-					' %15s %-9s %s %s', 
+					$stepformat,
 					$step,
-					$version, 
-					$channel, 
+					$version,
+					$channel,
 					empty($hotfix) ? '' : '/ '.$hotfix
-				)
-				->eol();
-			
+				);
+
 			$stepmethod = "migration_$step";
 			static::{$stepmethod}($chaninfo['db'], $chaninfo['versions'][$version], $state);
+
+			$this->writer->writef("\r");
+			$this->writer->writef(\str_repeat(' ', 80));
+			$this->writer->writef("\r");
 		}
-		
-		$this->writer->writef(\str_repeat(' ', 78)."\r");
-		
-		// @todo save to database
+
+		\var_dump($chaninfo['versions'][$version]); die;
+
+		if ( ! isset($chaninfo['versions'][$version]['description']))
+		{
+			throw new \app\Exception('Missing description for '.$channel.' '.$version);
+		}
+
+		// save to database
+		$this->pushhistory($channel, $version, $chaninfo['versions'][$version]['description']);
+
+		$this->writer->writef("\r");
+		$this->writer->writef(\str_repeat(' ', 80));
+		$this->writer->writef("\r");
+
+		$this->writer->writef
+			(
+				$stepformat,
+				'- complete -',
+				$version,
+				$channel,
+				empty($hotfix) ? '' : '/ '.$hotfix
+			);
 	}
-	
+
+	/**
+	 * ...
+	 */
+	static function pushhistory($channel, $version, $description)
+	{
+		return; // @todo push state to history table
+	}
+
 } # class

@@ -8,14 +8,14 @@
 		'tables'    => 300,
 		// modify existing tables
 		'modify'    => 400,
-	
+
 	// ------------------------------------------------------------------------
 
 		// perform bindings to other tables
 		'bindings'  => 1000,
-		// perform post-cleanup; invokes populate directives
+		// perform post-cleanup
 		'normalize' => 2000,
 		// populate tables with data
 		'populate'  => 3000,
-	
+
 	); # config

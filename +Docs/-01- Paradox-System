@@ -1,0 +1,22 @@
+Versioning Conventions
+======================
+
+Paradox versions are in the form `x.y.z` where:
+
+ - `z` represents a fix to a previous migration or very minor adjustment that
+   is unlikely to affect other channels that may have binded columns or any
+   other kind of dependencies to the current tables
+
+ - `y` represents an addition to the system; as with `z` only changes that
+   cause low probability of interference with other channels
+
+ - `x` represents changes to current system that is not a minor correction of
+   something that was meant with a previous migration (ie. not `z`) or a change
+   that is likely to cause interference with other channels dependent on the
+   current channel
+
+The `x` qualifier can be any size, `z` should be between 0 and 999, `y` should
+be between 0 and 99. It should be rare for the limits to be reached but it's
+important to keep them in mind since the system will convert the version to
+integers internally for use in certain operations (including history
+resolution), and exceeding them, however unlikely, will cause errors.
