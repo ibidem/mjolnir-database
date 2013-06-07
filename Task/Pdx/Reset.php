@@ -14,6 +14,16 @@ class Task_Pdx_Reset extends \app\Task_Base
 	 */
 	function run()
 	{
+		\app\Task::consolewriter($this->writer);
+		
+		if (\app\CFS::config('mjolnir/base')['db:migrations'] !== 'paradox')
+		{
+			$this->writer
+				->printf('error', 'System is currently setup to use ['.\app\CFS::config('mjolnir/base')['db:migrations'].'] migrations.')
+				->eol()->eol();
+			exit;
+		}
+		
 		$pivot = $this->get('pivot', false);
 		$version = $this->get('version', false);
 		$dryrun = $this->get('dry-run', false);

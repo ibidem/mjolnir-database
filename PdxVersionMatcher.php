@@ -1,6 +1,8 @@
 <?php namespace mjolnir\database;
 
 /**
+ * PROTOTYPE - subject to change
+ * 
  * @package    mjolnir
  * @category   Database
  * @author     Ibidem Team
@@ -21,6 +23,5 @@ class PdxVersionMatcher extends \app\Instantiatable implements \mjolnir\types\Ve
 	{
 		throw new \app\Exception_NotImplemented();
 	}
-
 
 } # class

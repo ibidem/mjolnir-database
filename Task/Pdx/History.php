@@ -14,10 +14,18 @@ class Task_Pdx_History extends \app\Task_Base
 	 */
 	function run()
 	{
+		\app\Task::consolewriter($this->writer);
+		
+		if (\app\CFS::config('mjolnir/base')['db:migrations'] !== 'paradox')
+		{
+			$this->writer
+				->printf('error', 'System is currently setup to use ['.\app\CFS::config('mjolnir/base')['db:migrations'].'] migrations.')
+				->eol()->eol();
+			exit;
+		}
+		
 		$detailed = $this->get('detailed', false);
 		$detailed !== null or $detailed = false;
-		
-		\app\Task::consolewriter($this->writer);
 		
 		$pdx = \app\Pdx::instance($this->writer);
 		$history = $pdx->history();
