@@ -1,4 +1,4 @@
-<?php require array
+<?php return array
 	(
 		// please place 'require' inside the main paradox configuration file
 		// this file should only contain information required by the operation

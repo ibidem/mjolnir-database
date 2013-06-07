@@ -70,7 +70,8 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	static function gate($filepath, $require = null, $ext = EXT)
 	{
 		$require != null or $require = [];
-		return \app\Arr::merge(\app\CFS::config("timeline/$filepath".$ext), ['require' => $require]);
+		
+		return \app\Arr::merge(\app\CFS::config("timeline/$filepath", $ext), ['require' => $require]);
 	}
 
 	/**
@@ -133,9 +134,9 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	static function insert($key, \mjolnir\types\SQLDatabase $db, $table, array $values, $map = null)
 	{
 		$map !== null or $map = [];
-		$map['nums'] !== null or $map['nums'] = [];
-		$map['bools'] !== null or $map['bools'] = [];
-		$map['dates'] !== null or $map['dates'] = [];
+		isset($map['nums']) or $map['nums'] = [];
+		isset($map['bools']) or $map['bools'] = [];
+		isset($map['dates']) or $map['dates'] = [];
 
 		$rawkeys = \array_keys($values);
 		$keys = \app\Arr::implode(', ', $rawkeys, function ($i, $key) {
@@ -180,10 +181,8 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	/**
 	 * ...
 	 */
-	static function create_table(\mjolnir\database\SQLDatabase $db, $table, $definition, $engine, $charset)
+	static function create_table(\mjolnir\types\Writer $writer, \mjolnir\database\SQLDatabase $db, $table, $definition, $engine, $charset)
 	{
-		return; // @todo remove
-
 		$shorthands = \app\CFS::config('mjolnir/paradox-sql-definitions');
 		$shorthands = $shorthands + [':engine' => $engine, ':default_charset' => $charset];
 
@@ -211,10 +210,10 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 		{
 			if (\php_sapi_name() === 'cli')
 			{
-				$this->write->eol()->eol();
-				$this->writer->writef(' SQL: ')->eol();
+				$writer->eol()->eol();
+				$writer->writef(' SQL: ')->eol();
 
-				$this->writer->writef
+				$writer->writef
 					(
 						\strtr
 							(
@@ -223,7 +222,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 							)
 					);
 
-				$this->writer->eol()->eol();
+				$writer->eol()->eol();
 			}
 
 			throw $e;
@@ -233,10 +232,8 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	/**
 	 * Remove specified bindings.
 	 */
-	static function remove_bindings(\mjolnir\database\SQLDatabase $db, $table, array $bindings)
+	static function remove_bindings(\mjolnir\types\Writer $writer, \mjolnir\database\SQLDatabase $db, $table, array $bindings)
 	{
-		return; // @todo remove
-
 		foreach ($bindings as $key)
 		{
 			$db->prepare
@@ -270,7 +267,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 			{
 				foreach ($handlers['configure']['tables'] as $table)
 				{
-					if ( ! \in_array($state['tables']))
+					if ( ! \in_array($table, $state['tables']))
 					{
 						$state['tables'][] = $table;
 					}
@@ -301,7 +298,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 			{
 				foreach ($handlers['cleanup']['bindings'] as $table => $constraints)
 				{
-					static::remove_bindings($table, $constraints);
+					static::remove_bindings($state['writer'], $table, $constraints);
 				}
 			}
 		}
@@ -329,11 +326,11 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 			{
 				if (\is_string($def))
 				{
-					static::create_table($db, $table, $def, $state['sql']['default']['engine'], $state['sql']['default']['charset']);
+					static::create_table($state['writer'], $db, $table, $def, $state['sql']['default']['engine'], $state['sql']['default']['charset']);
 				}
 				else if (\is_array($def))
 				{
-					static::create_table($db, $table, $def['definition'], $def['engine'], $def['charset']);
+					static::create_table($state['writer'], $db, $table, $def['definition'], $def['engine'], $def['charset']);
 				}
 				else if (\is_callable($def))
 				{
@@ -417,6 +414,9 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 					{
 						$constraint_key = $constraint[3];
 					}
+					
+					// keys must be unique over the whole database
+					$constraint_key = $table.'_'.$constraint_key;
 
 					$query .=
 						'
@@ -445,10 +445,12 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 				{
 					if (\php_sapi_name() === 'cli')
 					{
-						$this->writer->eol()->eol();
-						$this->writer->writef(' Query: ')->eol();
-						$this->writer->writef(\app\Text::baseindent($query));
-						$this->Writer->eol()->eol();
+						$writer = $state['writer'];
+						
+						$writer->eol()->eol();
+						$writer->writef(' Query: ')->eol();
+						$writer->writef(\app\Text::baseindent($query));
+						$writer->eol()->eol();
 					}
 
 					throw $e;
@@ -542,13 +544,38 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 		return $i;
 	}
+	
+	/**
+	 * Loads tables from configuration
+	 */
+	protected static function uninstall_load_tables(array & $config, array $handlers)
+	{
+		if (isset($handlers['configure']))
+		{
+			$conf = $handlers['configure'];
+			if (\is_array($conf))
+			{
+				if (isset($conf['tables']))
+				{
+					foreach ($conf['tables'] as $table)
+					{
+						$config['tables'][] = $table;
+					}
+				}
+			}
+			else # callback
+			{
+				$config = $conf($config);
+			}
+		}
+	}
 
 	/**
 	 * Removes all tables. Will not work if database is not set to
 	 *
 	 * @return boolean true if successful, false if not permitted
 	 */
-	function uninstall()
+	function uninstall($harduninstall = false)
 	{
 		$locked = \app\CFS::config('mjolnir/base')['db:lock'];
 
@@ -559,40 +586,47 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 		else # database is not locked
 		{
 			$channels = $this->channels();
-			$history = $this->history();
-
-			// generate table list
 			$config = [ 'tables' => [] ];
-			foreach ($history as $i)
+			
+			if ( ! $harduninstall)
 			{
-				if ($i['hotfix'] === null)
-				{
-					$handlers = $channels[$i['channel']]['versions'][$i['version']];
-				}
-				else # hotfix
-				{
-					$handlers = $channels[$i['channel']]['versions'][$i['version']]['hotfixes'][$i['hotfix']];
-				}
+				$history = $this->history();
 
-				if (isset($handlers['configure']))
+				// generate table list based on history
+				foreach ($history as $i)
 				{
-					$conf = $handlers['configure'];
-					if (\is_array($conf))
+					if ($i['hotfix'] === null)
 					{
-						if (isset($conf['tables']))
+						$handlers = $channels[$i['channel']]['versions'][$i['version']];
+					}
+					else # hotfix
+					{
+						$handlers = $channels[$i['channel']]['versions'][$i['version']]['hotfixes'][$i['hotfix']];
+					}
+
+					static::uninstall_load_tables($config, $handlers);
+				}
+			}
+			else # hard uninstall
+			{
+				foreach ($channels as $channelname => $chaninfo)
+				{
+					foreach ($chaninfo['versions'] as $version => $handlers)
+					{
+						static::uninstall_load_tables($config, $handlers);
+						
+						if (isset($handlers['hotfixes']))
 						{
-							foreach ($conf['tables'] as $table)
+							foreach ($handlers['hotfixes'] as $hotfix => $fixhandlers)
 							{
-								$config['tables'][] = $table;
+								static::uninstall_load_tables($config, $fixhandlers);
 							}
 						}
 					}
-					else # callback
-					{
-						$config = $conf($config);
-					}
 				}
 			}
+			
+			$config['tables'][] = static::$table;
 
 			if ( ! empty($config['tables']))
 			{
@@ -607,6 +641,8 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 				foreach ($config['tables'] as $table)
 				{
+					$this->writer->writef(' Removing '.$table)->eol();
+					
 					$db->prepare
 						(
 							__METHOD__.':drop_table',
@@ -633,7 +669,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	function reset($pivot = null, $version = null, $dryrun = false)
 	{
 		$locked = \app\CFS::config('mjolnir/base')['db:lock'];
-		$exists = $this->has_pradox_table();
+		$exists = $this->has_history_table();
 
 		if ($locked && $exists && ! $dryrun)
 		{
@@ -740,7 +776,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	 */
 	function history()
 	{
-		if ( ! $this->has_pradox_table())
+		if ( ! $this->has_history_table())
 		{
 			$db = \app\SQLDatabase::instance(static::database());
 
@@ -1139,7 +1175,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	/**
 	 * @return boolean
 	 */
-	protected function has_pradox_table()
+	protected function has_history_table()
 	{
 		$db = \app\SQLDatabase::instance(static::database());
 
@@ -1166,6 +1202,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	{
 		return array
 			(
+				'writer' => $this->writer,
 				'channelinfo' => & $channelinfo,
 				'tables' => [],
 				'identity' => array
@@ -1178,8 +1215,8 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 					(
 						'default' => array
 							(
-								'engine' => 'InnoDB',
-								'charset' => 'utf8',
+								'engine' => static::default_db_engine(),
+								'charset' => static::default_db_charset(),
 							),
 					),
 			);
@@ -1207,8 +1244,6 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 		foreach ($steps as $step => $priority)
 		{
-			//$this->writer->writef("\r".\str_repeat(' ', 79));
-
 			$this->writer->writef
 				(
 					$stepformat,
@@ -1225,16 +1260,14 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 			$this->writer->writef(\str_repeat(' ', 80));
 			$this->writer->writef("\r");
 		}
-
-		\var_dump($chaninfo['versions'][$version]); die;
-
+		
 		if ( ! isset($chaninfo['versions'][$version]['description']))
 		{
 			throw new \app\Exception('Missing description for '.$channel.' '.$version);
 		}
 
 		// save to database
-		$this->pushhistory($channel, $version, $chaninfo['versions'][$version]['description']);
+		$this->pushhistory($channel, $version, $hotfix, $chaninfo['versions'][$version]['description']);
 
 		$this->writer->writef("\r");
 		$this->writer->writef(\str_repeat(' ', 80));
@@ -1253,9 +1286,77 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	/**
 	 * ...
 	 */
-	static function pushhistory($channel, $version, $description)
+	function pushhistory($channel, $version, $hotfix, $description)
 	{
-		return; // @todo push state to history table
+		$this->ensurehistorytable();
+		
+		$db = \app\SQLDatabase::instance(static::database());
+		
+		// compute system version
+		$versioninfo = $this->versioninfo();
+		$system = \app\Arr::implode(', ', $versioninfo, function ($component, $version) {
+			return $component.' '.$version;
+		});
+		
+		static::insert
+			(
+				__METHOD__, 
+				$db, static::$table, 
+				[
+					'channel' => $channel,
+					'version' => $version,
+					'hotfix'  => $hotfix,
+					'system'  => $system,
+					'description' => $description,
+				]
+			);
+	}
+	
+	/**
+	 * @return string
+	 */
+	protected static function default_db_engine()
+	{
+		return 'InnoDB';
+	}
+	
+	/**
+	 * @return string
+	 */
+	protected static function default_db_charset()
+	{
+		return 'utf8';
+	}
+	
+	/**
+	 * ...
+	 */
+	protected function ensurehistorytable()
+	{
+		if ( ! $this->has_history_table())
+		{
+			$db = \app\SQLDatabase::instance(static::database());
+			
+			// create history table
+			static::create_table
+				(
+					$this->writer, 
+					$db, static::$table, 
+					'
+						`id`          :key_primary,
+						`channel`     :title,
+						`version`     :title,
+						`hotfix`      :title DEFAULT NULL,
+						`timestamp`   :timestamp,
+						`system`      :block,
+						`description` :block,
+					
+						PRIMARY KEY(`id`)
+					', 
+					static::default_db_engine(),
+					static::default_db_charset()
+				);
+		}
 	}
 
 } # class

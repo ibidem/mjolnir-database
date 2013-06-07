@@ -46,7 +46,11 @@
 					),
 				'flags' => array
 					(
-						// empty
+						'hard' => array
+							(
+								'description' => 'Attempts to uninstalls every table, ever.',
+								'short' => 'h',
+							),
 					),
 			),
 		'pdx:upgrade' => array

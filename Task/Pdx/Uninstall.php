@@ -14,9 +14,12 @@ class Task_Pdx_Uninstall extends \app\Task_Base
 	 */
 	function run()
 	{
+		$hard = $this->get('hard', false);
+		$hard !== null or $hard = false;
+		
 		$pdx = \app\Pdx::instance($this->writer);
 
-		if ( ! $pdx->uninstall())
+		if ( ! $pdx->uninstall($hard))
 		{
 			$this->writer->writef(' The database is locked; only non-destructive operations allowed.')->eol();
 		}
