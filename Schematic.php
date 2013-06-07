@@ -162,11 +162,11 @@ class Schematic
 			catch (\Exception $e)
 			{
 				if (\php_sapi_name() === 'cli')
-			{
-				echo PHP_EOL.PHP_EOL.' Query: '.PHP_EOL;
-				echo \app\Text::baseindent($query);
-				echo PHP_EOL.PHP_EOL;
-			}
+				{
+					echo PHP_EOL.PHP_EOL.' Query: '.PHP_EOL;
+					echo \app\Text::baseindent($query);
+					echo PHP_EOL.PHP_EOL;
+				}
 				
 				throw $e;
 			}

@@ -8,7 +8,7 @@
 class Register extends \mjolnir\database\Register {}
 class SQL extends \mjolnir\database\SQL {}
 class SQLDatabase extends \mjolnir\database\SQLDatabase { /** @return \mjolnir\database\SQLDatabase */ static function instance($database = 'default') { return parent::instance($database); } }
-class SQLStatement extends \mjolnir\database\SQLStatement { /** @return \mjolnir\database\SQLStatement */ static function instance($statement = null) { return parent::instance($statement); } }
+class SQLStatement extends \mjolnir\database\SQLStatement { /** @return \mjolnir\database\SQLStatement */ static function instance($statement = null, $query = null) { return parent::instance($statement, $query); } }
 class Schematic_Base extends \mjolnir\database\Schematic_Base { /** @return \mjolnir\database\Schematic_Base */ static function instance() { return parent::instance(); } }
 class Schematic_Mjolnir_Registry extends \mjolnir\database\Schematic_Mjolnir_Registry { /** @return \mjolnir\database\Schematic_Mjolnir_Registry */ static function instance() { return parent::instance(); } }
 class Schematic extends \mjolnir\database\Schematic {}
