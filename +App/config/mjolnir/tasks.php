@@ -74,7 +74,10 @@
 					),
 				'flags' => array
 					(
-						// empty
+						'detailed' => array
+							(
+								'description' => 'Show description.',
+							)
 					),
 			),
 		'pdx:status' => array

@@ -64,7 +64,9 @@ class Task_Pdx_Reset extends \app\Task_Base
 					$this->writer->eol();
 				}
 
-				$this->writer->eol()->writef('    Reset finished.')->eol();
+				$this->writer
+					->eol()->eol()
+					->writef(' Reset complete.')->eol();
 			}
 		}
 	}

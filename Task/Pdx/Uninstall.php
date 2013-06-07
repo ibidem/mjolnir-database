@@ -25,7 +25,9 @@ class Task_Pdx_Uninstall extends \app\Task_Base
 		}
 		else # uninstall done
 		{
-			$this->writer->writef(' Uninstall complete.')->eol();
+			$this->writer
+				->eol()
+				->writef(' Uninstall complete.')->eol();
 		}
 	}
 

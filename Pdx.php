@@ -591,7 +591,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 			if ( ! $harduninstall)
 			{
 				$history = $this->history();
-
+				
 				// generate table list based on history
 				foreach ($history as $i)
 				{
@@ -686,6 +686,10 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 				{
 					$this->uninstall();
 				}
+				else # no history table available
+				{
+					$this->writer->writef(' Skipped uninstall. Database is clean.')->eol();
+				}
 
 				$status = array
 					(
@@ -776,7 +780,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	 */
 	function history()
 	{
-		if ( ! $this->has_history_table())
+		if ($this->has_history_table())
 		{
 			$db = \app\SQLDatabase::instance(static::database());
 
@@ -788,6 +792,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 						  FROM `'.static::table().'` entry
 					'
 				)
+				->run()
 				->fetch_all();
 		}
 		else # no database
