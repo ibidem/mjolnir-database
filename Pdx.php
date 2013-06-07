@@ -1246,6 +1246,12 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 		$chaninfo = $channels[$channel];
 		$state = $this->initialize_migration_state($chaninfo, $channel, $version, $hotfix);
+		
+		// We save to the history first. If an error happens at least the 
+		// database history will show which step it happend on for future 
+		// reference; it also enabled us to do a clean install after an 
+		// exception instead of forcing a hard uninstall.
+		$this->pushhistory($channel, $version, $hotfix, $chaninfo['versions'][$version]['description']);
 
 		foreach ($steps as $step => $priority)
 		{
@@ -1270,9 +1276,6 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 		{
 			throw new \app\Exception('Missing description for '.$channel.' '.$version);
 		}
-
-		// save to database
-		$this->pushhistory($channel, $version, $hotfix, $chaninfo['versions'][$version]['description']);
 
 		$this->writer->writef("\r");
 		$this->writer->writef(\str_repeat(' ', 80));
