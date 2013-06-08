@@ -20,7 +20,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 		}
 
 	// version of the class and associated features
-	const VERSION = '1.0.0';
+	const VERSION = '1.0.0'; # this version updates ONLY on breaking changes
 
 	/**
 	 * @var string version table base name
