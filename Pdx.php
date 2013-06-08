@@ -767,6 +767,25 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 		}
 	}
 
+	/**
+	 * @return array
+	 */
+	function status()
+	{
+		$versions = [];
+		$history = $this->history();
+
+		foreach ($history as $entry)
+		{
+			if ($entry['hotfix'] === null)
+			{
+				$versions[$entry['channel']] = $entry['version'];
+			}
+		}
+
+		return $versions;
+	}
+
 	// ------------------------------------------------------------------------
 	// Helpers
 
