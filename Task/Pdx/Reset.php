@@ -15,7 +15,7 @@ class Task_Pdx_Reset extends \app\Task_Base
 	function run()
 	{
 		\app\Task::consolewriter($this->writer);
-		
+
 		if (\app\CFS::config('mjolnir/base')['db:migrations'] !== 'paradox')
 		{
 			$this->writer
@@ -23,7 +23,7 @@ class Task_Pdx_Reset extends \app\Task_Base
 				->eol()->eol();
 			exit;
 		}
-		
+
 		$pivot = $this->get('pivot', false);
 		$version = $this->get('version', false);
 		$dryrun = $this->get('dry-run', false);
@@ -52,7 +52,7 @@ class Task_Pdx_Reset extends \app\Task_Base
 		{
 			$this->writer->writef(' The database is locked and operation could not be performed in non-destructive manner.')->eol();
 		}
-		else # uninstall done
+		else # reset done
 		{
 			// dry run?
 			if ($dryrun)

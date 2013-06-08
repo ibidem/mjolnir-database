@@ -742,6 +742,68 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	}
 
 	/**
+	 * Reset the database.
+	 */
+	function upgrade($dryrun = false)
+	{
+//		$locked = \app\CFS::config('mjolnir/base')['db:lock'];
+//		$exists = $this->has_history_table();
+
+		$channels = $this->channels();
+
+		$status = array
+			(
+				// ordered list of versions in processing order
+				'history' => [],
+				// current version for each channel
+				'state' => [],
+				// active channels
+				'active' => [],
+				// checklist of version requirements
+				'checklist' => $this->generate_checklist($channels)
+			);
+
+		// inject current history
+		$history = $this->history();
+		foreach ($history as $entry)
+		{
+			if ($entry['hotfix'] === null)
+			{
+				$status['state'][$entry['channel']] = $this->binversion($entry['channel'], $entry['version']);
+			}
+		}
+
+		// generate version history for upgrade
+		foreach ($channels as $channel => & $timeline)
+		{
+			if (\count($timeline['versions']) > 0)
+			{
+				\end($timeline['versions']);
+				$last_version = \key($timeline['versions']);
+				$this->processhistory($channel, $last_version, $status, $channels);
+			}
+		}
+
+		// dry run?
+		if ($dryrun)
+		{
+			// just return the step history
+			return $status['history'];
+		}
+
+		// execute the history
+		foreach ($status['history'] as $entry)
+		{
+			// execute migration
+			$this->processmigration($channels, $entry['channel'], $entry['version'], $entry['hotfix']);
+		}
+
+		// operation complete
+		return true;
+
+	}
+
+	/**
 	 * @return array history table
 	 */
 	function history()
