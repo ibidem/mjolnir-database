@@ -21,7 +21,7 @@ class Task_Pdx_Status extends \app\Task_Base
 			$this->writer
 				->printf('error', 'System is currently setup to use ['.\app\CFS::config('mjolnir/base')['db:migrations'].'] migrations.')
 				->eol()->eol();
-			exit;
+			return;
 		}
 
 		$pdx = \app\Pdx::instance($this->writer);

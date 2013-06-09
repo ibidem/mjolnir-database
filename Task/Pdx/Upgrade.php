@@ -21,7 +21,7 @@ class Task_Pdx_Upgrade extends \app\Task_Base
 			$this->writer
 				->printf('error', 'System is currently setup to use ['.\app\CFS::config('mjolnir/base')['db:migrations'].'] migrations.')
 				->eol()->eol();
-			exit;
+			return;
 		}
 
 		$dryrun = $this->get('dry-run', false);

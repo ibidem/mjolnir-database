@@ -15,21 +15,21 @@ class Task_Pdx_History extends \app\Task_Base
 	function run()
 	{
 		\app\Task::consolewriter($this->writer);
-		
+
 		if (\app\CFS::config('mjolnir/base')['db:migrations'] !== 'paradox')
 		{
 			$this->writer
 				->printf('error', 'System is currently setup to use ['.\app\CFS::config('mjolnir/base')['db:migrations'].'] migrations.')
 				->eol()->eol();
-			exit;
+			return;
 		}
-		
+
 		$detailed = $this->get('detailed', false);
 		$detailed !== null or $detailed = false;
-		
+
 		$pdx = \app\Pdx::instance($this->writer);
 		$history = $pdx->history();
-		
+
 		if (empty($history))
 		{
 			$this->writer->writef(' No history.')->eol();
@@ -37,21 +37,21 @@ class Task_Pdx_History extends \app\Task_Base
 		else # display history
 		{
 			$format = ' %4s  %-10s  %-20s  %-7s  %s';
-			
+
 			$this->writer->writef
 				(
-					$format, 
-					'step', 
-					'timestamp', 
-					'channel', 
-					'version', 
+					$format,
+					'step',
+					'timestamp',
+					'channel',
+					'version',
 					'hotfix'
 				)
 				->eol();
-			
+
 			$this->writer->writef
 				(
-					$format, 
+					$format,
 					\str_repeat('-', 4),
 					\str_repeat('-', 10),
 					\str_repeat('-', 20),
@@ -59,12 +59,12 @@ class Task_Pdx_History extends \app\Task_Base
 					\str_repeat('-', 15)
 				)
 				->eol();
-			
+
 			if ($detailed)
 			{
 				$this->writer->eol();
 			}
-			
+
 			foreach ($history as $i)
 			{
 				$this->writer->writef
@@ -77,7 +77,7 @@ class Task_Pdx_History extends \app\Task_Base
 						$i['hotfix'] !== null ? $i['hotfix'] : 'no'
 					)
 					->eol();
-				
+
 				if ($detailed)
 				{
 					$this->writer

@@ -1314,9 +1314,16 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 			$stepmethod = "migration_$step";
 			static::{$stepmethod}($chaninfo['db'], $chaninfo['versions'][$version], $state);
 
-			$this->writer->writef("\r");
-			$this->writer->writef(\str_repeat(' ', 80));
-			$this->writer->writef("\r");
+			if (\php_sapi_name() === 'cli')
+			{
+				$this->writer->writef("\r");
+				$this->writer->writef(\str_repeat(' ', 80));
+				$this->writer->writef("\r");
+			}
+			else # standard end of line
+			{
+				$this->writer->eol();
+			}
 		}
 
 		if ( ! isset($chaninfo['versions'][$version]['description']))
@@ -1324,9 +1331,12 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 			throw new \app\Exception('Missing description for '.$channel.' '.$version);
 		}
 
-		$this->writer->writef("\r");
-		$this->writer->writef(\str_repeat(' ', 80));
-		$this->writer->writef("\r");
+		if (\php_sapi_name() === 'cli')
+		{
+			$this->writer->writef("\r");
+			$this->writer->writef(\str_repeat(' ', 80));
+			$this->writer->writef("\r");
+		}
 
 		$this->writer->writef
 			(
@@ -1336,6 +1346,11 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 				$channel,
 				empty($hotfix) ? '' : '/ '.$hotfix
 			);
+
+		if (\php_sapi_name() !== 'cli')
+		{
+			$this->writer->eol();
+		}
 	}
 
 	/**
