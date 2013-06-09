@@ -46,9 +46,16 @@ class Task_Pdx_Upgrade extends \app\Task_Base
 					$this->writer->eol();
 				}
 
-				foreach ($history as $entry)
+				if ( ! empty($history))
 				{
-					$this->writer->writef(' %9s %s %s', $entry['version'], $entry['channel'], empty($entry['hotfix']) ? '' : '/ '.$entry['hotfix'])->eol();
+					foreach ($history as $entry)
+					{
+						$this->writer->writef(' %9s %s %s', $entry['version'], $entry['channel'], empty($entry['hotfix']) ? '' : '/ '.$entry['hotfix'])->eol();
+					}
+				}
+				else # empty history
+				{
+					$this->writer->writef(' No changes required.')->eol();
 				}
 			}
 			else # not dry-run
@@ -60,7 +67,7 @@ class Task_Pdx_Upgrade extends \app\Task_Base
 
 				$this->writer
 					->eol()->eol()
-					->writef(' Reset complete.')->eol();
+					->writef(' Upgrade complete.')->eol();
 			}
 		}
 	}

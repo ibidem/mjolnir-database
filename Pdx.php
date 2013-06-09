@@ -746,9 +746,6 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	 */
 	function upgrade($dryrun = false)
 	{
-//		$locked = \app\CFS::config('mjolnir/base')['db:lock'];
-//		$exists = $this->has_history_table();
-
 		$channels = $this->channels();
 
 		$status = array
@@ -791,11 +788,18 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 			return $status['history'];
 		}
 
-		// execute the history
-		foreach ($status['history'] as $entry)
+		if ( ! empty($status['history']))
 		{
-			// execute migration
-			$this->processmigration($channels, $entry['channel'], $entry['version'], $entry['hotfix']);
+			// execute the history
+			foreach ($status['history'] as $entry)
+			{
+				// execute migration
+				$this->processmigration($channels, $entry['channel'], $entry['version'], $entry['hotfix']);
+			}
+		}
+		else # no history
+		{
+			$this->writer->writef(' No changes required.');
 		}
 
 		// operation complete
