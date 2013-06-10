@@ -15,15 +15,15 @@ class Task_Pdx_Reset extends \app\Task_Base
 	function run()
 	{
 		\app\Task::consolewriter($this->writer);
-		
+
 		if (\app\CFS::config('mjolnir/base')['db:migrations'] !== 'paradox')
 		{
 			$this->writer
 				->printf('error', 'System is currently setup to use ['.\app\CFS::config('mjolnir/base')['db:migrations'].'] migrations.')
 				->eol()->eol();
-			exit;
+			return;
 		}
-		
+
 		$pivot = $this->get('pivot', false);
 		$version = $this->get('version', false);
 		$dryrun = $this->get('dry-run', false);
@@ -37,13 +37,13 @@ class Task_Pdx_Reset extends \app\Task_Base
 		if ($version !== null && $pivot === null)
 		{
 			$this->writer->writef(' You must provide a pivot channel.')->eol();
-			exit;
+			return;
 		}
 
 		if ($version === null && $pivot !== null)
 		{
 			$this->writer->writef(' You must provide a version with the pivot channel. Use no parameters for complete install.')->eol();
-			exit;
+			return;
 		}
 
 		$pdx = \app\Pdx::instance($this->writer, $verbose);
@@ -52,7 +52,7 @@ class Task_Pdx_Reset extends \app\Task_Base
 		{
 			$this->writer->writef(' The database is locked and operation could not be performed in non-destructive manner.')->eol();
 		}
-		else # uninstall done
+		else # reset done
 		{
 			// dry run?
 			if ($dryrun)

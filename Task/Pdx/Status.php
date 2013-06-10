@@ -15,18 +15,28 @@ class Task_Pdx_Status extends \app\Task_Base
 	function run()
 	{
 		\app\Task::consolewriter($this->writer);
-		
+
 		if (\app\CFS::config('mjolnir/base')['db:migrations'] !== 'paradox')
 		{
 			$this->writer
 				->printf('error', 'System is currently setup to use ['.\app\CFS::config('mjolnir/base')['db:migrations'].'] migrations.')
 				->eol()->eol();
-			exit;
+			return;
 		}
-		
-		if ( ! Pdx::status())
+
+		$pdx = \app\Pdx::instance($this->writer);
+		$versions = $pdx->status();
+
+		if ( ! empty($versions))
 		{
-			$this->writer->writef(' The database is locked; only non-destructive operations allowed.')->eol();
+			foreach ($versions as $channel => $version)
+			{
+				$this->writer->writef(' %9s %s', $version, $channel)->eol();
+			}
+		}
+		else # no versions
+		{
+			$this->writer->writef(' History is empty.')->eol();
 		}
 	}
 

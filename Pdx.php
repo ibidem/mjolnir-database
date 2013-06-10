@@ -20,7 +20,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 		}
 
 	// version of the class and associated features
-	const VERSION = '1.0.0';
+	const VERSION = '1.0.0'; # this version updates ONLY on breaking changes
 
 	/**
 	 * @var string version table base name
@@ -70,7 +70,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	static function gate($filepath, $require = null, $ext = EXT)
 	{
 		$require != null or $require = [];
-		
+
 		return \app\Arr::merge(\app\CFS::config("timeline/$filepath", $ext), ['require' => $require]);
 	}
 
@@ -414,7 +414,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 					{
 						$constraint_key = $constraint[3];
 					}
-					
+
 					// keys must be unique over the whole database
 					$constraint_key = $table.'_'.$constraint_key;
 
@@ -446,7 +446,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 					if (\php_sapi_name() === 'cli')
 					{
 						$writer = $state['writer'];
-						
+
 						$writer->eol()->eol();
 						$writer->writef(' Query: ')->eol();
 						$writer->writef(\app\Text::baseindent($query));
@@ -544,7 +544,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 		return $i;
 	}
-	
+
 	/**
 	 * Loads tables from configuration
 	 */
@@ -587,11 +587,11 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 		{
 			$channels = $this->channels();
 			$config = [ 'tables' => [] ];
-			
+
 			if ( ! $harduninstall)
 			{
 				$history = $this->history();
-				
+
 				// generate table list based on history
 				foreach ($history as $i)
 				{
@@ -614,7 +614,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 					foreach ($chaninfo['versions'] as $version => $handlers)
 					{
 						static::uninstall_load_tables($config, $handlers);
-						
+
 						if (isset($handlers['hotfixes']))
 						{
 							foreach ($handlers['hotfixes'] as $hotfix => $fixhandlers)
@@ -625,7 +625,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 					}
 				}
 			}
-			
+
 			$config['tables'][] = static::table();
 
 			if ( ! empty($config['tables']))
@@ -642,7 +642,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 				foreach ($config['tables'] as $table)
 				{
 					$this->writer->writef(' Removing '.$table)->eol();
-					
+
 					$db->prepare
 						(
 							__METHOD__.':drop_table',
@@ -678,10 +678,22 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 		}
 		else # database is not locked
 		{
-			if ($pivot === null)
-			{
-				$channels = $this->channels();
+			$channels = $this->channels();
 
+			$status = array
+				(
+					// ordered list of versions in processing order
+					'history' => [],
+					// current version for each channel
+					'state' => [],
+					// active channels
+					'active' => [],
+					// checklist of version requirements
+					'checklist' => $this->generate_checklist($channels)
+				);
+
+			if ( ! $dryrun)
+			{
 				if ($exists)
 				{
 					$this->uninstall();
@@ -690,59 +702,13 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 				{
 					$this->writer->writef(' Skipped uninstall. Database is clean.')->eol();
 				}
+			}
 
-				$status = array
-					(
-						// ordered list of versions in processing order
-						'history' => [],
-						// current version for each channel
-						'state' => [],
-						// active channels
-						'active' => [],
-						// checklist of version requirements
-						'checklist' => $this->generate_checklist($channels)
-					);
-
+			if ($pivot === null)
+			{
 				// generate version history for full reset
 				foreach ($channels as $channel => & $timeline)
 				{
-					\uksort
-						(
-							$timeline['versions'],
-							function ($a, $b) use ($channel)
-								{
-									// split version
-									$version1 = \explode('.', $a);
-									$version2 = \explode('.', $b);
-
-									if (\count($version1) !== 3)
-									{
-										throw new \app\Exception('Invalid version: '.$channel.' '.$a);
-									}
-
-									if (\count($version2) !== 3)
-									{
-										throw new \app\Exception('Invalid version: '.$channel.' '.$b);
-									}
-
-									if (\intval($version1[0]) - \intval($version2[0]) == 0)
-									{
-										if (\intval($version1[1]) - \intval($version2[1]) == 0)
-										{
-											return \intval($version1[2]) - \intval($version2[2]);
-										}
-										else # un-equal
-										{
-											return \intval($version1[1]) - \intval($version2[1]);
-										}
-									}
-									else # un-equal
-									{
-										return \intval($version1[0]) - \intval($version2[0]);
-									}
-								}
-						);
-
 					if (\count($timeline['versions']) > 0)
 					{
 						\end($timeline['versions']);
@@ -750,29 +716,95 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 						$this->processhistory($channel, $last_version, $status, $channels);
 					}
 				}
-
-				// dry run?
-				if ($dryrun)
-				{
-					// just return the step history
-					return $status['history'];
-				}
-
-				// execute the history
-				foreach ($status['history'] as $entry)
-				{
-					// execute migration
-					$this->processmigration($channels, $entry['channel'], $entry['version'], $entry['hotfix']);
-				}
 			}
 			else # pivot !== null
 			{
 				// @todo pivot based reset
 			}
 
+			// dry run?
+			if ($dryrun)
+			{
+				// just return the step history
+				return $status['history'];
+			}
+
+			// execute the history
+			foreach ($status['history'] as $entry)
+			{
+				// execute migration
+				$this->processmigration($channels, $entry['channel'], $entry['version'], $entry['hotfix']);
+			}
+
 			// operation complete
 			return true;
 		}
+	}
+
+	/**
+	 * Reset the database.
+	 */
+	function upgrade($dryrun = false)
+	{
+		$channels = $this->channels();
+
+		$status = array
+			(
+				// ordered list of versions in processing order
+				'history' => [],
+				// current version for each channel
+				'state' => [],
+				// active channels
+				'active' => [],
+				// checklist of version requirements
+				'checklist' => $this->generate_checklist($channels)
+			);
+
+		// inject current history
+		$history = $this->history();
+		foreach ($history as $entry)
+		{
+			if ($entry['hotfix'] === null)
+			{
+				$status['state'][$entry['channel']] = $this->binversion($entry['channel'], $entry['version']);
+			}
+		}
+
+		// generate version history for upgrade
+		foreach ($channels as $channel => & $timeline)
+		{
+			if (\count($timeline['versions']) > 0)
+			{
+				\end($timeline['versions']);
+				$last_version = \key($timeline['versions']);
+				$this->processhistory($channel, $last_version, $status, $channels);
+			}
+		}
+
+		// dry run?
+		if ($dryrun)
+		{
+			// just return the step history
+			return $status['history'];
+		}
+
+		if ( ! empty($status['history']))
+		{
+			// execute the history
+			foreach ($status['history'] as $entry)
+			{
+				// execute migration
+				$this->processmigration($channels, $entry['channel'], $entry['version'], $entry['hotfix']);
+			}
+		}
+		else # no history
+		{
+			$this->writer->writef(' No changes required.');
+		}
+
+		// operation complete
+		return true;
+
 	}
 
 	/**
@@ -799,6 +831,25 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 		{
 			return [];
 		}
+	}
+
+	/**
+	 * @return array
+	 */
+	function status()
+	{
+		$versions = [];
+		$history = $this->history();
+
+		foreach ($history as $entry)
+		{
+			if ($entry['hotfix'] === null)
+			{
+				$versions[$entry['channel']] = $entry['version'];
+			}
+		}
+
+		return $versions;
 	}
 
 	// ------------------------------------------------------------------------
@@ -1246,10 +1297,10 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 		$chaninfo = $channels[$channel];
 		$state = $this->initialize_migration_state($chaninfo, $channel, $version, $hotfix);
-		
-		// We save to the history first. If an error happens at least the 
-		// database history will show which step it happend on for future 
-		// reference; it also enabled us to do a clean install after an 
+
+		// We save to the history first. If an error happens at least the
+		// database history will show which step it happend on for future
+		// reference; it also enabled us to do a clean install after an
 		// exception instead of forcing a hard uninstall.
 		$this->pushhistory($channel, $version, $hotfix, $chaninfo['versions'][$version]['description']);
 
@@ -1267,19 +1318,29 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 			$stepmethod = "migration_$step";
 			static::{$stepmethod}($chaninfo['db'], $chaninfo['versions'][$version], $state);
 
-			$this->writer->writef("\r");
-			$this->writer->writef(\str_repeat(' ', 80));
-			$this->writer->writef("\r");
+			if (\php_sapi_name() === 'cli')
+			{
+				$this->writer->writef("\r");
+				$this->writer->writef(\str_repeat(' ', 80));
+				$this->writer->writef("\r");
+			}
+			else # standard end of line
+			{
+				$this->writer->eol();
+			}
 		}
-		
+
 		if ( ! isset($chaninfo['versions'][$version]['description']))
 		{
 			throw new \app\Exception('Missing description for '.$channel.' '.$version);
 		}
 
-		$this->writer->writef("\r");
-		$this->writer->writef(\str_repeat(' ', 80));
-		$this->writer->writef("\r");
+		if (\php_sapi_name() === 'cli')
+		{
+			$this->writer->writef("\r");
+			$this->writer->writef(\str_repeat(' ', 80));
+			$this->writer->writef("\r");
+		}
 
 		$this->writer->writef
 			(
@@ -1289,6 +1350,11 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 				$channel,
 				empty($hotfix) ? '' : '/ '.$hotfix
 			);
+
+		if (\php_sapi_name() !== 'cli')
+		{
+			$this->writer->eol();
+		}
 	}
 
 	/**
@@ -1297,15 +1363,15 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	function pushhistory($channel, $version, $hotfix, $description)
 	{
 		$this->ensurehistorytable();
-		
+
 		$db = \app\SQLDatabase::instance(static::database());
-		
+
 		// compute system version
 		$versioninfo = $this->versioninfo();
 		$system = \app\Arr::implode(', ', $versioninfo, function ($component, $version) {
 			return $component.' '.$version;
 		});
-		
+
 		static::insert
 			(
 				__METHOD__, 
@@ -1319,7 +1385,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 				]
 			);
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -1327,7 +1393,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	{
 		return 'InnoDB';
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -1335,7 +1401,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	{
 		return 'utf8';
 	}
-	
+
 	/**
 	 * ...
 	 */
@@ -1344,7 +1410,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 		if ( ! $this->has_history_table())
 		{
 			$db = \app\SQLDatabase::instance(static::database());
-			
+
 			// create history table
 			static::create_table
 				(
@@ -1358,9 +1424,9 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 						`timestamp`   :timestamp,
 						`system`      :block,
 						`description` :block,
-					
+
 						PRIMARY KEY(`id`)
-					', 
+					',
 					static::default_db_engine(),
 					static::default_db_charset()
 				);

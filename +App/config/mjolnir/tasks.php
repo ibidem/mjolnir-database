@@ -62,7 +62,15 @@
 					),
 				'flags' => array
 					(
-						// empty
+						'dry-run' => array
+							(
+								'description' => 'Generate history but don\'t process.',
+								'short' => 'y',
+							),
+						'verbose' => array
+							(
+								'description' => 'Verbose debug output.',
+							),
 					),
 			),
 		'pdx:history' => array
