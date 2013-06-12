@@ -42,7 +42,7 @@
 				'category' => 'Database',
 				'description' => array
 					(
-						'Uninstalls all database.',
+						'Uninstalls database.',
 					),
 				'flags' => array
 					(
