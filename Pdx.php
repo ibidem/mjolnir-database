@@ -626,7 +626,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 				}
 			}
 
-			$config['tables'][] = static::$table;
+			$config['tables'][] = static::table();
 
 			if ( ! empty($config['tables']))
 			{
@@ -1374,8 +1374,8 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 		static::insert
 			(
-				__METHOD__,
-				$db, static::$table,
+				__METHOD__, 
+				$db, static::table(), 
 				[
 					'channel' => $channel,
 					'version' => $version,
@@ -1414,8 +1414,8 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 			// create history table
 			static::create_table
 				(
-					$this->writer,
-					$db, static::$table,
+					$this->writer, 
+					$db, static::table(), 
 					'
 						`id`          :key_primary,
 						`channel`     :title,
