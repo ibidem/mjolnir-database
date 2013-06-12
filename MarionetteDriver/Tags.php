@@ -16,15 +16,17 @@ class MarionetteDriver_Tags extends \app\Instantiatable implements \mjolnir\type
 	 * 
 	 * @return array updated entry
 	 */
-	function latecompile(array $entry, array $input)
+	function post_latecompile(array $entry, array $input)
 	{
 		$field = $this->field;
 		$conf = $this->config;
 		
+		// normalize input
 		$input[$field] = \trim($input[$field], ' ,');
+		
 		if ( ! empty($input[$field]))
 		{
-			// instance of TagCollection
+			// instance of tag collection
 			$tag_collection = $this->collection();
 			
 			// cleanup tags
@@ -102,6 +104,26 @@ class MarionetteDriver_Tags extends \app\Instantiatable implements \mjolnir\type
 		
 		return $entry;
 	}
+	
+	/**
+	 * @return array
+	 */
+	function patch_compile($id, array $entry)
+	{
+		$this->unlinktags($id);
+		
+		return $entry;
+	}
+	
+	/**
+	 * Resolve dependencies after the entry has been patched.
+	 * 
+	 * @return array entry
+	 */
+	function patch_latecompile($id, array $entry, array $input)
+	{
+		return $this->post_latecompile($entry, $input);
+	}
 
 	/**
 	 * On GET, manipulate execution plan.
@@ -139,6 +161,14 @@ class MarionetteDriver_Tags extends \app\Instantiatable implements \mjolnir\type
 	}
 	
 	/**
+	 * Execute after entry has been removed.
+	 */
+	function predelete($id) 
+	{
+		$this->unlinktags($id);
+	}
+	
+	/**
 	 * @return array
 	 */
 	function normalizeconfig(array $conf)
@@ -146,6 +176,24 @@ class MarionetteDriver_Tags extends \app\Instantiatable implements \mjolnir\type
 		isset($conf['automake']) or $conf['automake'] = false;
 		
 		return $conf;
+	}
+	
+	// ------------------------------------------------------------------------
+	// Helpers
+	
+	/**
+	 * Remove tag association.
+	 */
+	protected function unlinktags($id) 
+	{
+		$conf = $this->config;
+		
+		// instantiate reference collection
+		$class = $this->resolveclassname($conf['assoc']);
+		$assoc_collection = $class::instance($this->db);
+		
+		// remove tag association
+		$assoc_collection->tags_unset($id, $this->context->singular());
 	}
 	
 } # class

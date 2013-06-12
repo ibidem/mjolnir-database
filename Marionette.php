@@ -247,7 +247,7 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 	/**
 	 * @return array processed entry
 	 */
-	protected function run_drivers_compile(array $entry)
+	protected function run_drivers_post_compile(array $entry)
 	{
 		$spec = static::config();
 		
@@ -256,7 +256,7 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 			if (isset($fieldinfo['driver']))
 			{
 				$driver = $this->getdriver($field, $fieldinfo['driver'], $fieldinfo);
-				$entry = $driver->compile($entry);
+				$entry = $driver->post_compile($entry);
 			}
 		}
 		
@@ -266,7 +266,7 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 	/**
 	 * @return array processed entry
 	 */
-	protected function run_drivers_latecompile(array $entry, array $input)
+	protected function run_drivers_post_latecompile(array $entry, array $input)
 	{
 		$spec = static::config();
 		
@@ -275,7 +275,7 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 			if (isset($fieldinfo['driver']))
 			{
 				$driver = $this->getdriver($field, $fieldinfo['driver'], $fieldinfo);
-				$entry = $driver->latecompile($entry, $input);
+				$entry = $driver->post_latecompile($entry, $input);
 				
 				// driver rejected entry?
 				if ($entry === null)
@@ -291,7 +291,7 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 	/**
 	 * @return array processed fieldlist
 	 */
-	protected function run_drivers_compilefields(array $fieldlist)
+	protected function run_drivers_post_compilefields(array $fieldlist)
 	{
 		$spec = static::config();
 		
@@ -300,7 +300,70 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 			if (isset($fieldinfo['driver']))
 			{
 				$driver = $this->getdriver($field, $fieldinfo['driver'], $fieldinfo);
-				$fieldlist = $driver->compilefields($fieldlist);
+				$fieldlist = $driver->post_compilefields($fieldlist);
+			}
+		}
+		
+		return $fieldlist;
+	}
+	
+	/**
+	 * @return array processed entry
+	 */
+	protected function run_drivers_patch_compile($id, array $entry)
+	{
+		$spec = static::config();
+		
+		foreach ($spec['fields'] as $field => $fieldinfo)
+		{
+			if (isset($fieldinfo['driver']))
+			{
+				$driver = $this->getdriver($field, $fieldinfo['driver'], $fieldinfo);
+				$entry = $driver->patch_compile($id, $entry);
+			}
+		}
+		
+		return $entry;
+	}
+	
+	/**
+	 * @return array processed entry
+	 */
+	protected function run_drivers_patch_latecompile($id, array $entry, array $input)
+	{
+		$spec = static::config();
+		
+		foreach ($spec['fields'] as $field => $fieldinfo)
+		{
+			if (isset($fieldinfo['driver']))
+			{
+				$driver = $this->getdriver($field, $fieldinfo['driver'], $fieldinfo);
+				$entry = $driver->patch_latecompile($id, $entry, $input);
+				
+				// driver rejected entry?
+				if ($entry === null)
+				{
+					return null;
+				}
+			}
+		}
+		
+		return $entry;
+	}
+	
+	/**
+	 * @return array processed fieldlist
+	 */
+	protected function run_drivers_patch_compilefields(array $fieldlist)
+	{
+		$spec = static::config();
+		
+		foreach ($spec['fields'] as $field => $fieldinfo)
+		{
+			if (isset($fieldinfo['driver']))
+			{
+				$driver = $this->getdriver($field, $fieldinfo['driver'], $fieldinfo);
+				$fieldlist = $driver->patch_compilefields($fieldlist);
 			}
 		}
 		
@@ -324,6 +387,40 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 		}
 		
 		return $plan;
+	}
+	
+	/**
+	 * Execute drivers before delete of entry happens.
+	 */
+	protected function run_drivers_predelete($id)
+	{
+		$spec = static::config();
+		
+		foreach ($spec['fields'] as $field => $fieldinfo)
+		{
+			if (isset($fieldinfo['driver']))
+			{
+				$driver = $this->getdriver($field, $fieldinfo['driver'], $fieldinfo);
+				$driver->predelete($id);
+			}
+		}
+	}
+	
+	/**
+	 * Execute drivers before delete of entry happens.
+	 */
+	protected function run_drivers_postdelete($id)
+	{
+		$spec = static::config();
+		
+		foreach ($spec['fields'] as $field => $fieldinfo)
+		{
+			if (isset($fieldinfo['driver']))
+			{
+				$driver = $this->getdriver($field, $fieldinfo['driver'], $fieldinfo);
+				$driver->postdelete($id);
+			}
+		}
 	}
 	
 	/**

@@ -22,31 +22,31 @@ class MarionetteDriver_Reference extends \app\Instantiatable implements \mjolnir
 	 * 
 	 * @return array updated entry
 	 */
-	function compile(array $entry)
+	function post_compile(array $input)
 	{
 		$conf = $this->config;
 		$field = $this->field;
 		
-		if (empty($entry[$field]))
+		if (empty($input[$field]))
 		{
-			$entry[$field] = null;
+			$input[$field] = null;
 		}
 		else # got entry
 		{
 			$collection = $this->collection();
 			$keyfield = $collection->keyfield();
 			
-			if (isset($entry[$field][$keyfield]))
+			if (isset($input[$field][$keyfield]))
 			{
-				$entry[$field] = $entry[$field][$keyfield];
+				$input[$field] = $input[$field][$keyfield];
 			}
 			else # new model for given collection
 			{
-				$new_ref = $collection->post($entry[$field]);
+				$new_ref = $collection->post($input[$field]);
 				
 				if ($new_ref !== null)
 				{
-					$entry[$field] = $new_ref[$keyfield];
+					$input[$field] = $new_ref[$keyfield];
 				}
 				else # got validation fail state
 				{
@@ -55,7 +55,7 @@ class MarionetteDriver_Reference extends \app\Instantiatable implements \mjolnir
 			}
 		}
 		
-		return $entry;
+		return $input;
 	}
 
 	/**
@@ -63,7 +63,7 @@ class MarionetteDriver_Reference extends \app\Instantiatable implements \mjolnir
 	 * 
 	 * @return array updated fieldlist
 	 */
-	function compilefields(array $fieldlist)
+	function post_compilefields(array $fieldlist)
 	{
 		$fieldlist['nums'][] = $this->field;
 		return $fieldlist;

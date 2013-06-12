@@ -109,22 +109,43 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 	 */
 	function patch($id, array $partial_entry)
 	{
+		// 1. normalize entry
 		$entry = $this->parse($partial_entry);
-		$auditor = $this->auditor();
 		
 		try
 		{
 			$this->db->begin();
-			$entry = $this->run_drivers($entry);
+			
+			// 2. run compile steps against entry
+			$entry = $this->run_drivers_patch_compile($id, $entry);
+			
+			// 3. check for errors
+			$auditor = $this->auditor();
+			
 			if ($auditor->fields_array($entry)->check())
 			{
+				// 4. persist to database
 				$entry_id = $this->do_patch($id, $entry);
 				
 				// success?
 				if ($entry_id !== null)
 				{
-					$this->db->commit();
-					return $this->get($entry_id);
+					// get entry
+					$entry = $this->model()->get($entry_id);
+					
+					// 5. run latecompile steps against entry
+					$entry = $this->run_drivers_patch_latecompile($id, $entry, $partial_entry);
+					
+					if ($entry !== null)
+					{
+						$this->db->commit();
+						return $entry;
+					}
+					else # failed latecompile
+					{
+						$this->db->rollback();
+						return null;
+					}
 				}
 				else # recoverable failure
 				{
@@ -153,6 +174,9 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 		// create field list
 		$spec = static::config();
 		$fieldlist = $this->make_fieldlist($spec, \array_keys($entry));
+		
+		// inject driver based dependencies
+		$fieldlist = $this->run_drivers_patch_compilefields($fieldlist);
 
 		// create templates
 		$fields = [];
@@ -174,22 +198,27 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 				}
 			);
 		
-		$this->db->prepare
-			(
-				__METHOD__,
-				'
-					UPDATE `'.static::table().'` 
-					   SET '.$setfields.'
-					 WHERE `id` = :id
-				'
-			)
-			->num(':id', $id)
-			->strs($entry, $fieldlist['strs'])
-			->nums($entry, $fieldlist['nums'])
-			->bools($entry, $fieldlist['bools'])
-			->run();
+		// it's possible all relevant fields are powered by drivers which work
+		// exclusively with associated models and hence this operation may not
+		// need to set anything
+		if (\trim($setfields) !== '')
+		{	
+			$this->db->prepare
+				(
+					__METHOD__,
+					'
+						UPDATE `'.static::table().'` 
+						   SET '.$setfields.'
+						 WHERE `id` = :id
+					'
+				)
+				->num(':id', $id)
+				->strs($entry, $fieldlist['strs'])
+				->nums($entry, $fieldlist['nums'])
+				->bools($entry, $fieldlist['bools'])
+				->run();
+		}
 		
-		// the update may be the entire entry being replaced by another
 		return $id;
 	}
 
@@ -204,6 +233,8 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 	 */
 	function delete($id)
 	{
+		$this->run_drivers_predelete($id);
+		
 		$this->db->prepare
 			(
 				__METHOD__,
@@ -214,6 +245,8 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 			)
 			->num(':id', $id)
 			->run();
+		
+		$this->run_drivers_postdelete($id);
 				
 		return $this;
 	}

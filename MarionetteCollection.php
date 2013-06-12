@@ -88,24 +88,24 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 	 * If there is a special exception state that is recoverable, simply return 
 	 * null from do_create.
 	 */
-	function post(array $entry)
+	function post(array $input)
 	{
 		// 1. normalize entry
-		$entry = $this->parse($entry);
+		$entry = $this->parse($input);
 		
 		try
 		{			
 			$this->db->begin();
 			
 			// 2. run compile steps against entry
-			$input = $this->run_drivers_compile($entry);
+			$entry = $this->run_drivers_post_compile($entry);
 			
 			// 3. check for errors
 			$auditor = $this->auditor();
-			if ($auditor->fields_array($input)->check())
+			if ($auditor->fields_array($entry)->check())
 			{
 				// 4. persist to database
-				$entry_id = $this->do_post($input);
+				$entry_id = $this->do_post($entry);
 				
 				// success?
 				if ($entry_id !== null)
@@ -114,7 +114,7 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 					$entry = $this->model()->get($entry_id);
 					
 					// 5. run latecompile steps against entry
-					$entry = $this->run_drivers_latecompile($entry, $input);
+					$entry = $this->run_drivers_post_latecompile($entry, $input);
 					
 					if ($entry !== null)
 					{
@@ -186,7 +186,7 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 		$fieldlist = $this->make_fieldlist($spec);
 
 		// inject driver based dependencies
-		$fieldlist = $this->run_drivers_compilefields($fieldlist);
+		$fieldlist = $this->run_drivers_post_compilefields($fieldlist);
 		
 		// create templates
 		$fields = [];
