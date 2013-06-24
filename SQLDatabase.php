@@ -45,7 +45,7 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 	 * Database setup; null if already executed.
 	 */
 	protected $setup = null;
-	
+
 	/**
 	 * @return static
 	 */
@@ -54,7 +54,7 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 		if ( ! isset(static::$instances[$database]))
 		{
 			$instance = static::$instances[$database] = parent::instance();
-			
+
 			$instance->setup = function () use ($instance, $database)
 				{
 					try
@@ -62,12 +62,12 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 						// attempt to load configuration
 						$pdo_config = \app\CFS::config('mjolnir/database');
 						$pdo = $pdo_config['databases'][$database];
-						
+
 						if (empty($pdo))
 						{
 							throw new \app\Exception('Missing database configuration.');
 						}
-						
+
 						// setup database handle
 						$dbh = $instance->dbh = new \PDO
 							(
@@ -75,14 +75,14 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 								$pdo['connection']['username'],
 								$pdo['connection']['password']
 							);
-						
+
 						// set error mode
 						$dbh->setAttribute
 							(
 								\PDO::ATTR_ERRMODE,
 								\PDO::ERRMODE_EXCEPTION
 							);
-						
+
 						// default SQL flavor
 						$instance->dialect_default = $pdo['dialect_default'];
 						$instance->dialect_target = $pdo['dialect_target'];
@@ -97,7 +97,15 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 					}
 					catch (\PDOException $e)
 					{
-						throw new \app\Exception($e->getMessage());
+						if (\preg_match('#driver#', $e->getMessage()))
+						{
+							throw new \app\Exception('PHP PDO interface error: '.$e->getMessage().'. Hint: the cause of the error is with your server, if on a console check your CLI php.ini configuration (seperate from web php.ini by default on some servers).');
+						}
+						else # non-driver error
+						{
+							throw new \app\Exception($e->getMessage());
+						}
+
 					}
 				};
 
