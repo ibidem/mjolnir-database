@@ -40,7 +40,7 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 				'
 					SELECT '.$plan['fields'].'
 					'.$plan['joins'].'
-					  FROM `'.static::table().'`
+					  FROM `'.static::table().'` entry
 					'.$plan['constraints'].'
 				'
 			)

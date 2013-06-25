@@ -45,7 +45,7 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 				'
 					SELECT '.$plan['fields'].'
 					'.$plan['joins'].'
-					  FROM `'.static::table().'`
+					  FROM `'.static::table().'` entry
 					'.$plan['constraints'].'
 					'.$plan['limit'].'
 				'
