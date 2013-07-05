@@ -18,6 +18,11 @@ class MarionetteDriver_Reference extends \app\Instantiatable implements \mjolnir
 	use \app\Trait_MarionetteDriver;
 	
 	/**
+	 * @var boolean
+	 */
+	protected $patched = false;
+
+	/**
 	 * On POST, resolve input dependencies (happens before validation).
 	 * 
 	 * @return array updated entry
@@ -59,13 +64,72 @@ class MarionetteDriver_Reference extends \app\Instantiatable implements \mjolnir
 	}
 
 	/**
-	 * On POST, field processing before POST database communication.
+	 * On POST, field processing before database communication.
 	 * 
 	 * @return array updated fieldlist
 	 */
 	function post_compilefields(array $fieldlist)
 	{
 		$fieldlist['nums'][] = $this->field;
+		return $fieldlist;
+	}
+
+	/**
+	 * On PATCH, resolve input dependencies.
+	 */
+	function patch_compile($id, array $input)
+	{
+		$conf = $this->config;
+		$field = $this->field;
+
+		if (isset($input[$field]))
+		{
+			$this->patched = true;
+
+			if (empty($input[$field]))
+			{
+				$input[$field] = null;
+			}
+			else # got entry
+			{
+				$collection = $this->collection();
+				$keyfield = $collection->keyfield();
+				
+				if (isset($input[$field][$keyfield]))
+				{
+					$input[$field] = $input[$field][$keyfield];
+				}
+				else # new model for given collection
+				{
+					$new_ref = $collection->post($input[$field]);
+					
+					if ($new_ref !== null)
+					{
+						$input[$field] = $new_ref[$keyfield];
+					}
+					else # got validation fail state
+					{
+						throw new \app\Exception("Failed to create reference for [$field] in {$conf['collection']}.");
+					}
+				}
+			}
+		}
+
+		return $input;
+	}
+
+	/**
+	 * On PATCH, field processing before database communication.
+	 * 
+	 * @return array updated fieldlist
+	 */
+	function patch_compilefields(array $fieldlist)
+	{
+		if ($this->patched) 
+		{
+			$fieldlist['nums'][] = $this->field;
+		}
+
 		return $fieldlist;
 	}
 	

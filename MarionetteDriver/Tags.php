@@ -20,79 +20,35 @@ class MarionetteDriver_Tags extends \app\Instantiatable implements \mjolnir\type
 	{
 		$field = $this->field;
 		$conf = $this->config;
+		$tags = $input[$field];
 
-		// normalize input
-		$input[$field] = \trim($input[$field], ' ,');
-
-		if ( ! empty($input[$field]))
+		if ( ! empty($tags))
 		{
 			// instance of tag collection
 			$tag_collection = $this->collection();
 
-			// cleanup tags
-			$tags = [];
-			foreach (\explode(',', $input[$field]) as $tag)
+			// since this is POST there are no tag associations to remove,
+			// we just need to add associations
+
+			$entry_id = $entry[$this->context->keyfield()];
+
+			// instantiate reference collection
+			$class = $this->resolveclassname($conf['assoc']);
+			$assoc_collection = $class::instance($this->db);
+
+			// compute key fields
+			$tagkey = $tag_collection->codename();
+			$self = $this->context->codename();
+
+			foreach ($tags as $tag)
 			{
-				$tag = \trim($tag);
-				if ( ! empty($tag))
-				{
-					$tags[] = $tag;
-				}
-			}
-
-			// resolve to IDs
-			$tagids = [];
-			if ( ! empty($tags))
-			{
-				foreach ($tags as $tag)
-				{
-					$tagentries = $tag_collection->get(['constraints' => ['title' => $tag]]);
-
-					if (empty($tagentries))
-					{
-						if ($conf['automake'])
-						{
-							// new tag
-							$tagentry = $tag_collection->post(['title' => $tag]);
-							if ($entry !== null)
-							{
-								$tagids[] = $tagentry[$tag_collection->keyfield()];
-							}
-							# else: failed validation; no handling
-						}
-					}
-					else # got existing entry
-					{
-						$tagids[] = $tagentries[0][$tag_collection->keyfield()];
-					}
-				}
-			}
-
-			if ( ! empty($tagids))
-			{
-				// since this is POST there are no tag associations to remove,
-				// we just need to add associations
-
-				$entry_id = $entry[$this->context->keyfield()];
-
-				// instantiate reference collection
-				$class = $this->resolveclassname($conf['assoc']);
-				$assoc_collection = $class::instance($this->db);
-
-				// compute key fields
-				$tagkey = $tag_collection->codename();
-				$self = $this->context->codename();
-
-				foreach ($tagids as $tag_id)
-				{
-					$assoc_collection->post
-						(
-							[
-								$self => $entry_id,
-								$tagkey => $tag_id,
-							]
-						);
-				}
+				$assoc_collection->post
+					(
+						[
+							$self => $entry_id,
+							$tagkey => $tag['id'],
+						]
+					);
 			}
 		}
 
@@ -110,12 +66,10 @@ class MarionetteDriver_Tags extends \app\Instantiatable implements \mjolnir\type
 	 */
 	function patch_compile($id, array $input)
 	{
-		if ( ! isset($input[$this->field]))
+		if (isset($input[$this->field]))
 		{
-			return $input;
+			$this->unlinktags($id);
 		}
-
-		$this->unlinktags($id);
 
 		return $input;
 	}

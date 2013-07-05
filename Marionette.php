@@ -59,7 +59,7 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 	}
 	
 	/**
-	 * @return type
+	 * @return array
 	 */
 	static function config()
 	{
@@ -217,7 +217,7 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 		{
 			return $this->driverpool[$field][$driver_id];
 		}
-		else # driver no in pool, or pool empty
+		else # driver not in pool, or pool empty
 		{
 			// auto-resolve driver
 			$class = $this->driver_class_for($driver_id);

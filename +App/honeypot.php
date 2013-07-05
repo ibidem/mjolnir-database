@@ -33,6 +33,12 @@ class MarionetteCollection extends \mjolnir\database\MarionetteCollection
 	static function instance($db = null) { return parent::instance($db); }
 }
 
+class MarionetteDriver_Currency extends \mjolnir\database\MarionetteDriver_Currency
+{
+	/** @return \app\MarionetteDriver_Currency */
+	static function instance() { return parent::instance(); }
+}
+
 /**
  * @method \app\MarionetteDriver_Reference database_is($db)
  * @method \app\MarionetteDriver_Reference context_is($context)
@@ -84,9 +90,12 @@ class Pdx extends \mjolnir\database\Pdx
 	static function instance($writer = null, $verbose = null) { return parent::instance($writer, $verbose); }
 }
 
-class PdxVersionInterval extends \mjolnir\database\PdxVersionInterval
+/**
+ * @method \app\PdxVersionMatcher targetversion($targetversion)
+ */
+class PdxVersionMatcher extends \mjolnir\database\PdxVersionMatcher
 {
-	/** @return \app\PdxVersionInterval */
+	/** @return \app\PdxVersionMatcher */
 	static function instance() { return parent::instance(); }
 }
 
@@ -297,6 +306,7 @@ class Task_Sphinx_Model extends \mjolnir\database\Task_Sphinx_Model
 	/** @return \app\Task_Sphinx_Model */
 	static function instance() { return parent::instance(); }
 }
+trait Trait_Marionette_Collection_MjolnirTagReference { use \mjolnir\database\Trait_Marionette_Collection_MjolnirTagReference; }
 trait Trait_Model_Automaton { use \mjolnir\database\Trait_Model_Automaton; }
 trait Trait_Model_Collection { use \mjolnir\database\Trait_Model_Collection; }
 trait Trait_Model_Factory { use \mjolnir\database\Trait_Model_Factory; }
