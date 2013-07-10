@@ -61,7 +61,6 @@ class MarionetteDriver_Currency extends \app\Instantiatable implements \mjolnir\
 	 */
 	function patch_compile($id, array $input)
 	{
-		\app\Debug::temp('debug.info', $input);
 		if (isset($input[$this->field]))
 		{
 			$this->patched = true;
