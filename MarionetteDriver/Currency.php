@@ -18,14 +18,14 @@ class MarionetteDriver_Currency extends \app\Instantiatable implements \mjolnir\
 
 	/**
 	 * On POST, resolve input dependencies (happens before validation).
-	 * 
+	 *
 	 * @return array updated entry
 	 */
 	function post_compile(array $input)
 	{
 		$conf = $this->config;
 		$field = $this->field;
-		
+
 		if (empty($input[$field]))
 		{
 			$input[$field.'_value'] = 0.00;
@@ -36,14 +36,14 @@ class MarionetteDriver_Currency extends \app\Instantiatable implements \mjolnir\
 			$input[$field.'_value'] = $input[$field]['value'];
 			$input[$field.'_type'] = $input[$field]['type'];
 		}
-		
+
 		unset($input[$field]);
 		return $input;
 	}
 
 	/**
 	 * On POST, field processing before POST database communication.
-	 * 
+	 *
 	 * @return array updated fieldlist
 	 */
 	function post_compilefields(array $fieldlist)
@@ -56,7 +56,7 @@ class MarionetteDriver_Currency extends \app\Instantiatable implements \mjolnir\
 
 	/**
 	 * On PATCH, resolve input dependencies (happens before validation).
-	 * 
+	 *
 	 * @return array updated entry
 	 */
 	function patch_compile($id, array $input)
@@ -72,12 +72,12 @@ class MarionetteDriver_Currency extends \app\Instantiatable implements \mjolnir\
 
 	/**
 	 * On PATCH, field processing before database communication.
-	 * 
+	 *
 	 * @return array updated fieldlist
 	 */
 	function patch_compilefields(array $fieldlist)
 	{
-		if ($this->patched) 
+		if ($this->patched)
 		{
 			$fieldlist['nums'][] = $this->field.'_value';
 			$fieldlist['strs'][] = $this->field.'_type';
@@ -85,20 +85,20 @@ class MarionetteDriver_Currency extends \app\Instantiatable implements \mjolnir\
 
 		return $fieldlist;
 	}
-	
+
 	/**
 	 * On GET, manipulate execution plan.
-	 * 
+	 *
 	 * @return array updated execution plan
 	 */
 	function inject(array $plan)
 	{
 		$field = $this->field;
-		
+
 		$plan['fields'][] = $field.'_type';
 		$plan['fields'][] = $field.'_value';
 
-		$plan['postprocessors'][] = function ($entry) use ($field) 
+		$plan['postprocessors'][] = function ($entry) use ($field)
 			{
 				$entry[$field] = array
 					(
@@ -111,7 +111,7 @@ class MarionetteDriver_Currency extends \app\Instantiatable implements \mjolnir\
 
 				return $entry;
 			};
-		
+
 		return $plan;
 	}
 

@@ -6,7 +6,7 @@
 		//   upgrade - allowed
 		//    status - allowed
 		'db:lock' => true,
-	
+
 		// Default migration system
 		'db:migrations' => 'paradox', # options: schematic, paradox
 

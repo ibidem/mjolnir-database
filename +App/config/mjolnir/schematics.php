@@ -4,7 +4,7 @@
 			(
 				'mjolnir:registry' => [ 'serial' => '1:0-default' ],
 			),
-	
+
 		'dependencies' => array
 			(
 				// empty
@@ -13,7 +13,7 @@
 		'definitions' => array
 			(
 				// common
-				
+
 				':key_primary' => "bigint(20) unsigned NOT NULL AUTO_INCREMENT",
 				':key_foreign' => "bigint(20) unsigned",
 				':counter' => "bigint(20) unsigned NOT NULL DEFAULT '0'",
@@ -32,13 +32,13 @@
 				':access' => 'boolean DEFAULT FALSE NOT NULL',
 
 				// uncommon
-			
+
 				# browsers can handle urls of between 1855 - 2047 characters,
 				# depending on vendor; lower for certain applications such as
 				# mailto: in IE. Use this if you believe it's possible a user
 				# might insert a url with a long query
-				':longurl' => 'varchar(1855)',				
-				# url length recomended by standards; use this for non-query 
+				':longurl' => 'varchar(1855)',
+				# url length recomended by standards; use this for non-query
 				# urls such as website links, etc
 				':url' => 'varchar(255)',
 
@@ -64,12 +64,12 @@
 				# advised since a lot of the time the systems in question need to allow
 				# foreigners to register as well, and the ssn format is inconsistent
 				':ssn' => 'varchar(20)',
-			
+
 				# general purpose ID field; the field is not numeric because IDs
 				# in the real world tend to be things like 999-9999-99 etc.
 				':identifier' => 'varchar(100) DEFAULT \'\'',
 
-				# assumed zipcode by default, zipcodes usually go for 
+				# assumed zipcode by default, zipcodes usually go for
 				# around 4 to 9; 16 used for safety (assuming misc characters)
 				':postalcode' => 'varchar(16)',
 
@@ -78,5 +78,5 @@
 				':engine' => 'InnoDB',
 				':default_charset' => 'utf8',
 			),
-	
+
 	);

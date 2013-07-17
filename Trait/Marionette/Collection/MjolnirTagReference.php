@@ -11,7 +11,7 @@ trait Trait_Marionette_Collection_MjolnirTagReference
 {
 	/**
 	 * Remove tags.
-	 * 
+	 *
 	 * @return static
 	 */
 	function tags_unset($ref_id, $field)
@@ -26,7 +26,7 @@ trait Trait_Marionette_Collection_MjolnirTagReference
 			)
 			->num(':ref_id', $ref_id)
 			->run();
-		
+
 		return $this;
 	}
 

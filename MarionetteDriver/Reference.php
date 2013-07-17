@@ -1,12 +1,12 @@
 <?php namespace mjolnir\database;
 
 /**
- * The Reference driver allows you to link a field to the public version of 
+ * The Reference driver allows you to link a field to the public version of
  * another field in another table. The reference field in the parent table is
  * a numeric id and will be linked via keyfield of the referenced collection.
- * 
+ *
  * On get the field will be translated to an array of the reference table.
- * 
+ *
  * @package    mjolnir
  * @category   Database
  * @author     Ibidem Team
@@ -16,7 +16,7 @@
 class MarionetteDriver_Reference extends \app\Instantiatable implements \mjolnir\types\MarionetteDriver
 {
 	use \app\Trait_MarionetteDriver;
-	
+
 	/**
 	 * @var boolean
 	 */
@@ -24,14 +24,14 @@ class MarionetteDriver_Reference extends \app\Instantiatable implements \mjolnir
 
 	/**
 	 * On POST, resolve input dependencies (happens before validation).
-	 * 
+	 *
 	 * @return array updated entry
 	 */
 	function post_compile(array $input)
 	{
 		$conf = $this->config;
 		$field = $this->field;
-		
+
 		if (empty($input[$field]))
 		{
 			$input[$field] = null;
@@ -40,7 +40,7 @@ class MarionetteDriver_Reference extends \app\Instantiatable implements \mjolnir
 		{
 			$collection = $this->collection();
 			$keyfield = $collection->keyfield();
-			
+
 			if (isset($input[$field][$keyfield]))
 			{
 				$input[$field] = $input[$field][$keyfield];
@@ -48,7 +48,7 @@ class MarionetteDriver_Reference extends \app\Instantiatable implements \mjolnir
 			else # new model for given collection
 			{
 				$new_ref = $collection->post($input[$field]);
-				
+
 				if ($new_ref !== null)
 				{
 					$input[$field] = $new_ref[$keyfield];
@@ -59,13 +59,13 @@ class MarionetteDriver_Reference extends \app\Instantiatable implements \mjolnir
 				}
 			}
 		}
-		
+
 		return $input;
 	}
 
 	/**
 	 * On POST, field processing before database communication.
-	 * 
+	 *
 	 * @return array updated fieldlist
 	 */
 	function post_compilefields(array $fieldlist)
@@ -94,7 +94,7 @@ class MarionetteDriver_Reference extends \app\Instantiatable implements \mjolnir
 			{
 				$collection = $this->collection();
 				$keyfield = $collection->keyfield();
-				
+
 				if (isset($input[$field][$keyfield]))
 				{
 					$input[$field] = $input[$field][$keyfield];
@@ -102,7 +102,7 @@ class MarionetteDriver_Reference extends \app\Instantiatable implements \mjolnir
 				else # new model for given collection
 				{
 					$new_ref = $collection->post($input[$field]);
-					
+
 					if ($new_ref !== null)
 					{
 						$input[$field] = $new_ref[$keyfield];
@@ -120,39 +120,39 @@ class MarionetteDriver_Reference extends \app\Instantiatable implements \mjolnir
 
 	/**
 	 * On PATCH, field processing before database communication.
-	 * 
+	 *
 	 * @return array updated fieldlist
 	 */
 	function patch_compilefields(array $fieldlist)
 	{
-		if ($this->patched) 
+		if ($this->patched)
 		{
 			$fieldlist['nums'][] = $this->field;
 		}
 
 		return $fieldlist;
 	}
-	
+
 	/**
 	 * On GET, manipulate execution plan.
-	 * 
+	 *
 	 * @return array updated execution plan
 	 */
 	function inject(array $plan)
 	{
 		$field = $this->field;
-		
+
 		$plan['fields'][] = $field;
 		$collection = $this->collection();
 		$model = $collection->model();
-		
-		$plan['postprocessors'][] = function ($entry) use ($field, $model) 
+
+		$plan['postprocessors'][] = function ($entry) use ($field, $model)
 			{
 				$entry[$field] = $model->get($entry[$field]);
 				return $entry;
 			};
-		
+
 		return $plan;
 	}
-	
+
 } # class

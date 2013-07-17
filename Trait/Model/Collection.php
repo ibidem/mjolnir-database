@@ -28,7 +28,7 @@ trait Trait_Model_Collection
 	 * consequence this function will treat it as such.
 	 *
 	 * For different behaviour re-implement this function in your class.
-	 * 
+	 *
 	 * You may pass constraints as a security check.
 	 *
 	 * @return array of arrays
@@ -51,7 +51,7 @@ trait Trait_Model_Collection
 				$constraintskey = ' AND '.$constraintskey;
 			}
 		}
-		
+
 		return static::stash
 			(
 				__METHOD__,
@@ -69,7 +69,7 @@ trait Trait_Model_Collection
 	/**
 	 * You may pass constraints to ensure any security conditions. Constraints
 	 * won't be taken into account when caching.
-	 * 
+	 *
 	 * @return array
 	 */
 	static function entry($id, array $constraints = null)
@@ -88,7 +88,7 @@ trait Trait_Model_Collection
 					$constraintskey = ' AND '.$constraintskey;
 				}
 			}
-			
+
 			$entry = static::statement
 				(
 					__METHOD__,
@@ -191,7 +191,7 @@ trait Trait_Model_Collection
 
 	/**
 	 * Shorthand for entries.
-	 * 
+	 *
 	 * @return array of arrays
 	 */
 	static function find(array $criteria, $page = null, $limit = null, $offset = null)
@@ -201,7 +201,7 @@ trait Trait_Model_Collection
 
 	/**
 	 * Shorthand for find when retrieving single entry.
-	 * 
+	 *
 	 * @return array or null
 	 */
 	static function find_entry(array $criteria)
@@ -319,7 +319,7 @@ trait Trait_Model_Collection
 			{
 				$where = 'WHERE '.$where;
 				$cachekey .= '__'.\sha1($where);
-			}	
+			}
 		}
 
 		$statement = static::stash
@@ -416,7 +416,7 @@ trait Trait_Model_Collection
 	static function reforge_id($old_id)
 	{
 		$idkey = static::unique_key();
-		
+
 		static::statement
 			(
 				__METHOD__,
@@ -425,9 +425,9 @@ trait Trait_Model_Collection
 				'
 			)
 			->run();
-		
+
 		$new_id = \app\SQL::last_inserted_id();
-		
+
 		static::statement
 			(
 				__METHOD__,
@@ -438,7 +438,7 @@ trait Trait_Model_Collection
 			)
 			->num(':new_id', $new_id)
 			->run();
-		
+
 		static::statement
 			(
 				__METHOD__,
@@ -451,10 +451,10 @@ trait Trait_Model_Collection
 			->num(':old_id', $old_id)
 			->num(':new_id', $new_id)
 			->run();
-		
+
 		static::clear_cache();
-		
+
 		return $new_id;
 	}
-	
+
 } # trait
