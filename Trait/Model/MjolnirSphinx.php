@@ -18,7 +18,7 @@ trait Trait_Model_MjolnirSphinx
 	{
 		return '';
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -96,7 +96,7 @@ trait Trait_Model_MjolnirSphinx
 				{
 					$fields[$value] = $value;
 				}
-				
+
 			}
 		}
 		else # no fields defined; defaulting to all string fields and id
@@ -231,7 +231,7 @@ trait Trait_Model_MjolnirSphinx
 					{
 						$attr_value = \intval($attr_value);
 					}
-					
+
 					if (\is_array($attr_value))
 					{
 						$sphinx->filter($attr, $attr_value);

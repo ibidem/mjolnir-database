@@ -34,7 +34,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 		$instance = parent::instance();
 		$instance->statement = $statement;
 		$instance->query = $query;
-		
+
 		return $instance;
 	}
 
@@ -85,7 +85,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 		{
 			$value = null;
 		}
-		
+
 		$this->statement->bindValue($parameter, $value, \PDO::PARAM_STR);
 		return $this;
 	}

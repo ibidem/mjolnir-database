@@ -1,10 +1,10 @@
 <?php namespace mjolnir\database;
 
 /**
- * Static library that acts as shortcut for running statements on default 
- * database. All statements are esentially equivalent to doing 
+ * Static library that acts as shortcut for running statements on default
+ * database. All statements are esentially equivalent to doing
  * \app\SQLDatabase::instance() and then calling the equivalent method.
- * 
+ *
  * @package    mjolnir
  * @category   Database
  * @author     Ibidem Team
@@ -12,12 +12,12 @@
  * @license    https://github.com/ibidem/ibidem/blob/master/LICENSE.md
  */
 class SQL
-{	
+{
 	/**
 	 * @var string database used
 	 */
 	protected static $database = 'default';
-	
+
 	/**
 	 * Sets the default database to be used.
 	 */
@@ -25,17 +25,17 @@ class SQL
 	{
 		static::$database = $database;
 	}
-	
+
 	/**
 	 * Retrieves the current database key
-	 * 
+	 *
 	 * @return string
 	 */
 	static function database()
 	{
 		return \app\SQLDatabase::instance(static::$database);
 	}
-	
+
 	/**
 	 * @return \mjolnir\types\SQLStatement
 	 */
@@ -43,7 +43,7 @@ class SQL
 	{
 		return \app\SQLDatabase::instance(static::$database)->prepare($key, $statement, $lang);
 	}
-	
+
 	/**
 	 * @return string quoted version
 	 */
@@ -51,97 +51,97 @@ class SQL
 	{
 		return \app\SQLDatabase::instance(static::$database)->quote($value);
 	}
-	
+
 	/**
-	 * @return mixed 
+	 * @return mixed
 	 */
 	static function last_inserted_id($name = null)
 	{
 		return \app\SQLDatabase::instance(static::$database)->last_inserted_id($name);
 	}
-	
+
 	/**
 	 * Begin transaction.
-	 * 
+	 *
 	 * @return \mjolnir\types\SQLDatabase
 	 */
 	static function begin()
 	{
 		return \app\SQLDatabase::instance(static::$database)->begin();
 	}
-	
+
 	/**
 	 * Commit transaction.
-	 * 
+	 *
 	 * @return \mjolnir\types\SQLDatabase
 	 */
 	static function commit()
 	{
 		return \app\SQLDatabase::instance(static::$database)->commit();
 	}
-	
+
 	/**
 	 * Rollback transaction.
-	 * 
+	 *
 	 * @return \mjolnir\types\SQLDatabase
 	 */
 	static function rollback()
 	{
 		return \app\SQLDatabase::instance(static::$database)->rollback();
 	}
-	
+
 	// ------------------------------------------------------------------------
 	// General Helpers
-	
+
 	/**
-	 * join format: 
+	 * join format:
 	 * [
-	 *	'table' => static::table(), 
-	 *	'ref' => 'something.id', 
+	 *	'table' => static::table(),
+	 *	'ref' => 'something.id',
 	 *	'key' => 'this.something'
 	 * ];
-	 * 
+	 *
 	 * @return string compiled joins
 	 */
 	static function parsejoins(array $joins)
 	{
 		$joins = '';
-		
+
 		foreach ($joins as $join)
 		{
 			$joins .= "JOIN `{$join['table']}` ON {$join['ref']} = {$join['key']}";
 		}
-		
+
 		return $joins;
 	}
-	
+
 	/**
-	 * [!!] Intentionally not permitting null for constraints, please perform 
+	 * [!!] Intentionally not permitting null for constraints, please perform
 	 * the check in context because this method only returns the parameters to
 	 * a WHERE clause not the entire WHERE clause.
-	 * 
+	 *
 	 * [!!] DO NOT expect this method to always return a non-empty value; it is
 	 * possible for a constraint to resolve to nothing such as a value being
 	 * constraint between null. Always check if the value return is not empty.
-	 * 
+	 *
 	 * eg.
-	 * 
+	 *
 	 *		\app\SQL::parse_constraints
 	 *			(
 	 *				[
-	 *					'datetime' => ['between' => [$start, $end]], 
+	 *					'datetime' => ['between' => [$start, $end]],
 	 *					'type' => 1,
 	 *					'id' => ['>=' => 10000],
 	 *					'given_name' => ['in' => ['John', 'Alex, 'Steve']],
 	 *					'family_name => ['like' => 'B%'],
 	 *				]
 	 *			);
-	 * 
+	 *
 	 * If an operator is missing here, simply overwrite the method, add handling
-	 * to detect and resolve your paramter, remove it from the list then pass 
-	 * the list to this method for processing additional paramters, and combine 
+	 * to detect and resolve your paramter, remove it from the list then pass
+	 * the list to this method for processing additional paramters, and combine
 	 * the result with your result.
-	 * 
+	 *
 	 * @return string
 	 */
 	static function parseconstraints(array $constraints)
@@ -173,10 +173,10 @@ class SQL
 				}
 				else if (\is_array($value))
 				{
-					// the value to be compared an array. meaning we have 
-					// additional parameter processing and the operator itself 
+					// the value to be compared an array. meaning we have
+					// additional parameter processing and the operator itself
 					// needs to be handled in a special way
-					
+
 					// we perform the preg_match because there is a NOT variant
 					// to all of the following
 					if (\preg_match('#in#', \strtolower($operator)))
@@ -244,7 +244,7 @@ class SQL
 					return "$k $operator ".\app\SQL::quote($value);
 				}
 			};
-			
+
 		return \app\Arr::implode
 			(
 				' AND ', # delimiter
@@ -265,5 +265,5 @@ class SQL
 				}
 			);
 	}
-	
+
 } # class

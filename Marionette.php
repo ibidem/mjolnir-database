@@ -2,7 +2,7 @@
 
 /**
  * A Marionette is a object based model class.
- * 
+ *
  * @package    mjolnir
  * @category   Database
  * @author     Ibidem Team
@@ -12,17 +12,17 @@
 class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 {
 	use \app\Trait_Marionette;
-	
+
 	/**
 	 * @var \mjolnir\types\SQLDatabase
 	 */
 	protected $db;
-	
+
 	/**
 	 * @var array (String => \mjolnir\types\Compiler)
 	 */
 	protected $driverpool;
-	
+
 	/**
 	 * @return static
 	 */
@@ -32,22 +32,22 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 		{
 			$db = \app\SQLDatabase::instance();
 		}
-		
+
 		$in = parent::instance();
 		$in->db = $db;
-		
+
 		return $in;
 	}
 
 	// -- Utility -------------------------------------------------------------
-	
+
 	/**
 	 * @return string
 	 */
 	static function table()
 	{
 		$dbconfig = \app\CFS::config('mjolnir/database');
-		
+
 		if (isset(static::$table))
 		{
 			return $dbconfig['table_prefix'].static::$table;
@@ -57,14 +57,14 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 			return $dbconfig['table_prefix'].static::codegroup();
 		}
 	}
-	
+
 	/**
-	 * @return type
+	 * @return array
 	 */
 	static function config()
 	{
 		static $config = null;
-		
+
 		if ($config === null)
 		{
 			if (isset(static::$configfile))
@@ -77,18 +77,18 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 				$configfile = \preg_replace('#(model|collection)$#', '', $configfile);
 				$config = \app\CFS::config($configfile);
 			}
-			
+
 			if (empty($config))
 			{
 				throw new \app\Exception('Missing configuration file for '.\get_called_class().'. File: '.(isset(static::$configfile) ? static::$configfile : $configfile));
 			}
-			
+
 			static::normalizeconfig($config);
 		}
-		
+
 		return $config;
 	}
-	
+
 	/**
 	 * @return array
 	 */
@@ -96,7 +96,7 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 	{
 		isset($config['key']) or $config['key'] = 'id';
 		isset($config['fields']) or $config['fields'] = [];
-		
+
 		foreach ($config['fields'] as $field => & $fieldconf)
 		{
 			if (\is_string($fieldconf))
@@ -112,9 +112,9 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 			}
 		}
 	}
-	
+
 	// -- Context -------------------------------------------------------------
-	
+
 	/**
 	 * @return string
 	 */
@@ -122,7 +122,7 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 	{
 		return static::config()['name'];
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -131,7 +131,7 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 		$config = static::config();
 		return isset($config['plural']) ? $config['plural'] : $config['name'].'s';
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -139,7 +139,7 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 	{
 		return static::config()['key'];
 	}
-	
+
 	/**
 	 * @return array normalized fieldlist
 	 */
@@ -153,12 +153,12 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 			{
 				continue;
 			}
-			
+
 			if ($filter !== null && ! \in_array($field, $filter))
 			{
 				continue;
 			}
-			
+
 			if ( ! isset($fieldinfo['type']) && ! isset($fieldinfo['driver']))
 			{
 				throw new \app\Exception("Missing type for $field");
@@ -167,7 +167,7 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 			{
 				continue;
 			}
-			
+
 			// filter abstract type to usable transport type
 			switch ($fieldinfo['type'])
 			{
@@ -193,12 +193,12 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 					throw new \app\Exception("Unsuported field type: {$fieldinfo['type']}");
 			}
 		}
-		
+
 		return $fieldlist;
 	}
-	
+
 	// -- Drivers -------------------------------------------------------------
-	
+
 	/**
 	 * @return static $this
 	 */
@@ -207,7 +207,7 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 		$this->driverpool[$driver_id] = $driver;
 		return $this;
 	}
-	
+
 	/**
 	 * @return \mjolnir\types\MarionetteDriver
 	 */
@@ -217,7 +217,7 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 		{
 			return $this->driverpool[$field][$driver_id];
 		}
-		else # driver no in pool, or pool empty
+		else # driver not in pool, or pool empty
 		{
 			// auto-resolve driver
 			$class = $this->driver_class_for($driver_id);
@@ -225,7 +225,7 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 			return $this->driverpool[$field][$driver_id] = $class::instance($this->db, $this, $field, $driverconfig);
 		}
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -233,24 +233,24 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 	{
 		$classname = \app\Arr::implode
 			(
-				'', 
-				\explode('-', $driver_id), 
+				'',
+				\explode('-', $driver_id),
 				function ($key, $value)
 				{
 					return \ucfirst($value);
 				}
 			);
-		
+
 		return '\app\MarionetteDriver_'.$classname;
 	}
-	
+
 	/**
 	 * @return array processed entry
 	 */
 	protected function run_drivers_post_compile(array $entry)
 	{
 		$spec = static::config();
-		
+
 		foreach ($spec['fields'] as $field => $fieldinfo)
 		{
 			if (isset($fieldinfo['driver']))
@@ -259,24 +259,24 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 				$entry = $driver->post_compile($entry);
 			}
 		}
-		
+
 		return $entry;
 	}
-	
+
 	/**
 	 * @return array processed entry
 	 */
 	protected function run_drivers_post_latecompile(array $entry, array $input)
 	{
 		$spec = static::config();
-		
+
 		foreach ($spec['fields'] as $field => $fieldinfo)
 		{
 			if (isset($fieldinfo['driver']))
 			{
 				$driver = $this->getdriver($field, $fieldinfo['driver'], $fieldinfo);
 				$entry = $driver->post_latecompile($entry, $input);
-				
+
 				// driver rejected entry?
 				if ($entry === null)
 				{
@@ -284,17 +284,17 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 				}
 			}
 		}
-		
+
 		return $entry;
 	}
-	
+
 	/**
 	 * @return array processed fieldlist
 	 */
 	protected function run_drivers_post_compilefields(array $fieldlist)
 	{
 		$spec = static::config();
-		
+
 		foreach ($spec['fields'] as $field => $fieldinfo)
 		{
 			if (isset($fieldinfo['driver']))
@@ -303,17 +303,17 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 				$fieldlist = $driver->post_compilefields($fieldlist);
 			}
 		}
-		
+
 		return $fieldlist;
 	}
-	
+
 	/**
 	 * @return array processed entry
 	 */
 	protected function run_drivers_patch_compile($id, array $entry)
 	{
 		$spec = static::config();
-		
+
 		foreach ($spec['fields'] as $field => $fieldinfo)
 		{
 			if (isset($fieldinfo['driver']))
@@ -322,24 +322,24 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 				$entry = $driver->patch_compile($id, $entry);
 			}
 		}
-		
+
 		return $entry;
 	}
-	
+
 	/**
 	 * @return array processed entry
 	 */
 	protected function run_drivers_patch_latecompile($id, array $entry, array $input)
 	{
 		$spec = static::config();
-		
+
 		foreach ($spec['fields'] as $field => $fieldinfo)
 		{
 			if (isset($fieldinfo['driver']))
 			{
 				$driver = $this->getdriver($field, $fieldinfo['driver'], $fieldinfo);
 				$entry = $driver->patch_latecompile($id, $entry, $input);
-				
+
 				// driver rejected entry?
 				if ($entry === null)
 				{
@@ -347,17 +347,17 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 				}
 			}
 		}
-		
+
 		return $entry;
 	}
-	
+
 	/**
 	 * @return array processed fieldlist
 	 */
 	protected function run_drivers_patch_compilefields(array $fieldlist)
 	{
 		$spec = static::config();
-		
+
 		foreach ($spec['fields'] as $field => $fieldinfo)
 		{
 			if (isset($fieldinfo['driver']))
@@ -366,17 +366,17 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 				$fieldlist = $driver->patch_compilefields($fieldlist);
 			}
 		}
-		
+
 		return $fieldlist;
 	}
-	
+
 	/**
 	 * @return array processed execution plan
 	 */
 	protected function run_drivers_inject(array $plan)
 	{
 		$spec = static::config();
-		
+
 		foreach ($spec['fields'] as $field => $fieldinfo)
 		{
 			if (isset($fieldinfo['driver']))
@@ -385,17 +385,17 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 				$plan = $driver->inject($plan);
 			}
 		}
-		
+
 		return $plan;
 	}
-	
+
 	/**
 	 * Execute drivers before delete of entry happens.
 	 */
 	protected function run_drivers_predelete($id)
 	{
 		$spec = static::config();
-		
+
 		foreach ($spec['fields'] as $field => $fieldinfo)
 		{
 			if (isset($fieldinfo['driver']))
@@ -405,14 +405,14 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 			}
 		}
 	}
-	
+
 	/**
 	 * Execute drivers before delete of entry happens.
 	 */
 	protected function run_drivers_postdelete($id)
 	{
 		$spec = static::config();
-		
+
 		foreach ($spec['fields'] as $field => $fieldinfo)
 		{
 			if (isset($fieldinfo['driver']))
@@ -422,20 +422,20 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 			}
 		}
 	}
-	
+
 	/**
 	 * @return array
 	 */
 	protected function basicfieldhandlers($conf)
 	{
 		$spec = static::config();
-		
+
 		// in case keyfield is not explicitly mentioned
 		if ( ! isset($spec['fields'][$this->keyfield()]))
 		{
 			$conf['fields'][] = $this->keyfield();
 		}
-		
+
 		foreach ($spec['fields'] as $field => $fieldinfo)
 		{
 			if ($fieldinfo['visibility'] === 'public' && isset($fieldinfo['type']))
@@ -443,13 +443,13 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 				$conf['fields'][] = $field;
 			}
 		}
-		
+
 		return $conf;
 	}
-	
+
 	/**
 	 * Generates sql injectable version of configuration.
-	 * 
+	 *
 	 * @return array
 	 */
 	protected function generate_executation_plan($conf, $defaults)
@@ -457,40 +457,40 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 		$conf = \app\Arr::merge($defaults, $conf);
 		$conf = $this->basicfieldhandlers($conf);
 		$conf = $this->run_drivers_inject($conf);
-		
+
 		$constraints = null;
 		$joins = null;
 		$limit = null;
 		$offset = 0;
-		
+
 		if ($conf !== null)
 		{
 			if (isset($conf['limit']))
 			{
 				$limit = \intval($conf['limit']);
 			}
-			
+
 			if (isset($conf['offset']))
 			{
 				$offset = \intval($conf['offset']);
 			}
-			
+
 			if (isset($conf['joins']))
 			{
 				$joins = \app\SQL::parsejoins($conf['joins']);
 			}
-			
+
 			if (isset($conf['constraints']))
 			{
 				$constraints .= \app\SQL::parseconstraints($conf['constraints']);
 			}
 		}
-		
+
 		$constraints = \trim($constraints);
 		empty($constraints) or $constraints = "WHERE $constraints";
 		empty($limit) or $limit = "LIMIT $limit OFFSET $offset";
-		
-		if (empty($conf['fields'])) 
+
+		if (empty($conf['fields']))
 		{
 			$fields = '*';
 		}
@@ -498,8 +498,8 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 		{
 			$fields = \app\Arr::implode
 				(
-					', ', 
-					$conf['fields'], 
+					', ',
+					$conf['fields'],
 					function ($k, $field)
 					{
 						if (\strpos($field, '.') === false)
@@ -513,7 +513,7 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 					}
 				);
 		}
-		
+
 		return array
 			(
 				'fields' => $fields,
@@ -523,5 +523,5 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 				'postprocessors' => & $conf['postprocessors']
 			);
 	}
-	
+
 } # class
