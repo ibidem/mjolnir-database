@@ -87,6 +87,8 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 	 *
 	 * If there is a special exception state that is recoverable, simply return
 	 * null from do_create.
+	 *
+	 * @return array entry
 	 */
 	function post(array $input)
 	{
@@ -286,6 +288,8 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 				'
 			)
 			->run();
+
+		return $this;
 	}
 
 } # class

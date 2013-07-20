@@ -69,7 +69,7 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 	/**
 	 * Replace entry.
 	 *
-	 * @return static $this
+	 * @return array entry
 	 */
 	function put($id, array $entry)
 	{
@@ -105,7 +105,7 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 	/**
 	 * Update specified fields in entry.
 	 *
-	 * @return static $this
+	 * @return array entry
 	 */
 	function patch($id, array $partial_entry)
 	{
