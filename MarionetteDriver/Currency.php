@@ -34,7 +34,7 @@ class MarionetteDriver_Currency extends \app\Instantiatable implements \mjolnir\
 		else # got entry
 		{
 			$input[$field.'_value'] = $input[$field]['value'];
-			$input[$field.'_type'] = $input[$field]['type'];
+			$input[$field.'_type'] = ! empty($input[$field]['type']) ? $input[$field]['type'] : 'USD';
 		}
 
 		unset($input[$field]);
