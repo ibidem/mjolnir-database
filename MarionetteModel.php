@@ -171,6 +171,8 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 	 */
 	function do_patch($id, array $entry)
 	{
+
+
 		// create field list
 		$spec = static::config();
 		$fieldlist = $this->make_fieldlist($spec, \array_keys($entry));
@@ -198,6 +200,15 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 				}
 			);
 
+		if ( ! empty($this->filters))
+		{
+			$filters = 'AND '.\app\SQL::parseconstraints($this->filters);
+		}
+		else # no filters
+		{
+			$filters = '';
+		}
+
 		// it's possible all relevant fields are powered by drivers which work
 		// exclusively with associated models and hence this operation may not
 		// need to set anything
@@ -207,9 +218,10 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 				(
 					__METHOD__,
 					'
-						UPDATE `'.static::table().'`
+						UPDATE `'.static::table().'` entry
 						   SET '.$setfields.'
 						 WHERE `id` = :id
+						       '.$filters.'
 					'
 				)
 				->num(':id', $id)
@@ -235,12 +247,34 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 	{
 		$this->run_drivers_predelete($id);
 
+		if ( ! empty($this->filters))
+		{
+			#
+			# SQL delete will not accept aliases, so we need to strip alias
+			# definitions from the filters.
+			#
+
+			$barefilters = [];
+
+			foreach ($this->filters as $key => $condition)
+			{
+				$barefilters[\preg_replace('#^entry\.#', '', $key)] = $condition;
+			}
+
+			$filters = 'AND '.\app\SQL::parseconstraints($barefilters);
+		}
+		else
+		{
+			$filters = '';
+		}
+
 		$this->db->prepare
 			(
 				__METHOD__,
 				'
 					DELETE FROM `'.static::table().'`
 					 WHERE `'.static::keyfield().'` = :id
+						   '.$filters.'
 				'
 			)
 			->num(':id', $id)

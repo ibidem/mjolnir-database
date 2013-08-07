@@ -280,11 +280,33 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 	 */
 	function delete()
 	{
+		if ( ! empty($this->filters))
+		{
+			#
+			# SQL delete will not accept aliases, so we need to strip alias
+			# definitions from the filters.
+			#
+
+			$barefilters = [];
+
+			foreach ($this->filters as $key => $condition)
+			{
+				$barefilters[\preg_replace('#^entry\.#', '', $key)] = $condition;
+			}
+
+			$constraints = 'WHERE '.\app\SQL::parseconstraints($barefilters);
+		}
+		else
+		{
+			$constraints = '';
+		}
+
 		$this->db->prepare
 			(
 				__METHOD__,
 				'
 					DELETE FROM `'.static::table().'`
+					'.$constraints.'
 				'
 			)
 			->run();

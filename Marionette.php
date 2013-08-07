@@ -14,131 +14,9 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 	use \app\Trait_Marionette;
 
 	/**
-	 * @var \mjolnir\types\SQLDatabase
-	 */
-	protected $db;
-
-	/**
 	 * @var array (String => \mjolnir\types\Compiler)
 	 */
 	protected $driverpool;
-
-	/**
-	 * @return static
-	 */
-	static function instance(\mjolnir\types\SQLDatabase $db = null)
-	{
-		if ($db == null)
-		{
-			$db = \app\SQLDatabase::instance();
-		}
-
-		$in = parent::instance();
-		$in->db = $db;
-
-		return $in;
-	}
-
-	// -- Utility -------------------------------------------------------------
-
-	/**
-	 * @return string
-	 */
-	static function table()
-	{
-		$dbconfig = \app\CFS::config('mjolnir/database');
-
-		if (isset(static::$table))
-		{
-			return $dbconfig['table_prefix'].static::$table;
-		}
-		else # static::$table attribute not provided
-		{
-			return $dbconfig['table_prefix'].static::codegroup();
-		}
-	}
-
-	/**
-	 * @return array
-	 */
-	static function config()
-	{
-		static $config = null;
-
-		if ($config === null)
-		{
-			if (isset(static::$configfile))
-			{
-				$config = \app\CFS::config(static::$configfile);
-			}
-			else # dynamically resolve configuration
-			{
-				$configfile = \str_replace('_', '-', \strtolower(\preg_replace('/.*\\\/', '', \get_called_class())));
-				$configfile = \preg_replace('#(model|collection)$#', '', $configfile);
-				$config = \app\CFS::config($configfile);
-			}
-
-			if (empty($config))
-			{
-				throw new \app\Exception('Missing configuration file for '.\get_called_class().'. File: '.(isset(static::$configfile) ? static::$configfile : $configfile));
-			}
-
-			static::normalizeconfig($config);
-		}
-
-		return $config;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected static function normalizeconfig(array & $config)
-	{
-		isset($config['key']) or $config['key'] = 'id';
-		isset($config['fields']) or $config['fields'] = [];
-
-		foreach ($config['fields'] as $field => & $fieldconf)
-		{
-			if (\is_string($fieldconf))
-			{
-				$fieldconf = [ 'type' => $fieldconf, 'visibility' => 'public' ];
-			}
-			else # array
-			{
-				if ( ! isset($fieldconf['visibility']))
-				{
-					$fieldconf['visibility'] = 'public';
-				}
-			}
-		}
-	}
-
-	// -- Context -------------------------------------------------------------
-
-	/**
-	 * @return string
-	 */
-	static function singular()
-	{
-		return static::config()['name'];
-	}
-
-	/**
-	 * @return string
-	 */
-	static function plural()
-	{
-		$config = static::config();
-		return isset($config['plural']) ? $config['plural'] : $config['name'].'s';
-	}
-
-	/**
-	 * @return string
-	 */
-	static function keyfield()
-	{
-		return static::config()['key'];
-	}
 
 	/**
 	 * @return array normalized fieldlist
@@ -454,9 +332,33 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 	 */
 	protected function generate_executation_plan($conf, $defaults)
 	{
+		// Run Drivers
+		// -----------
+
 		$conf = \app\Arr::merge($defaults, $conf);
 		$conf = $this->basicfieldhandlers($conf);
 		$conf = $this->run_drivers_inject($conf);
+
+		// Inject Filters
+		// --------------
+
+		if ( ! empty($this->filters))
+		{
+			if ($conf !== null)
+			{
+				if (isset($conf['constraints']))
+				{
+					$conf['constraints'] = \app\Arr::merge($conf['constraints'], $this->filters);
+				}
+			}
+			else # empty configuration
+			{
+				$conf = [ 'constraints' => $this->filters ];
+			}
+		}
+
+		// Normalize Configuration
+		// -----------------------
 
 		$constraints = null;
 		$joins = null;
@@ -514,6 +416,7 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 				);
 		}
 
+		// all done!
 		return array
 			(
 				'fields' => $fields,
