@@ -171,8 +171,6 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 	 */
 	function do_patch($id, array $entry)
 	{
-
-
 		// create field list
 		$spec = static::config();
 		$fieldlist = $this->make_fieldlist($spec, \array_keys($entry));
