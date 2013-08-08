@@ -11,6 +11,7 @@
  * @method \app\MarionetteDriver getdriver($field, $driver_id, $driverconfig)
  * @method \app\MarionetteModel collection()
  * @method \app\MarionetteModel model()
+ * @method \app\Marionette filter($conditions)
  */
 class Marionette extends \mjolnir\database\Marionette
 {
@@ -26,6 +27,7 @@ class Marionette extends \mjolnir\database\Marionette
  * @method \app\MarionetteDriver getdriver($field, $driver_id, $driverconfig)
  * @method \app\MarionetteCollection collection()
  * @method \app\MarionetteModel model()
+ * @method \app\MarionetteCollection filter($conditions)
  */
 class MarionetteCollection extends \mjolnir\database\MarionetteCollection
 {
@@ -33,10 +35,18 @@ class MarionetteCollection extends \mjolnir\database\MarionetteCollection
 	static function instance($db = null) { return parent::instance($db); }
 }
 
+/**
+ * @method \app\MarionetteDriver_Currency database_is($db)
+ * @method \app\MarionetteDriver_Currency context_is($context)
+ * @method \app\MarionetteDriver_Currency field_is($field)
+ * @method \app\MarionetteDriver_Currency config_is($config)
+ * @method \app\MarionetteCollection collection()
+ * @method \app\MarionetteCollection model()
+ */
 class MarionetteDriver_Currency extends \mjolnir\database\MarionetteDriver_Currency
 {
 	/** @return \app\MarionetteDriver_Currency */
-	static function instance() { return parent::instance(); }
+	static function instance($db = null, $context = null, $field = null, array $config = null) { return parent::instance($db, $context, $field, $config); }
 }
 
 /**
@@ -68,15 +78,14 @@ class MarionetteDriver_Tags extends \mjolnir\database\MarionetteDriver_Tags
 }
 
 /**
- * @method \app\MarionetteModel put($id, array $entry)
  * @method \app\Validator auditor()
- * @method \app\MarionetteModel patch($id, array $partial_entry)
  * @method \app\MarionetteModel do_patch($id, array $entry)
  * @method \app\MarionetteModel delete($id)
  * @method \app\MarionetteModel registerdriver($driver_id, $driver)
  * @method \app\MarionetteDriver getdriver($field, $driver_id, $driverconfig)
  * @method \app\MarionetteModel collection()
  * @method \app\MarionetteModel model()
+ * @method \app\MarionetteModel filter($conditions)
  */
 class MarionetteModel extends \mjolnir\database\MarionetteModel
 {
@@ -312,3 +321,4 @@ trait Trait_Model_Collection { use \mjolnir\database\Trait_Model_Collection; }
 trait Trait_Model_Factory { use \mjolnir\database\Trait_Model_Factory; }
 trait Trait_Model_MjolnirSphinx { use \mjolnir\database\Trait_Model_MjolnirSphinx; }
 trait Trait_Model_Utilities { use \mjolnir\database\Trait_Model_Utilities; }
+trait Trait_ModelLib { use \mjolnir\database\Trait_ModelLib; }
