@@ -28,6 +28,83 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	protected static $table = 'mjolnir__timeline';
 
 	/**
+	 * Generate [t]emporary [t]able name based on given model class name.
+	 *
+	 * Only use this method when a table is DROPed in the latest migration.
+	 *
+	 * Usage: using your favorite editor find/replace
+	 *
+	 *		\app\Model_YourClass::table()
+	 *
+	 * With:
+	 *
+	 *		\app\Pdx::t('Model_YourClass')
+	 *
+	 * You may also use:
+	 *
+	 *		\app\Pdx::t('\mynamespace\something\Model_YourClass')
+	 *
+	 * The method will use the original class if still available, ie. cases
+	 * where the table method in the original class was overwritten and is
+	 * non-standard (simply keep the class in thoses cases in a legacy module
+	 * specific to your application).
+	 *
+	 * The method generates tables in the form:
+	 *
+	 *		'[prefix]__obsoletetable_[model]'
+	 *
+	 * [!!] If you see these temporary tables outside a intermediate reset
+	 * you've done something wrong in your migrations. The tables should only
+	 * exist to allow for a reset to go though older deprecated states of the
+	 * database when being freshly installed.
+	 *
+	 * [!!] If you do not have control over all instances of the application
+	 * and haven't ensured all instances have been updated to a version where
+	 * the obsolete table has been DROPed, you SHOULD use the legacy
+	 * method or provide the second parameter if the model did not overwrite
+	 * the table method. The method will still try to use the class table
+	 * method (in case of overwrites by 3rd parties, to the table method or
+	 * configuration values that the table method depends on).
+	 *
+	 * @return string table name
+	 */
+	static function t($model, $tempname = null)
+	{
+		$table_prefix = \app\CFS::config('mjolnir/database')['table_prefix'];
+
+		// normalize name
+		if (\strpos($model, '\\'))
+		{
+			$modelclass = "\app\\{$model}";
+		}
+		else # fully qualified name
+		{
+			$modelclass = $model;
+			// remove namespace
+			$model = \preg_replace('#\\.*\\#', '', $model);
+		}
+
+		// does the model class still exist?
+		if (\class_exists($modelclass))
+		{
+			// use the original table name on the migration
+			return $modelclass::table();
+		}
+		else # model class has been deleted
+		{
+			if ($tempname !== null)
+			{
+				return $table_prefix.$tempname;
+			}
+			else # create a temporary name
+			{
+				// create temporary table
+				return $table_prefix.'__obsoletetable_'.\strtolower($model);
+			}
+		}
+	}
+
+	/**
 	 * @return string version table
 	 */
 	static function table()
