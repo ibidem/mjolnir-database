@@ -139,7 +139,7 @@ class Task_Sphinx_Model extends \app\Task_Base
 
 		$sph_conf .= $searchd;
 
-		$sph_configuration_file = \app\Env::key('etc.path').'tmp/sphinx.conf.mj';
+		$sph_configuration_file = \app\Env::key('tmp.path').'sphinx.conf.mj';
 		\app\Filesystem::puts($sph_configuration_file, $sph_conf);
 
 		$this->writer->writef(' Created Sphinx configuration in: '.$sph_configuration_file)->eol()->eol();
