@@ -144,8 +144,13 @@ class SQL
 	 *
 	 * @return string
 	 */
-	static function parseconstraints(array $constraints)
+	static function parseconstraints(array $constraints = null)
 	{
+		if (empty($constraints))
+		{
+			return '';
+		}
+
 		$parameter_resolver = function ($k, $value, $operator)
 			{
 				if (\is_bool($value))
@@ -264,6 +269,44 @@ class SQL
 					}
 				}
 			);
+	}
+
+	/**
+	 * @return string
+	 */
+	static function parseorder(array $order = null)
+	{
+		if (empty($order))
+		{
+			return '';
+		}
+
+		return  \app\Arr::implode(', ', $order, function ($query, $order) {
+			return \strpbrk($query, ' .') === false ? '`'.$query.'` '.$order : $query.' '.$order;
+		});
+	}
+
+	/**
+	 * @return string
+	 */
+	static function parselimiters(array $order = null, array $constraints = null)
+	{
+		$order = static::parseorder($order);
+		$constraints = static::parseconstraints($constraints);
+
+		$limiters = '';
+
+		if ( ! empty($constraints))
+		{
+			$limiters .= 'WHERE '.$constraints;
+		}
+
+		if ( ! empty($order))
+		{
+			$limiters .= 'ORDER BY '.$order;
+		}
+
+		return $limiters;
 	}
 
 } # class
