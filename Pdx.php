@@ -399,20 +399,40 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 		if (\is_array($handlers['tables']))
 		{
+			$total_tables = \count($handlers['tables']);
+			$done_tables = 0;
+			$state['progress.writer']($done_tables, $total_tables);
+
 			foreach ($handlers['tables'] as $table => $def)
 			{
-				if (\is_string($def))
+				try
 				{
-					static::create_table($state['writer'], $db, $table, $def, $state['sql']['default']['engine'], $state['sql']['default']['charset']);
+					if (\is_string($def))
+					{
+						static::create_table($state['writer'], $db, $table, $def, $state['sql']['default']['engine'], $state['sql']['default']['charset']);
+					}
+					else if (\is_array($def))
+					{
+						static::create_table($state['writer'], $db, $table, $def['definition'], $def['engine'], $def['charset']);
+					}
+					else if (\is_callable($def))
+					{
+						$def($state);
+					}
 				}
-				else if (\is_array($def))
+				catch (\Exception $e)
 				{
-					static::create_table($state['writer'], $db, $table, $def['definition'], $def['engine'], $def['charset']);
+					$writer = $state['writer'];
+					$writer->eol();
+					$writer->writef("Exception while running [tables] migration operation for [{$table}].")->eol();
+					$writer->eol();
+					$writer->writef("Definition:\n\n%s\n\n", \app\Text::baseindent($def));
+
+					throw $e;
 				}
-				else if (\is_callable($def))
-				{
-					$def($state);
-				}
+
+				$done_tables += 1;
+				$state['progress.writer']($done_tables, $total_tables);
 			}
 		}
 		else if (\is_callable($handlers['tables']))
@@ -435,22 +455,42 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 		if (\is_array($handlers['modify']))
 		{
+			$total_tables = \count($handlers['modify']);
+			$done_tables = 0;
+			$state['progress.writer']($done_tables, $total_tables);
+
 			$definitions = \app\CFS::config('mjolnir/paradox-sql-definitions');
 			foreach ($handlers['modify'] as $table => $def)
 			{
-				$db->prepare
-					(
-						__METHOD__,
-						\strtr
+				try
+				{
+					$db->prepare
 						(
-							'
-								ALTER TABLE `'.$table.'`
-								'.$def.'
-							',
-							$definitions
+							__METHOD__,
+							\strtr
+							(
+								'
+									ALTER TABLE `'.$table.'`
+									'.$def.'
+								',
+								$definitions
+							)
 						)
-					)
-					->run();
+						->run();
+				}
+				catch (\Exception $e)
+				{
+					$writer = $state['writer'];
+					$writer->eol();
+					$writer->writef("Exception while running [modify] migration operation for [{$table}].")->eol();
+					$writer->eol();
+					$writer->writef("Definition:\n\n%s\n\n", \app\Text::baseindent($def));
+
+					throw $e;
+				}
+
+				$done_tables += 1;
+				$state['progress.writer']($done_tables, $total_tables);
 			}
 		}
 		else if (\is_callable($handlers['modify']))
@@ -473,6 +513,10 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 		if (\is_array($handlers['bindings']))
 		{
+			$total_tables = \count($handlers['tables']);
+			$done_tables = 0;
+			$state['progress.writer']($done_tables, $total_tables);
+
 			foreach ($handlers['bindings'] as $table => $constraints)
 			{
 				$query = "ALTER TABLE `".$table."` ";
@@ -525,13 +569,16 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 						$writer = $state['writer'];
 
 						$writer->eol()->eol();
-						$writer->writef(' Query: ')->eol();
+						$writer->writef(' Query: ')->eol()->eol();
 						$writer->writef(\app\Text::baseindent($query));
 						$writer->eol()->eol();
 					}
 
 					throw $e;
 				}
+
+				$done_tables += 1;
+				$state['progress.writer']($done_tables, $total_tables);
 			}
 		}
 		else if (\is_callable($handlers['bindings']))
@@ -1364,7 +1411,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	 */
 	protected function processmigration(array $channels, $channel, $version, $hotfix)
 	{
-		$stepformat = ' %15s %-9s %s %s';
+		$stepformat = ' %15s %-9s %s%s';
 
 		$this->writer->eol();
 
@@ -1389,10 +1436,36 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 					$step,
 					$version,
 					$channel,
-					empty($hotfix) ? '' : '/ '.$hotfix
+					empty($hotfix) ? '' : ' / '.$hotfix
 				);
 
 			$stepmethod = "migration_$step";
+
+			$writer = $this->writer;
+			$state['progress.writer'] = function ($done, $total) use ($writer, $stepformat, $step, $version, $channel)
+				{
+					if (\php_sapi_name() === 'cli')
+					{
+						$this->writer->writef("\r");
+						$this->writer->writef(\str_repeat(' ', 80));
+						$this->writer->writef("\r");
+
+						$writer->writef
+							(
+								$stepformat,
+								$step,
+								$version,
+								\trim($channel),
+								(empty($hotfix) ? '' : ' / '.$hotfix).' - '.(\number_format(\round($done * 100 / $total, 2), 2)).'%'
+							);
+					}
+					else # non-CLI context
+					{
+						// do nothing
+					}
+
+				};
+
 			static::{$stepmethod}($chaninfo['db'], $chaninfo['versions'][$version], $state);
 
 			if (\php_sapi_name() === 'cli')
