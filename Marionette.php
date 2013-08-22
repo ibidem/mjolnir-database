@@ -350,6 +350,10 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 				{
 					$conf['constraints'] = \app\Arr::merge($conf['constraints'], $this->filters);
 				}
+				else # no constraints set
+				{
+					$conf['constraints'] = $this->filters;
+				}
 			}
 			else # empty configuration
 			{
