@@ -2,7 +2,7 @@
 
 use \mjolnir\database\Table_Snatcher;
 
-class Table_SnatcherTest extends \PHPUnit_Framework_TestCase
+class Table_SnatcherTest extends \app\PHPUnit_Framework_TestCase
 {
 	/** @test */ function
 	can_be_loaded()

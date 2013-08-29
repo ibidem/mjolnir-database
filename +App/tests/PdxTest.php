@@ -2,7 +2,7 @@
 
 use \mjolnir\database\Pdx;
 
-class PdxTest extends \PHPUnit_Framework_TestCase
+class PdxTest extends \app\PHPUnit_Framework_TestCase
 {
 	/** @test */ function
 	can_be_loaded()

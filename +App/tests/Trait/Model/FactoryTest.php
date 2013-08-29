@@ -7,7 +7,7 @@ class Trait_Model_Factory_Tester
 	use Trait_Model_Factory;
 }
 
-class Trait_Model_FactoryTest extends \PHPUnit_Framework_TestCase
+class Trait_Model_FactoryTest extends \app\PHPUnit_Framework_TestCase
 {
 	/** @test */ function
 	can_be_loaded()

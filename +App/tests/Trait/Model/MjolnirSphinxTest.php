@@ -7,7 +7,7 @@ class Trait_Model_MjolnirSphinx_Tester
 	use Trait_Model_MjolnirSphinx;
 }
 
-class Trait_Model_MjolnirSphinxTest extends \PHPUnit_Framework_TestCase
+class Trait_Model_MjolnirSphinxTest extends \app\PHPUnit_Framework_TestCase
 {
 	/** @test */ function
 	can_be_loaded()

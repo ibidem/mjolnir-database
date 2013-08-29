@@ -2,7 +2,7 @@
 
 use \mjolnir\database\PdxVersionMatcher;
 
-class PdxVersionMatcherTest extends \PHPUnit_Framework_TestCase
+class PdxVersionMatcherTest extends \app\PHPUnit_Framework_TestCase
 {
 	/** @test */ function
 	can_be_loaded()

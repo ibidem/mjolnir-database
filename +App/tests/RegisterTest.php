@@ -2,7 +2,7 @@
 
 use \mjolnir\database\Register;
 
-class RegisterTest extends \PHPUnit_Framework_TestCase
+class RegisterTest extends \app\PHPUnit_Framework_TestCase
 {
 	/** @test */ function
 	can_be_loaded()

@@ -7,7 +7,7 @@ class Trait_Model_Automaton_Tester
 	use Trait_Model_Automaton;
 }
 
-class Trait_Model_AutomatonTest extends \PHPUnit_Framework_TestCase
+class Trait_Model_AutomatonTest extends \app\PHPUnit_Framework_TestCase
 {
 	/** @test */ function
 	can_be_loaded()

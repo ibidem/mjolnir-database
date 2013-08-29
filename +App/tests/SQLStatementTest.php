@@ -2,7 +2,7 @@
 
 use \mjolnir\database\SQLStatement;
 
-class SQLStatementTest extends \PHPUnit_Framework_TestCase
+class SQLStatementTest extends \app\PHPUnit_Framework_TestCase
 {
 	/** @test */ function
 	can_be_loaded()

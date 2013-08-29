@@ -2,7 +2,7 @@
 
 use \mjolnir\database\Task_Sphinx_Model;
 
-class Task_Sphinx_ModelTest extends \PHPUnit_Framework_TestCase
+class Task_Sphinx_ModelTest extends \app\PHPUnit_Framework_TestCase
 {
 	/** @test */ function
 	can_be_loaded()

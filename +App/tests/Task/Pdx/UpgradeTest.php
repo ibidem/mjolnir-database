@@ -2,7 +2,7 @@
 
 use \mjolnir\database\Task_Pdx_Upgrade;
 
-class Task_Pdx_UpgradeTest extends \PHPUnit_Framework_TestCase
+class Task_Pdx_UpgradeTest extends \app\PHPUnit_Framework_TestCase
 {
 	/** @test */ function
 	can_be_loaded()

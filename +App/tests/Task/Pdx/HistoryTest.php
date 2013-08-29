@@ -2,7 +2,7 @@
 
 use \mjolnir\database\Task_Pdx_History;
 
-class Task_Pdx_HistoryTest extends \PHPUnit_Framework_TestCase
+class Task_Pdx_HistoryTest extends \app\PHPUnit_Framework_TestCase
 {
 	/** @test */ function
 	can_be_loaded()

@@ -7,7 +7,7 @@ class Trait_Model_Collection_Tester
 	use Trait_Model_Collection;
 }
 
-class Trait_Model_CollectionTest extends \PHPUnit_Framework_TestCase
+class Trait_Model_CollectionTest extends \app\PHPUnit_Framework_TestCase
 {
 	/** @test */ function
 	can_be_loaded()

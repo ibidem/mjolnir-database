@@ -2,7 +2,7 @@
 
 use \mjolnir\database\SQLStash;
 
-class SQLStashTest extends \PHPUnit_Framework_TestCase
+class SQLStashTest extends \app\PHPUnit_Framework_TestCase
 {
 	/** @test */ function
 	can_be_loaded()

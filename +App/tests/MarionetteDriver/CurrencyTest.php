@@ -2,7 +2,7 @@
 
 use \mjolnir\database\MarionetteDriver_Currency;
 
-class MarionetteDriver_CurrencyTest extends \PHPUnit_Framework_TestCase
+class MarionetteDriver_CurrencyTest extends \app\PHPUnit_Framework_TestCase
 {
 	/** @test */ function
 	can_be_loaded()

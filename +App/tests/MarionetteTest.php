@@ -2,7 +2,7 @@
 
 use \mjolnir\database\Marionette;
 
-class MarionetteTest extends \PHPUnit_Framework_TestCase
+class MarionetteTest extends \app\PHPUnit_Framework_TestCase
 {
 	/** @test */ function
 	can_be_loaded()

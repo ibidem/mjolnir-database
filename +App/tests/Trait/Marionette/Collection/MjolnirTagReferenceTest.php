@@ -7,7 +7,7 @@ class Trait_Marionette_Collection_MjolnirTagReference_Tester
 	use Trait_Marionette_Collection_MjolnirTagReference;
 }
 
-class Trait_Marionette_Collection_MjolnirTagReferenceTest extends \PHPUnit_Framework_TestCase
+class Trait_Marionette_Collection_MjolnirTagReferenceTest extends \app\PHPUnit_Framework_TestCase
 {
 	/** @test */ function
 	can_be_loaded()
