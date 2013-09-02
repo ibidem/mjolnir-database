@@ -513,7 +513,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 		if (\is_array($handlers['bindings']))
 		{
-			$total_tables = \count($handlers['tables']);
+			$total_tables = \count($handlers['bindings']);
 			$done_tables = 0;
 			$state['progress.writer']($done_tables, $total_tables);
 
