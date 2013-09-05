@@ -20,7 +20,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 		}
 
 	// version of the class and associated features
-	const VERSION = '1.0.0'; # this version updates ONLY on breaking changes
+	const VERSION = '1.0.1'; # this version updates ONLY on breaking changes
 
 	/**
 	 * @var string version table base name
@@ -602,6 +602,24 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 		if (\is_callable($handlers['normalize']))
 		{
 			$handlers['normalize']($db, $state);
+		}
+
+		// else: unsuported format
+	}
+
+	/**
+	 * Post-binding cleanup.
+	 */
+	protected static function migration_fixes(\mjolnir\types\SQLDatabase $db, array $handlers, array & $state)
+	{
+		if ( ! isset($handlers['fixes']))
+		{
+			return;
+		}
+
+		if (\is_callable($handlers['fixes']))
+		{
+			$handlers['fixes']($db, $state);
 		}
 
 		// else: unsuported format

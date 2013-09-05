@@ -27,6 +27,9 @@ class Task_Pdx_History extends \app\Task_Base
 		$detailed = $this->get('detailed', false);
 		$detailed !== null or $detailed = false;
 
+		$signatures = $this->get('signatures', false);
+		$signatures !== null or $signatures = false;
+
 		$pdx = \app\Pdx::instance($this->writer);
 		$history = $pdx->history();
 
@@ -83,6 +86,13 @@ class Task_Pdx_History extends \app\Task_Base
 					$this->writer
 						->eol()
 						->printf('wrap', $i['description'], 8)->eol()
+						->eol();
+				}
+				else if ($signatures)
+				{
+					$this->writer
+						->eol()
+						->printf('wrap', $i['system'], 8)->eol()
 						->eol();
 				}
 			}

@@ -15,7 +15,9 @@
 		'bindings'  => 1000,
 		// perform post-cleanup
 		'normalize' => 2000,
+		// perform any fixes to the database entries
+		'fixes' => 3000,
 		// populate tables with data
-		'populate'  => 3000,
+		'populate'  => 4000,
 
 	); # config

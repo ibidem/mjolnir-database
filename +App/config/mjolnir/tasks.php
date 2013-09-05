@@ -85,6 +85,10 @@
 						'detailed' => array
 							(
 								'description' => 'Show description.',
+							),
+						'signatures' => array
+							(
+								'description' => 'Show migration system signature.',
 							)
 					),
 			),
