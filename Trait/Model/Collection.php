@@ -117,13 +117,21 @@ trait Trait_Model_Collection
 	 * Utility function for creating the search query along with the
 	 * coresponding order by query.
 	 */
-	protected static function search_query_parameters($term, array &$columns, &$where, &$order)
+	protected static function search_query_parameters($term, array &$columns, &$where, &$order, &$constraints)
 	{
 		$term = '%'.$term.'%';
 		$query = 'LIKE '.\app\SQL::quote($term);
-		$where = 'WHERE '.\app\Arr::implode(' OR ', $columns, function ($k, $v) use ($query) {
+		$where = 'WHERE ('.\app\Arr::implode(' OR ', $columns, function ($k, $v) use ($query) {
 			return '`'.$v.'` '.$query;
-		});
+		}).')';
+
+		$extra_constaints = \app\SQL::parseconstraints($constraints);
+
+		if ( ! empty($extra_constaints))
+		{
+			$where .= ' AND '.$extra_constaints;
+		}
+
 		$query = 'LOCATE ('.\app\SQL::quote($term).', `:column`) ASC';
 		$order = 'ORDER BY '.\app\Arr::implode(', ', $columns, function ($k, $v) use ($query) {
 			return \strtr($query, [':column' => $v]);
@@ -135,13 +143,25 @@ trait Trait_Model_Collection
 	 *
 	 * @return array of arrays
 	 */
-	static function search($term, array $columns, $page = null, $limit = null, $offset = null)
+	static function search($term, array $columns, $page = null, $limit = null, $offset = null, $constraints = null)
 	{
-		$where = null;
-		$order = null;
-		static::search_query_parameters($term, $columns, $where, $order);
+		$where_sql = null;
+		$order_sql = null;
 
-		$cache_key = __FUNCTION__.'__t'.$term.'__p'.$page.'l'.$limit.'o'.$offset.'__'.\sha1($where);
+		static::search_query_parameters
+			(
+				$term,
+				$columns,
+				$where_sql,
+				$order_sql,
+				$constraints
+			);
+
+		$cache_key
+			= __FUNCTION__.'__t'.$term.'__p'.$page.'l'.$limit.'o'.$offset
+			. '__'.\sha1($where_sql)
+			. '__'.\sha1($order_sql)
+			;
 
 		$entries = static::stash
 			(
@@ -149,8 +169,8 @@ trait Trait_Model_Collection
 				'
 					SELECT *
 					  FROM :table
-					  '.$where.'
-					  '.$order.'
+					  '.$where_sql.'
+					  '.$order_sql.'
 				',
 				'mysql'
 			)
