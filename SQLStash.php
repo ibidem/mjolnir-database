@@ -64,9 +64,16 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	/**
 	 * @return static $this
 	 */
-	function constraints(array $constraints)
+	function constraints(array $constraints = null)
 	{
-		$this->constraints = $constraints;
+		if ($constraints !== null)
+		{
+			$this->constraints = $constraints;
+		}
+		else # constraints === null
+		{
+			$this->constraints = [];
+		}
 
 		return $this;
 	}
@@ -177,9 +184,16 @@ class SQLStash extends \app\Instantiatable implements \mjolnir\types\SQLStatemen
 	/**
 	 * @return static $this
 	 */
-	function order(array &$order)
+	function order(array &$order = null)
 	{
-		$this->order = $order;
+		if ($order !== null)
+		{
+			$this->order = $order;
+		}
+		else # order === null
+		{
+			$this->order = [];
+		}
 
 		return $this;
 	}

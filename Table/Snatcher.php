@@ -71,9 +71,16 @@ class Table_Snatcher extends \app\Instantiatable
 	/**
 	 * @return static $this
 	 */
-	function constraints(array $constraints)
+	function constraints(array $constraints = null)
 	{
-		$this->constraints = $constraints;
+		if ($constraints !== null)
+		{
+			$this->constraints = $constraints;
+		}
+		else # null constraints
+		{
+			$this->constraints = [];
+		}
 
 		return $this;
 	}
@@ -81,9 +88,16 @@ class Table_Snatcher extends \app\Instantiatable
 	/**
 	 * @return static $this
 	 */
-	function order(array $field_order)
+	function order(array $field_order = null)
 	{
-		$this->field_order = $field_order;
+		if ($field_order !== null)
+		{
+			$this->field_order = $field_order;
+		}
+		else # null field order
+		{
+			$this->field_order = [];
+		}
 
 		return $this;
 	}
