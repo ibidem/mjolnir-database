@@ -193,6 +193,29 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	}
 
 	/**
+	 * Performs safe select of entries.
+	 *
+	 * @return array entries
+	 */
+	static function select(\mjolnir\types\SQLDatabase $db, $table, array $constraints = null)
+	{
+		$sqlcontraints = \app\SQL::parseconstraints($constraints);
+		empty($sqlcontraints) or $sqlcontraints = 'WHERE '.$sqlcontraints;
+
+		return $db->prepare
+			(
+				__METHOD__,
+				'
+					SELECT *
+					  FROM `'.$table.'`
+					'.$sqlcontraints.'
+				'
+			)
+			->run()
+			->fetch_all();
+	}
+
+	/**
 	 * Performs safe insert into table given values and keys. This is a very
 	 * primitive function, which gurantees the integrity of the operation
 	 * inside the migration.
@@ -253,6 +276,28 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 		}
 
 		$statement->run();
+	}
+
+	/**
+	 * Same as insert only values is assumed to be array of arrays.
+	 */
+	static function massinsert($key, \mjolnir\types\SQLDatabase $db, $table, array $values, $map = null)
+	{
+		$db->begin();
+		try
+		{
+			foreach ($values as $value)
+			{
+				static::insert($key, $db, $table, $value, $map);
+			}
+
+			$db->commit();
+		}
+		catch (\Exception $e)
+		{
+			$db->rollback();
+			throw $e;
+		}
 	}
 
 	/**
