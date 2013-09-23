@@ -234,6 +234,8 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 			->bools($entry, $fieldlist['bools'])
 			->run();
 
+		$this->cachereset(null, 'post');
+
 		return $this->db->last_inserted_id();
 	}
 
@@ -310,6 +312,8 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 				'
 			)
 			->run();
+
+		$this->cachereset(null, 'delete');
 
 		return $this;
 	}

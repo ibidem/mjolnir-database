@@ -75,6 +75,42 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 		return $fieldlist;
 	}
 
+	// -- Caching -------------------------------------------------------------
+
+	/**
+	 * While the Marionette system, unlike the static library system doesn't
+	 * come with caching of it's own, this method is always called when data is
+	 * being inserted, modified or deleted to ensure other systems that do use
+	 * caching can be invoked.
+	 *
+	 * By default this method will try to invoke the library associated with
+	 * the entry if it exists, ie. the \app\ClassnameLib
+	 * and \app\Model_Classname classes.
+	 */
+	protected function cachereset($id = null, $operation = null)
+	{
+		// remove namespace
+		$bareclass = \preg_replace('/^.*\\\/', '', \get_called_class());
+		// remove Lib suffix
+		$baseclass = \preg_replace('/(Model|Collection)$/', '', $bareclass);
+
+		// try to invoke cache reset
+		$class = '\app\\'.$baseclass.'Lib';
+		if (\class_exists($class))
+		{
+			$class::clear_cache();
+		}
+		else # ClassnameLib class does not exists
+		{
+			// try Model_Classname
+			$class = '\app\\Model_'.$baseclass;
+			if (\class_exists($class))
+			{
+				$class::clear_cache();
+			}
+		}
+	}
+
 	// -- Drivers -------------------------------------------------------------
 
 	/**

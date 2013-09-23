@@ -229,6 +229,8 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 				->run();
 		}
 
+		$this->cachereset($id, 'patch');
+
 		return $id;
 	}
 
@@ -279,6 +281,8 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 			->run();
 
 		$this->run_drivers_postdelete($id);
+
+		$this->cachereset($id, 'delete');
 
 		return $this;
 	}
