@@ -244,6 +244,10 @@ class SQL
 						throw new \app\Exception("Unsupported operator [$operator].");
 					}
 				}
+				else if ($operator == '=')
+				{
+					return "$k $operator $value";
+				}
 				else # string, or string compatible
 				{
 					return "$k $operator ".\app\SQL::quote($value);
