@@ -20,8 +20,25 @@ trait Trait_MarionetteLib
 		return $class::table();
 	}
 
+	/**
+	 * @return array field list
+	 */
+	static function fieldlist()
+	{
+		return static::marionette_collection()
+			->fieldlist();
+	}
+
 	// ------------------------------------------------------------------------
 	// Factory
+
+	/**
+	 * ...
+	 */
+	static function cleanup(array &$input)
+	{
+		$input = static::marionette_model()->parse($input);
+	}
 
 	/**
 	 * @return \mjolnir\types\Validator
