@@ -75,6 +75,18 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 		return $fieldlist;
 	}
 
+	/**
+	 * Utility function for communicating database structure to other systems.
+	 *
+	 * @return array
+	 */
+	function fieldlist()
+	{
+		$spec = static::config();
+		$fieldlist = $this->make_fieldlist($spec);
+		return $this->run_drivers_post_compilefields($fieldlist);
+	}
+
 	// -- Caching -------------------------------------------------------------
 
 	/**
