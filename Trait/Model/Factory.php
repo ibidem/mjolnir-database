@@ -53,7 +53,7 @@ trait Trait_Model_Factory
 	/**
 	 * Clean up fields
 	 */
-	static function cleanup(array &$fields)
+	static function cleanup(array &$input)
 	{
 		// empty
 	}
@@ -63,19 +63,19 @@ trait Trait_Model_Factory
 	 *
 	 * @return array or null
 	 */
-	static function push(array $fields)
+	static function push(array $input)
 	{
-		static::cleanup($fields);
+		static::cleanup($input);
 
 		// check for errors
-		$errors = static::check($fields)->errors();
+		$errors = static::check($input)->errors();
 
 		if (empty($errors))
 		{
 			\app\SQL::begin();
 			try
 			{
-				static::process($fields);
+				static::process($input);
 				\app\SQL::commit();
 			}
 			catch (\Exception $e)
@@ -97,19 +97,19 @@ trait Trait_Model_Factory
 	 *
 	 * @return array or null
 	 */
-	static function update($id, array $fields)
+	static function update($id, array $input)
 	{
-		static::cleanup($fields);
+		static::cleanup($input);
 
 		// check for errors
-		$errors = static::update_check($id, $fields)->errors();
+		$errors = static::update_check($id, $input)->errors();
 
 		if (empty($errors))
 		{
 			\app\SQL::begin();
 			try
 			{
-				static::update_process($id, $fields);
+				static::update_process($id, $input);
 				\app\SQL::commit();
 			}
 			catch (\Exception $e)
@@ -129,9 +129,9 @@ trait Trait_Model_Factory
 	/**
 	 * @return \mjolnir\types\Validator
 	 */
-	static function update_check($id, array $fields)
+	static function update_check($id, array $input)
 	{
-		return static::check($fields, $id)
+		return static::check($input, $id)
 			->rule(static::unique_key(), 'exists', static::exists($id, static::unique_key()));
 	}
 

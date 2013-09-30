@@ -52,7 +52,7 @@ trait Trait_NestedSetModel
 	/**
 	 * Add rules pertaining to the integrity of the nested set.
 	 */
-	protected static
+	static
 	function tree_checks
 		(
 			\mjolnir\types\Validator $validator,
@@ -106,7 +106,7 @@ trait Trait_NestedSetModel
 		{
 			// calculate lft, rgt
 			$vroot = static::tree_virtual_root();
-			$input[$lft] = $vroot['rgt'] + 1;
+			$input[$lft] = $vroot['rgt'];
 			$input[$rgt] = $input[$lft] + 1;
 
 			// the insertion happens at the end; no offset operations required
@@ -141,6 +141,9 @@ trait Trait_NestedSetModel
 				)
 				->run();
 		}
+
+		static::$last_inserted_id = \app\SQL::last_inserted_id();
+		static::clear_cache();
 	}
 
 	/**
@@ -159,7 +162,7 @@ trait Trait_NestedSetModel
 			(
 				__TRAIT__.'::'.__FUNCTION__,
 				"
-					#! rgt -> $rgt
+					#!info rgt -> $rgt, lft -> $lft
 					UPDATE :table
 					   SET $rgt = $rgt + :rgtoffset
 					 WHERE $rgt = :offsetidx
@@ -183,7 +186,7 @@ trait Trait_NestedSetModel
 			(
 				__TRAIT__.'::'.__FUNCTION__,
 				"
-					#! rgt -> $rgt, lft -> $lft
+					#!info rgt -> $rgt, lft -> $lft
 					UPDATE :table
 					   SET $lft = $lft + :lftoffset,
 						   $rgt = $rgt + :rgtoffset
@@ -204,6 +207,7 @@ trait Trait_NestedSetModel
 	protected static
 	function tree_updater
 		(
+			$id,
 			array $input,
 			array $strs, array $bools = null, array $nums = null
 		)
@@ -214,15 +218,133 @@ trait Trait_NestedSetModel
 
 		if (isset($input[$lft]) or isset($input[$rgt]))
 		{
-			throw new \Exception('Integrity violation: attempted to hardcode lft and rgt values though tree_inserter');
+			throw new \Exception('Tree integrity violation: attempted to hardcode lft and rgt values though tree_updater');
 		}
 
-		if ( ! isset($input[$prt]))
+		// move account?
+		if (isset($input[$prt]))
 		{
-			throw new \Exception('Integrity violation: missing parent key');
+			static::tree_move_process($id, $input[$prt]);
 		}
 
-		// @todo CLEANUP implementation
+		// remove lft and rgt from num input
+		if ($nums !== null)
+		{
+			$nums = \array_diff($nums, [$lft, $rgt]);
+		}
+
+		static::updater($id, $input['id'], $input, $strs, $bools, $nums)->run();
+		static::clear_cache();
+	}
+
+	/**
+	 * Moves node into parent node. Trying to move the node into itself will
+	 * result in an exception.
+	 */
+	protected static function tree_move_process($node_id, $new_parent)
+	{
+		$lft = static::tree_lft();
+		$rgt = static::tree_rgt();
+
+		$node = static::entry($node_id);
+
+		if ($new_parent !== null)
+		{
+			$parent = static::entry($new_parent);
+
+			// check for potential recusion in tree; in case it was ommited in
+			// validation by mistake
+			if (static::tree_node_is_child_of_parent($new_parent, $node_id))
+			{
+				throw new \Exception('Tried to move child node as child of itself. Recursion in tree is not supported.');
+			}
+		}
+		else # new_parent === null (ie. root)
+		{
+			$parent = static::tree_virtual_root();
+		}
+
+		static::statement
+			(
+				__TRAIT__.'::'.__FUNCTION__,
+				"
+					#!info rgt -> $rgt, lft -> $lft
+
+				-- initialize parameters
+
+					SELECT
+					@lft := :node_lft,
+					@rgt := :node_rgt,
+					@prgt := :parent_rgt;
+
+					SELECT
+					@nsize := @rgt - @lft + 1, # node size
+					@offset := @prgt;
+
+				-- Step 1: remove moved nodes
+
+					# convert to negative values to remove from tree
+
+					UPDATE :table
+					   SET $lft = 0 - ($lft),
+						   $rgt = 0 - ($rgt)
+					 WHERE $lft >= @lft
+					   AND $rgt <= @rgt;
+
+				-- Step 2: recycle current space
+
+					# offset adjacent nodes
+
+					UPDATE :table
+					   SET $lft = $lft - @nsize,
+						   $rgt = $rgt - @nsize
+					 WHERE $lft > @rgt;
+
+					# offset parent nodes
+
+					UPDATE :table
+					   SET $rgt = $rgt - @nsize
+					 WHERE $lft < @lft
+					   AND $rgt > @rgt;
+
+				-- Step 3: create new space
+
+					SELECT
+					@offset := IF(@offset > @rgt, @offset - @nsize, @offset);
+
+					# offset adjacent nodes
+
+					UPDATE :table
+					   SET $lft = $lft + @nsize,
+						   $rgt = $rgt + @nsize
+					 WHERE $lft > @offset;
+
+					# offset parent nodes
+
+					UPDATE :table
+					   SET $rgt = $rgt + @nsize
+					 WHERE $rgt >= @offset
+					   AND $lft < @offset;
+
+				-- Step 4: move nodes
+
+					SELECT
+					@offset := IF(@prgt > @rgt, @prgt - @rgt - 1, @prgt - @rgt - 1 + @nsize);
+
+					UPDATE :table
+					   SET $lft = 0 - ($lft) + @offset,
+						   $rgt = 0 - ($rgt) + @offset
+					 WHERE $lft <= 0 - @lft
+					   AND $rgt >= 0 - @rgt;
+
+				"
+			)
+			->num(':node_lft', $node[$lft])
+			->num(':node_rgt', $node[$rgt])
+			->num(':parent_rgt', $parent[$rgt])
+			->run();
+
+		static::clear_cache();
 	}
 
 	// ------------------------------------------------------------------------
@@ -266,8 +388,10 @@ trait Trait_NestedSetModel
 
 		return static::statement
 			(
-				null, # unkeyed
+				__TRAIT__.'::'.__FUNCTION__,
 				"
+					#!info rgt -> $rgt, lft -> $lft
+
 					SELECT entry.*
 
 					FROM
@@ -336,13 +460,17 @@ trait Trait_NestedSetModel
 			}
 			else if ($entry[$depthkey] > $depth_level)
 			{
+				// its impossible to have depth jump more then 1 unit, so we
+				// simply perform a 1 unit increment each time
 				$depth_level++;
 				$parents[$depth_level] = &$entry;
 				$parents[$depth_level - 1][$subtreekey][] = &$entry;
 			}
 			else # depth != 0 && depth < depth_level
 			{
-				$depth_level--;
+				// its possible for depth to jump several units, in cases such
+				// as a very long branch ending
+				$depth_level -= $depth_level - $entry[$depthkey];
 				$parents[$depth_level] = &$entry;
 				$parents[$depth_level - 1][$subtreekey][] = &$entry;
 			}
@@ -368,15 +496,31 @@ trait Trait_NestedSetModel
 
 		return static::statement
 			(
-				null, # unkeyed
+				__TRAIT__.'::'.__FUNCTION__,
 				"
-					SELECT min($lft) $lft,
-					       max($rgt) $rgt
+					#!info rgt -> $rgt, lft -> $lft
+					SELECT (min($lft) - 1)  $lft,
+					       (max($rgt) + 1) $rgt
 					  FROM :table
 				"
 			)
 			->run()
 			->fetch_entry();
+	}
+
+	/**
+	 * @return boolean true if node is child of parent or equal to the parent
+	 */
+	static function tree_node_is_child_of_parent($node_id, $parent_id)
+	{
+		$lft = static::tree_lft();
+		$rgt = static::tree_rgt();
+
+		$node = static::entry($node_id);
+		$parent = static::entry($parent_id);
+
+		return $node[$lft] >= $parent[$lft]
+		    && $node[$rgt] <= $parent[$rgt];
 	}
 
 } # trait

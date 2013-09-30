@@ -5,7 +5,7 @@
 		':key_primary' => "bigint(20) unsigned NOT NULL AUTO_INCREMENT",
 		':key_foreign' => "bigint(20) unsigned",
 		':counter' => "bigint(20) unsigned NOT NULL DEFAULT '0'",
-		':nestedsetindex' => "bigint(20) unsigned DEFAULT NULL",
+		':nestedsetindex' => "bigint(20) DEFAULT NULL",
 		':title' => "varchar(255)",
 		':slugid' => "varchar(80)",
 		':description' => "varchar(1000)",
