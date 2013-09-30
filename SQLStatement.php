@@ -55,6 +55,28 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	 */
 	function num($parameter, $value)
 	{
+		# we need to convert to number to avoid PDO passing it as a string in
+		# the query; the PARAM_INT doesn't matter, it will just get quoted
+		# as string, and the resulting comparison errors are quite simply
+		# horrible to track down and debug
+
+		// we perform this simple check to avoid introducing errors
+		if (is_string($value) && preg_match('/^[0-9.]+$/', $value))
+		{
+			// as per the comment at the start, we need to make sure pdo gets
+			// an actual numeric type so it doesn't botch everything into a
+			// string every time
+			
+			if (\strpos($value, '.') === false)
+			{
+				$value = (int) $value;
+			}
+			else # found .
+			{
+				$value = (float) $value;
+			}
+		}
+
 		$this->statement->bindValue($parameter, $value, \PDO::PARAM_INT);
 		return $this;
 	}
