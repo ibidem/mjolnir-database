@@ -238,7 +238,7 @@ trait Trait_NestedSetModel
 			$nums = \array_diff($nums, [$lft, $rgt]);
 		}
 
-		static::updater($id, $input['id'], $input, $strs, $bools, $nums)->run();
+		static::updater($id, $input, $strs, $bools, $nums)->run();
 		static::clear_cache();
 	}
 
