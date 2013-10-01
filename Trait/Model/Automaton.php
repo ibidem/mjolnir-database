@@ -21,7 +21,7 @@ trait Trait_Model_Automaton
 
 		$validator = \app\Validator::instance($fields)
 			->adderrormessages($errors)
-			->rule(static::$automaton['fields'], 'not_empty');
+			->rule(static::$automaton['fields'], 'not-empty');
 
 		if (isset(static::$automaton['unique']))
 		{
