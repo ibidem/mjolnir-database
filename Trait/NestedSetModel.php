@@ -106,7 +106,7 @@ trait Trait_NestedSetModel
 		{
 			// calculate lft, rgt
 			$vroot = static::tree_virtual_root();
-			$input[$lft] = $vroot['rgt'];
+			$input[$lft] = $vroot !== null ? $vroot['rgt'] : 1;
 			$input[$rgt] = $input[$lft] + 1;
 
 			// the insertion happens at the end; no offset operations required
@@ -163,9 +163,14 @@ trait Trait_NestedSetModel
 				__TRAIT__.'::'.__FUNCTION__,
 				"
 					#!info rgt -> $rgt, lft -> $lft
+
+					SELECT
+					@offsetidx := :offsetidx;
+
 					UPDATE :table
 					   SET $rgt = $rgt + :rgtoffset
-					 WHERE $rgt = :offsetidx
+					 WHERE $rgt >= @offsetidx
+					   AND $lft <  @offsetidx
 				"
 			)
 			->num(':rgtoffset', $space * 2)
@@ -261,6 +266,8 @@ trait Trait_NestedSetModel
 		}
 		else # new_parent === null (ie. root)
 		{
+			// virtual root can never be null in this scenario since we already
+			// have a node, the one we're processing which is guranteed
 			$parent = static::tree_virtual_root();
 		}
 
@@ -346,6 +353,65 @@ trait Trait_NestedSetModel
 
 		static::clear_cache();
 	}
+
+	/**
+	 * Removes node and its children.
+	 */
+	static function tree_delete($id)
+	{
+		$node = static::entry($id);
+
+		if ($node !== null)
+		{
+			$lft = static::tree_lft();
+			$rgt = static::tree_rgt();
+
+			static::statement
+				(
+					__TRAIT__.'::'.__FUNCTION__,
+					"
+						#!info rgt -> $rgt, lft -> $lft
+
+					-- initialize parameters
+
+						SELECT
+						@lft := :node_lft,
+						@rgt := :node_rgt;
+
+						SELECT
+						@nsize := @rgt - @lft + 1; # node size
+
+					-- Step 1: remove nodes
+
+						DELETE FROM :table
+						 WHERE $lft >= @lft
+						   AND $rgt <= @rgt;
+
+					-- Step 2: recycle empty space
+
+						# offset adjacent nodes
+
+						UPDATE :table
+						   SET $lft = $lft - @nsize,
+							   $rgt = $rgt - @nsize
+						 WHERE $lft > @rgt;
+
+						# offset parent nodes
+
+						UPDATE :table
+						   SET $rgt = $rgt - @nsize
+						 WHERE $lft < @lft
+						   AND $rgt > @rgt;
+					"
+				)
+				->num(':node_lft', $node[$lft])
+				->num(':node_rgt', $node[$rgt])
+				->run();
+
+			static::clear_cache();
+		}
+	}
+
 
 	// ------------------------------------------------------------------------
 	// Collection interface
@@ -494,7 +560,7 @@ trait Trait_NestedSetModel
 		$lft = static::tree_lft();
 		$rgt = static::tree_rgt();
 
-		return static::statement
+		$vroot = static::statement
 			(
 				__TRAIT__.'::'.__FUNCTION__,
 				"
@@ -506,6 +572,8 @@ trait Trait_NestedSetModel
 			)
 			->run()
 			->fetch_entry();
+
+		return $vroot[$lft] !== null || $vroot[$rgt] !== null ? $vroot : null;
 	}
 
 	/**
