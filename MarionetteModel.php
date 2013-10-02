@@ -47,7 +47,7 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 			->run()
 			->fetch_entry();
 
-		if ($plan['postprocessors'] !== null)
+		if ($entry !== null && $plan['postprocessors'] !== null)
 		{
 			foreach ($plan['postprocessors'] as $processor)
 			{
