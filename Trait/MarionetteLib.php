@@ -55,8 +55,17 @@ trait Trait_MarionetteLib
 	 */
 	static function push(array $fields)
 	{
-		return static::marionette_collection()
-			->post($fields);
+		$errors = static::check($fields)->errors();
+
+		if ($errors === null)
+		{
+			static::marionette_collection()	->post($fields);
+			return null;
+		}
+		else # errors is not empty
+		{
+			return $errors;
+		}
 	}
 
 	// ------------------------------------------------------------------------
