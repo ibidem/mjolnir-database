@@ -89,7 +89,7 @@ trait Trait_NestedSetModel
 
 		if ( ! isset($input[$prt]))
 		{
-			throw new \Exception('Integrity violation: missing parent key');
+			$input[$prt] = null;
 		}
 
 		// Normalize
