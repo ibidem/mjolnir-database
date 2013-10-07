@@ -41,7 +41,12 @@ class MarionetteDriver_Reference extends \app\Instantiatable implements \mjolnir
 			$collection = $this->collection();
 			$keyfield = $collection->keyfield();
 
-			if (isset($input[$field][$keyfield]))
+			if ( ! is_array($input[$field]))
+			{
+				// assume key field value
+				$input[$field] = $input[$field];
+			}
+			else if (isset($input[$field][$keyfield]))
 			{
 				$input[$field] = $input[$field][$keyfield];
 			}
