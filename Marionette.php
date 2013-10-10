@@ -67,6 +67,9 @@ class Marionette extends \app\Puppet implements \mjolnir\types\Marionette
 				case 'currency':
 					$fieldlist['nums'][] = $field;
 					break;
+				case 'boolean':
+					$fieldlist['bools'][] = $field;
+					break;
 				default:
 					throw new \app\Exception("Unsuported field type: {$fieldinfo['type']}");
 			}
