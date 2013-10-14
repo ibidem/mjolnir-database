@@ -565,7 +565,7 @@ trait Trait_NestedSetModel
 				__TRAIT__.'::'.__FUNCTION__,
 				"
 					#!info rgt -> $rgt, lft -> $lft
-					SELECT (min($lft) - 1)  $lft,
+					SELECT (min($lft) - 1) $lft,
 					       (max($rgt) + 1) $rgt
 					  FROM :table
 				"
