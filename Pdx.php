@@ -276,6 +276,8 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 		}
 
 		$statement->run();
+
+		return $db->last_inserted_id();
 	}
 
 	/**
