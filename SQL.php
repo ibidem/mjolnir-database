@@ -13,27 +13,64 @@
  */
 class SQL
 {
-	/**
-	 * @var string database used
-	 */
-	protected static $database = 'default';
+	/** @var string database used */
+	protected static $database_key = 'default';
+
+	/** @var \mjolnir\types\SQLDatabase database object */
+	protected static $database_handler = null;
+
+	/** @var array previous database objects */
+	protected static $session_history = null;
 
 	/**
 	 * Sets the default database to be used.
 	 */
 	static function database_key($database)
 	{
-		static::$database = $database;
+		static::$database_key = $database;
+	}
+
+	/**
+	 * Sets the default database to be used.
+	 */
+	static function database_handler(\mjolnir\types\SQLDatabase $database)
+	{
+		static::$database_handler = $database;
 	}
 
 	/**
 	 * Retrieves the current database key
 	 *
-	 * @return string
+	 * @return \mjolnir\types\SQLDatabse
 	 */
 	static function database()
 	{
-		return \app\SQLDatabase::instance(static::$database);
+		if (static::$database_handler === null)
+		{
+			static::$database_handler = \app\SQLDatabase::instance(static::$database_key);
+		}
+
+		return static::$database_handler;
+	}
+
+	/**
+	 * Initiate a session on the given database; all operations will now be
+	 * performed on the database in question until endsession is called.
+	 */
+	static function session(\mjolnir\types\SQLDatabase $db)
+	{
+		$current = static::database();
+		static::$session_history[] = $current;
+		static::database_handler($db);
+	}
+
+	/**
+	 * Terminates the session and returns control over to the previous database.
+	 */
+	static function endsession()
+	{
+		$db = \array_pop(static::$session_history);
+		static::database_handler($db);
 	}
 
 	/**
@@ -41,7 +78,7 @@ class SQL
 	 */
 	static function prepare($key, $statement = null, $lang = null)
 	{
-		return \app\SQLDatabase::instance(static::$database)->prepare($key, $statement, $lang);
+		return static::database()->prepare($key, $statement, $lang);
 	}
 
 	/**
@@ -49,7 +86,7 @@ class SQL
 	 */
 	static function quote($value)
 	{
-		return \app\SQLDatabase::instance(static::$database)->quote($value);
+		return static::database()->quote($value);
 	}
 
 	/**
@@ -57,7 +94,7 @@ class SQL
 	 */
 	static function last_inserted_id($name = null)
 	{
-		return \app\SQLDatabase::instance(static::$database)->last_inserted_id($name);
+		return static::database()->last_inserted_id($name);
 	}
 
 	/**
@@ -67,7 +104,7 @@ class SQL
 	 */
 	static function begin()
 	{
-		return \app\SQLDatabase::instance(static::$database)->begin();
+		return static::database()->begin();
 	}
 
 	/**
@@ -77,7 +114,7 @@ class SQL
 	 */
 	static function commit()
 	{
-		return \app\SQLDatabase::instance(static::$database)->commit();
+		return static::database()->commit();
 	}
 
 	/**
@@ -87,7 +124,7 @@ class SQL
 	 */
 	static function rollback()
 	{
-		return \app\SQLDatabase::instance(static::$database)->rollback();
+		return static::database()->rollback();
 	}
 
 	// ------------------------------------------------------------------------
