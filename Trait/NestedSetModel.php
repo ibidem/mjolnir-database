@@ -437,6 +437,7 @@ trait Trait_NestedSetModel
 	{
 		$lft = static::tree_lft();
 		$rgt = static::tree_rgt();
+		$prt = static::tree_parentkey();
 
 		! empty($depthkey) or $depthkey = 'depth';
 
@@ -456,9 +457,17 @@ trait Trait_NestedSetModel
 			(
 				__TRAIT__.'::'.__FUNCTION__,
 				"
-					#!info rgt -> $rgt, lft -> $lft
+					#!info rgt -> $rgt, lft -> $lft, prt -> $prt
 
-					SELECT entry.*
+					SELECT entry.*,
+					       (
+					           SELECT mirror.id
+					             FROM :table mirror
+					            WHERE mirror.lft < entry.lft
+				                  AND mirror.rgt > entry.rgt
+				                ORDER BY mirror.rgt - entry.rgt ASC
+				                LIMIT 1
+							) AS $prt
 
 					FROM
 					(
