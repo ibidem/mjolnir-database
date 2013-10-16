@@ -187,7 +187,9 @@ class Table_Snatcher extends \app\Instantiatable
 			$sql =
 				'
 					SELECT '.$query.'
-					  FROM `'.$this->table.'` '.$where.' '.$sql_order.'
+					  FROM `'.$this->table.'` entry
+					  '.$where.'
+					  '.$sql_order.'
 					 LIMIT :limit OFFSET :offset
 				';
 
