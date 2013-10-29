@@ -276,6 +276,10 @@ class SQL
 							}
 						}
 					}
+					else if (\in_array(\strtolower($operator), ['=', '<', '>', '<=', '>=']))
+					{
+						return "$k $operator ".\app\SQL::quote($value);
+					}
 					else # unknown operator
 					{
 						throw new \app\Exception("Unsupported operator [$operator].");
@@ -296,8 +300,8 @@ class SQL
 				' AND ', # delimiter
 				$constraints, # source
 
-				function ($k, $value) use ($parameter_resolver) {
-
+				function ($k, $value) use ($parameter_resolver)
+				{
 					$k = \strpbrk($k, ' .()') === false ? '`'.$k.'`' : $k;
 
 					if (\is_array($value))

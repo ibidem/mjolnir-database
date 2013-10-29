@@ -148,8 +148,9 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 		}
 		else # translation not required
 		{
-			$prepared_statement = $this->dbh->prepare($statement.' -- '.\str_replace(':', '.', $key));
-			return \app\SQLStatement::instance($prepared_statement, $statement.' -- '.\str_replace(':', '.', $key));
+			$rawstatement = $statement.' -- '.\str_replace('//', '/', \str_replace(':', '/', $key));
+			$prepared_statement = $this->dbh->prepare($rawstatement);
+			return \app\SQLStatement::instance($prepared_statement, $rawstatement);
 		}
 	}
 
