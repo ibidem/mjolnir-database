@@ -122,7 +122,7 @@ trait Trait_Model_Collection
 		$term = '%'.$term.'%';
 		$query = 'LIKE '.\app\SQL::quote($term);
 		$where = 'WHERE ('.\app\Arr::implode(' OR ', $columns, function ($k, $v) use ($query) {
-			return '`'.$v.'` '.$query;
+			return $v.' '.$query;
 		}).')';
 
 		$extra_constaints = \app\SQL::parseconstraints($constraints);
@@ -132,7 +132,7 @@ trait Trait_Model_Collection
 			$where .= ' AND '.$extra_constaints;
 		}
 
-		$query = 'LOCATE ('.\app\SQL::quote($term).', `:column`) ASC';
+		$query = 'LOCATE ('.\app\SQL::quote($term).', :column) ASC';
 		$order = 'ORDER BY '.\app\Arr::implode(', ', $columns, function ($k, $v) use ($query) {
 			return \strtr($query, [':column' => $v]);
 		});
