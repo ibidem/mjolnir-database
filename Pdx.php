@@ -305,7 +305,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	/**
 	 * ...
 	 */
-	static function create_table(\mjolnir\types\Writer $writer, \mjolnir\database\SQLDatabase $db, $table, $definition, $engine, $charset)
+	static function create_table(\mjolnir\types\Writer $writer, \mjolnir\types\SQLDatabase $db, $table, $definition, $engine, $charset)
 	{
 		$shorthands = \app\CFS::config('mjolnir/paradox-sql-definitions');
 		$shorthands = $shorthands + [':engine' => $engine, ':default_charset' => $charset];
@@ -356,7 +356,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	/**
 	 * Remove specified bindings.
 	 */
-	static function remove_bindings(\mjolnir\types\Writer $writer, \mjolnir\database\SQLDatabase $db, $table, array $bindings)
+	static function remove_bindings(\mjolnir\types\Writer $writer, \mjolnir\types\SQLDatabase $db, $table, array $bindings)
 	{
 		foreach ($bindings as $key)
 		{
@@ -422,7 +422,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 			{
 				foreach ($handlers['cleanup']['bindings'] as $table => $constraints)
 				{
-					static::remove_bindings($state['writer'], $table, $constraints);
+					static::remove_bindings($state['writer'], $db, $table, $constraints);
 				}
 			}
 		}
@@ -469,6 +469,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 				}
 				catch (\Exception $e)
 				{
+					/** @var \mjolnir\types\Writer $writer */
 					$writer = $state['writer'];
 					$writer->eol();
 					$writer->writef("Exception while running [tables] migration operation for [{$table}].")->eol();
@@ -527,6 +528,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 				}
 				catch (\Exception $e)
 				{
+					/** @var \mjolnir\types\Writer $writer */
 					$writer = $state['writer'];
 					$writer->eol();
 					$writer->writef("Exception while running [modify] migration operation for [{$table}].")->eol();
@@ -717,6 +719,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	 */
 	static function instance(\mjolnir\types\Writer $writer = null, $verbose = null)
 	{
+		/** @var Pdx $i */
 		$i = parent::instance();
 
 		$verbose !== null or $verbose = false;
