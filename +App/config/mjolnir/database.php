@@ -42,7 +42,7 @@
 						 * just pass keys as statements.
 						 */
 						'dialect_default' => 'mysql',
-						'dialect_target' => 'mysql',
+						'dialect_target'  => 'mysql',
 					),
 			),
 

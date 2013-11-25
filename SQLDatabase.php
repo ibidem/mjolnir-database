@@ -103,7 +103,7 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 						}
 						else # non-driver error
 						{
-							throw new \app\Exception($e->getMessage());
+							throw new \app\Exception("[db:$database] ".$e->getMessage());
 						}
 
 					}
