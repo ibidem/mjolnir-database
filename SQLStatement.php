@@ -138,7 +138,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	 */
 	function bindbool($parameter, &$variable)
 	{
-		$this->statement->bindValue($parameter, $variable, \PDO::PARAM_BOOL);
+		$this->statement->bindParam($parameter, $variable, \PDO::PARAM_BOOL);
 
 		return $this;
 	}
@@ -148,7 +148,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	 */
 	function binddate($parameter, &$variable)
 	{
-		$this->statement->bindValue($parameter, $variable, \PDO::PARAM_STR);
+		$this->statement->bindParam($parameter, $variable, \PDO::PARAM_STR);
 		return $this;
 	}
 
