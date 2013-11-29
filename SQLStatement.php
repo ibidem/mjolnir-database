@@ -31,6 +31,7 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 			throw new \app\Exception('No statement provided.');
 		}
 
+		/** @var SQLStatement $instance */
 		$instance = parent::instance();
 		$instance->statement = $statement;
 		$instance->query = $query;
