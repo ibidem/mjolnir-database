@@ -40,14 +40,15 @@ class Register
 	{
 		$statement = \app\SQL::prepare
 			(
-				__METHOD__,
 				'
 					SELECT registry.key,
 						   registry.value
-					  FROM `'.static::table().'` registry
+					  FROM `[registry]` registry
 					 WHERE registry.key = :key
 				',
-				'mysql'
+				[
+					'[registry]' => static::table()
+				]
 			)
 			->bindstr(':key', $key);
 
@@ -68,13 +69,14 @@ class Register
 	{
 		\app\SQL::prepare
 			(
-				__METHOD__,
 				'
-					UPDATE `'.static::table().'` registry
+					UPDATE `[registry]` registry
 					   SET registry.value = :value
 					 WHERE registry.key = :key
 				',
-				'mysql'
+				[
+					'[registry]' => static::table()
+				]
 			)
 			->str(':key', $key)
 			->str(':value', $value)
@@ -89,19 +91,19 @@ class Register
 		// check if it exists
 		$count = \app\SQL::prepare
 			(
-				__METHOD__.':method_exists',
 				'
 					SELECT COUNT(1)
-					  FROM `'.static::table().'` registry
+					  FROM `[registry]` registry
 					 WHERE registry.key = :key
 					 LIMIT 1
 				',
-				'mysql'
+				[
+					'[registry]' => static::table(),
+				]
 			)
 			->str(':key', $key)
 			->run()
-			->fetch_entry()
-			['COUNT(1)'];
+			->fetch_calc();
 
 		$count = (int) $count;
 
@@ -109,12 +111,13 @@ class Register
 		{
 			\app\SQL::prepare
 				(
-					__METHOD__,
 					'
-						INSERT INTO `'.static::table().'`
+						INSERT INTO `[registry]`
 						(`key`, `value`) VALUES (:key, :value)
 					',
-					'mysql'
+					[
+						'[registry]' => static::table()
+					]
 				)
 				->str(':key', $key)
 				->str(':value', $value)

@@ -76,9 +76,9 @@ class SQL
 	/**
 	 * @return \mjolnir\types\SQLStatement
 	 */
-	static function prepare($key, $statement = null, $lang = null)
+	static function prepare($statement = null, $lang = null)
 	{
-		return static::database()->prepare($key, $statement, $lang);
+		return static::database()->prepare($statement, $lang);
 	}
 
 	/**

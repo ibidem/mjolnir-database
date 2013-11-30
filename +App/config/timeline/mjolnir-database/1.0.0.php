@@ -33,7 +33,6 @@
 				$value = null;
 				$statement = $db->prepare
 					(
-						__METHOD__,
 						'
 							INSERT INTO `'.\app\Register::table().'`
 							(`key`, `value`) VALUES (:key, :value)

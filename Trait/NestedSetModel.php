@@ -160,18 +160,19 @@ trait Trait_NestedSetModel
 
 		static::statement
 			(
-				__TRAIT__.'::'.__FUNCTION__,
-				"
-					#!info rgt -> $rgt, lft -> $lft
-
+				'
 					SELECT
 					@offsetidx := :offsetidx;
 
-					UPDATE :table
-					   SET $rgt = $rgt + :rgtoffset
-					 WHERE $rgt >= @offsetidx
-					   AND $lft <  @offsetidx
-				"
+					UPDATE `[table]`
+					   SET [rgt] = [rgt] + :rgtoffset
+					 WHERE [rgt] >= @offsetidx
+					   AND [lft] <  @offsetidx
+				',
+				[
+					'[rgt]' => $rgt,
+					'[lft]' => $lft
+				]
 			)
 			->num(':rgtoffset', $space * 2)
 			->num(':offsetidx', $target[$rgt])
@@ -184,19 +185,18 @@ trait Trait_NestedSetModel
 	 */
 	protected static function tree_offset_nodes($offsetidx, $offset)
 	{
-		$lft = static::tree_lft();
-		$rgt = static::tree_rgt();
-
 		static::statement
 			(
-				__TRAIT__.'::'.__FUNCTION__,
-				"
-					#!info rgt -> $rgt, lft -> $lft
-					UPDATE :table
-					   SET $lft = $lft + :lftoffset,
-						   $rgt = $rgt + :rgtoffset
-					 WHERE $lft > :offsetidx
-				"
+				'
+					UPDATE `[table]`
+					   SET [lft] = [lft] + :lftoffset,
+						   [rgt] = [rgt] + :rgtoffset
+					 WHERE [lft] > :offsetidx
+				',
+				[
+					'[rgt]' => static::tree_rgt(),
+					'[lft]' => static::tree_lft()
+				]
 			)
 			->num(':lftoffset', $offset)
 			->num(':rgtoffset', $offset)
@@ -273,10 +273,7 @@ trait Trait_NestedSetModel
 
 		static::statement
 			(
-				__TRAIT__.'::'.__FUNCTION__,
-				"
-					#!info rgt -> $rgt, lft -> $lft
-
+				'
 				-- initialize parameters
 
 					SELECT
@@ -292,27 +289,27 @@ trait Trait_NestedSetModel
 
 					# convert to negative values to remove from tree
 
-					UPDATE :table
-					   SET $lft = 0 - ($lft),
-						   $rgt = 0 - ($rgt)
-					 WHERE $lft >= @lft
-					   AND $rgt <= @rgt;
+					UPDATE `[table]`
+					   SET [lft] = 0 - ([lft]),
+						   [rgt] = 0 - ([rgt])
+					 WHERE [lft] >= @lft
+					   AND [rgt] <= @rgt;
 
 				-- Step 2: recycle current space
 
 					# offset adjacent nodes
 
-					UPDATE :table
-					   SET $lft = $lft - @nsize,
-						   $rgt = $rgt - @nsize
-					 WHERE $lft > @rgt;
+					UPDATE `[table]`
+					   SET [lft] = [lft] - @nsize,
+						   [rgt] = [rgt] - @nsize
+					 WHERE [lft] > @rgt;
 
 					# offset parent nodes
 
-					UPDATE :table
-					   SET $rgt = $rgt - @nsize
-					 WHERE $lft < @lft
-					   AND $rgt > @rgt;
+					UPDATE `[table]`
+					   SET [rgt] = [rgt] - @nsize
+					 WHERE [lft] < @lft
+					   AND [rgt] > @rgt;
 
 				-- Step 3: create new space
 
@@ -321,30 +318,33 @@ trait Trait_NestedSetModel
 
 					# offset adjacent nodes
 
-					UPDATE :table
-					   SET $lft = $lft + @nsize,
-						   $rgt = $rgt + @nsize
-					 WHERE $lft > @offset;
+					UPDATE `[table]`
+					   SET [lft] = [lft] + @nsize,
+						   [rgt] = [rgt] + @nsize
+					 WHERE [lft] > @offset;
 
 					# offset parent nodes
 
-					UPDATE :table
-					   SET $rgt = $rgt + @nsize
-					 WHERE $rgt >= @offset
-					   AND $lft < @offset;
+					UPDATE `[table]`
+					   SET [rgt] = [rgt] + @nsize
+					 WHERE [rgt] >= @offset
+					   AND [lft] < @offset;
 
 				-- Step 4: move nodes
 
 					SELECT
 					@offset := IF(@prgt > @rgt, @prgt - @rgt - 1, @prgt - @rgt - 1 + @nsize);
 
-					UPDATE :table
-					   SET $lft = 0 - ($lft) + @offset,
-						   $rgt = 0 - ($rgt) + @offset
-					 WHERE $lft <= 0 - @lft
-					   AND $rgt >= 0 - @rgt;
-
-				"
+					UPDATE `[table]`
+					   SET [lft] = 0 - ([lft]) + @offset,
+						   [rgt] = 0 - ([rgt]) + @offset
+					 WHERE [lft] <= 0 - @lft
+					   AND [rgt] >= 0 - @rgt;
+				',
+				[
+					'[lft]' => $lft,
+					'[rgt]' => $rgt,
+				]
 			)
 			->num(':node_lft', $node[$lft])
 			->num(':node_rgt', $node[$rgt])
@@ -368,10 +368,7 @@ trait Trait_NestedSetModel
 
 			static::statement
 				(
-					__TRAIT__.'::'.__FUNCTION__,
-					"
-						#!info rgt -> $rgt, lft -> $lft
-
+					'
 					-- initialize parameters
 
 						SELECT
@@ -383,26 +380,30 @@ trait Trait_NestedSetModel
 
 					-- Step 1: remove nodes
 
-						DELETE FROM :table
-						 WHERE $lft >= @lft
-						   AND $rgt <= @rgt;
+						DELETE FROM `[table]`
+						 WHERE [lft] >= @lft
+						   AND [rgt] <= @rgt;
 
 					-- Step 2: recycle empty space
 
 						# offset adjacent nodes
 
-						UPDATE :table
-						   SET $lft = $lft - @nsize,
-							   $rgt = $rgt - @nsize
-						 WHERE $lft > @rgt;
+						UPDATE `[table]`
+						   SET [lft] = [lft] - @nsize,
+							   [rgt] = [rgt] - @nsize
+						 WHERE [lft] > @rgt;
 
 						# offset parent nodes
 
-						UPDATE :table
-						   SET $rgt = $rgt - @nsize
-						 WHERE $lft < @lft
-						   AND $rgt > @rgt;
-					"
+						UPDATE `[table]`
+						   SET [rgt] = [rgt] - @nsize
+						 WHERE [lft] < @lft
+						   AND [rgt] > @rgt;
+					',
+					[
+						'[lft]' => $lft,
+						'[rgt]' => $rgt
+					]
 				)
 				->num(':node_lft', $node[$lft])
 				->num(':node_rgt', $node[$rgt])
@@ -455,39 +456,42 @@ trait Trait_NestedSetModel
 
 		return static::statement
 			(
-				__TRAIT__.'::'.__FUNCTION__,
 				"
-					#!info rgt -> $rgt, lft -> $lft, prt -> $prt
-
 					SELECT entry.*,
 					       (
 					           SELECT mirror.id
-					             FROM :table mirror
-					            WHERE mirror.lft < entry.lft
-				                  AND mirror.rgt > entry.rgt
-				                ORDER BY mirror.rgt - entry.rgt ASC
+					             FROM `[table]` mirror
+					            WHERE mirror.[lft] < entry.[lft]
+				                  AND mirror.[rgt] > entry.[rgt]
+				                ORDER BY mirror.[rgt] - entry.[rgt] ASC
 				                LIMIT 1
-							) AS $prt
+							) AS [prt]
 
 					FROM
 					(
 
-						SELECT node.*, (COUNT(parent.id) - 1) $depthkey
+						SELECT node.*, (COUNT(parent.id) - 1) [depthkey]
 
-						  FROM :table node,
-							   :table parent
+						  FROM `[table]` node,
+							   `[table]` parent
 
-						 WHERE node.$lft BETWEEN parent.$lft AND parent.$rgt
+						 WHERE node.[lft] BETWEEN parent.[lft] AND parent.[rgt]
 
 						 GROUP BY node.id
-						 ORDER BY node.$lft
+						 ORDER BY node.[lft]
 
 					) entry
 
 					$WHERE
 					$ORDER_BY
 					LIMIT :limit OFFSET :offset
-				"
+				",
+				[
+					'[lft]' => $lft,
+					'[rgt]' => $rgt,
+					'[prt]' => $prt,
+					'[depthkey]' => $depthkey,
+				]
 			)
 			->page($page, $limit, $offset)
 			->run()
@@ -571,13 +575,15 @@ trait Trait_NestedSetModel
 
 		$vroot = static::statement
 			(
-				__TRAIT__.'::'.__FUNCTION__,
-				"
-					#!info rgt -> $rgt, lft -> $lft
-					SELECT (min($lft) - 1) $lft,
-					       (max($rgt) + 1) $rgt
-					  FROM :table
-				"
+				'
+					SELECT (min([lft]) - 1) [lft],
+					       (max([rgt]) + 1) [rgt]
+					  FROM `[table]`
+				',
+				[
+					'[lft]' => $lft,
+					'[rgt]' => $rgt,
+				]
 			)
 			->run()
 			->fetch_entry();

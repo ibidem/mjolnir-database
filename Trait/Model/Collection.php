@@ -91,10 +91,9 @@ trait Trait_Model_Collection
 
 			$entry = static::statement
 				(
-					__METHOD__,
 					'
 						SELECT *
-						  FROM :table
+						  FROM `[table]`
 						 WHERE '.static::unique_key().' = :id '.$constraintskey.'
 					'
 				)
@@ -298,9 +297,8 @@ trait Trait_Model_Collection
 
 		$statement = static::statement
 			(
-				__METHOD__,
 				'
-					DELETE FROM :table
+					DELETE FROM `[table]`
 					 WHERE `'.static::unique_key().'` = :id '.$constraintkey.'
 				'
 			)
@@ -376,7 +374,7 @@ trait Trait_Model_Collection
 				__METHOD__,
 				'
 					SELECT COUNT(1)
-					  FROM :table
+					  FROM `[table]`
 					 WHERE `'.$key.'` = :value
 					   AND NOT '.static::unique_key().' <=> '.($context === null ? 'NULL' : $context).'
 				'
@@ -415,10 +413,9 @@ trait Trait_Model_Collection
 					(
 						static::statement
 							(
-								__METHOD__,
 								'
 									SELECT `'.static::unique_key().'`
-									  FROM :table
+									  FROM `[table]`
 								'
 							)
 							->run()
@@ -439,9 +436,8 @@ trait Trait_Model_Collection
 
 		static::statement
 			(
-				__METHOD__,
 				'
-					INSERT :table (`'.$idkey.'`) VALUES (null)
+					INSERT `[table]` (`'.$idkey.'`) VALUES (null)
 				'
 			)
 			->run();
@@ -450,9 +446,8 @@ trait Trait_Model_Collection
 
 		static::statement
 			(
-				__METHOD__,
 				'
-					DELETE FROM :table
+					DELETE FROM `[table]`
 					 WHERE `'.$idkey.'` = :new_id
 				'
 			)
@@ -461,9 +456,8 @@ trait Trait_Model_Collection
 
 		static::statement
 			(
-				__METHOD__,
 				'
-					UPDATE :table
+					UPDATE `[table]`
 					   SET `'.$idkey.'` = :new_id
 					 WHERE `'.$idkey.'` = :old_id
 				'

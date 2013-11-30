@@ -29,18 +29,6 @@ trait Trait_Model_Utilities
 	}
 
 	/**
-	 * @return \app\SQLCache
-	 */
-	protected static function stash($identifier, $sql)
-	{
-		$identity = \join('', \array_slice(\explode('\\', \get_called_class()), -1));
-		return \app\SQLStash::prepare($identifier, $sql)
-			->timers(\app\Stash::tags(\get_called_class(), ['change']))
-			->table(static::table())
-			->identity($identity);
-	}
-
-	/**
 	 * @return \app\SQLStash
 	 */
 	protected static function inserter(array $fields, array $strs, array $bools = [], array $nums = [])
@@ -66,22 +54,21 @@ trait Trait_Model_Utilities
 		$table_keys = \app\Arr::convert($keys, function ($k) { return '`'.$k.'`'; });
 		$value_keys = \app\Arr::convert($keys, function ($k) { return ':'.$k; });
 
-		return \app\SQLStash::prepare
+		return \app\SQL::prepare
 			(
-				__METHOD__,
 				'
-					INSERT INTO :table
+					INSERT INTO `[table]`
 						('.\implode(', ', $table_keys).')
 					VALUES
 						('.\implode(', ', $value_keys).')
-				'
+				',
+				[
+					'[table]' => static::table()
+				]
 			)
 			->strs($fields, $strs)
 			->nums($fields, $nums)
-			->bools($fields, $bools)
-			->timers(\app\Stash::tags(\get_called_class(), ['change']))
-			->table(static::table())
-			->is('change');
+			->bools($fields, $bools);
 	}
 
 	/**
@@ -115,31 +102,30 @@ trait Trait_Model_Utilities
 				}
 			);
 
-		return \app\SQLStash::prepare
+		return \app\SQL::prepare
 			(
-				__METHOD__,
 				'
-					UPDATE :table
+					UPDATE `[table]`
 					   SET '.\implode(', ', $assignments).'
 					 WHERE '.static::unique_key().' = :id
-				'
+				',
+				[
+					'[table]' => static::table()
+				]
 			)
 			->strs($fields, $strs)
 			->nums($fields, $nums)
 			->bools($fields, $bools)
-			->num(':id', $id)
-			->timers(\app\Stash::tags(\get_called_class(), ['change']))
-			->table(static::table())
-			->is('change');
+			->num(':id', $id);
 	}
 
 	/**
 	 * @return \mjolnir\types\SQLStatement
 	 */
-	protected static function statement($identifier, $sql, $lang = null)
+	protected static function statement($statement, array $placeholder = null)
 	{
-		$sql = \strtr($sql, [':table' => static::table()]);
-		return \app\SQL::prepare($identifier, $sql, $lang);
+		$statement = \strtr($statement, ['[table]' => static::table()]);
+		return \app\SQL::prepare($statement, $placeholder);
 	}
 
 	/**

@@ -18,7 +18,6 @@ trait Trait_Marionette_Collection_MjolnirTagReference
 	{
 		$this->db->prepare
 			(
-				__METHOD__,
 				'
 					DELETE FROM `'.static::table().'`
 					 WHERE `'.$field.'` = :ref_id

@@ -41,7 +41,6 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 
 		$entries = $this->db->prepare
 			(
-				__METHOD__,
 				'
 					SELECT '.$plan['fields'].'
 					'.$plan['joins'].'
@@ -222,7 +221,6 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 
 		$this->db->prepare
 			(
-				__METHOD__,
 				'
 					INSERT INTO `'.static::table().'`
 					       ('.$sqlfields.')
@@ -305,7 +303,6 @@ class MarionetteCollection extends \app\Marionette implements \mjolnir\types\Mar
 
 		$this->db->prepare
 			(
-				__METHOD__,
 				'
 					DELETE FROM `'.static::table().'`
 					'.$constraints.'

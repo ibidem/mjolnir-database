@@ -172,7 +172,6 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 			$entries = $db->prepare
 				(
-					__METHOD__.':read_entries',
 					'
 						SELECT *
 						  FROM `'.$table.'`
@@ -204,7 +203,6 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 		return $db->prepare
 			(
-				__METHOD__,
 				'
 					SELECT *
 					  FROM `'.$table.'`
@@ -231,7 +229,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	 *
 	 * @return int ID
 	 */
-	static function insert($key, \mjolnir\types\SQLDatabase $db, $table, array $values, $map = null)
+	static function insert(\mjolnir\types\SQLDatabase $db, $table, array $values, $map = null)
 	{
 		$map !== null or $map = [];
 		isset($map['nums']) or $map['nums'] = [];
@@ -248,7 +246,6 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 		$statement = $db->prepare
 			(
-				$key,
 				'
 					INSERT INTO `'.$table.'` ('.$keys.') VALUES ('.$refs.')
 				'
@@ -314,7 +311,6 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 		{
 			$db->prepare
 				(
-					__METHOD__,
 					\strtr
 						(
 							'
@@ -362,7 +358,6 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 		{
 			$db->prepare
 				(
-					__METHOD__,
 					'
 						ALTER TABLE `'.$table.'`
 						 DROP FOREIGN KEY `'.$key.'`
@@ -514,7 +509,6 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 				{
 					$db->prepare
 						(
-							__METHOD__,
 							\strtr
 							(
 								'
@@ -609,7 +603,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 				try
 				{
-					$db->prepare(__METHOD__, $query)->run();
+					$db->prepare($query)->run();
 				}
 				catch (\Exception $e)
 				{
@@ -826,7 +820,6 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 				$db->prepare
 					(
-						__METHOD__.':fk_keys_off',
 						'SET foreign_key_checks = FALSE'
 					)
 					->run();
@@ -837,7 +830,6 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 					$db->prepare
 						(
-							__METHOD__.':drop_table',
 							'DROP TABLE IF EXISTS `'.$table.'`'
 						)
 						->run();
@@ -845,7 +837,6 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 				$db->prepare
 					(
-						__METHOD__.':fk_keys_on',
 						'SET foreign_key_checks = TRUE'
 					)
 					->run();
@@ -1010,7 +1001,6 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 			return $db->prepare
 				(
-					__METHOD__,
 					'
 						SELECT entry.*
 						  FROM `'.static::table().'` entry
@@ -1429,7 +1419,6 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 		$tables = $db->prepare
 			(
-				__METHOD__,
 				'
 					SHOW TABLES LIKE :table
 				'

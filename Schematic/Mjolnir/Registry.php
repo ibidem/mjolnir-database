@@ -49,12 +49,13 @@ class Schematic_Mjolnir_Registry extends \app\Instantiatable implements \mjolnir
 		$value = null;
 		$statement = \app\SQL::prepare
 			(
-				__METHOD__,
 				'
-					INSERT INTO `'.\app\Register::table().'`
+					INSERT INTO `[register]`
 					(`key`, `value`) VALUES (:key, :value)
 				',
-				'mysql'
+				[
+					'[register]' => \app\Register::table()
+				]
 			)
 			->bindstr(':key', $key)
 			->bindstr(':value', $value);

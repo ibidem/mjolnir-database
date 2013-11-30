@@ -36,7 +36,6 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 
 		$entry = $this->db->prepare
 			(
-				__METHOD__,
 				'
 					SELECT '.$plan['fields'].'
 					'.$plan['joins'].'
@@ -214,7 +213,6 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 		{
 			$this->db->prepare
 				(
-					__METHOD__,
 					'
 						UPDATE `'.static::table().'` entry
 						   SET '.$setfields.'
@@ -270,7 +268,6 @@ class MarionetteModel extends \app\Marionette implements \mjolnir\types\Marionet
 
 		$this->db->prepare
 			(
-				__METHOD__,
 				'
 					DELETE FROM `'.static::table().'`
 					 WHERE `'.static::keyfield().'` = :id
