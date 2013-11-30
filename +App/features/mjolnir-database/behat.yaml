@@ -1,4 +1,0 @@
-default:
-  paths:
-    features:   '.'
-    bootstrap:  './bootstrap'
