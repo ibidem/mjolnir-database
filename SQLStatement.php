@@ -24,19 +24,19 @@ class SQLStatement extends \app\Instantiatable implements \mjolnir\types\SQLStat
 	/**
 	 * @return static
 	 */
-	static function instance(\PDOStatement $statement = null, $query = null)
+	static function instance(\PDO $dbh = null, $statement = null)
 	{
 		if ($statement === null)
 		{
 			throw new \app\Exception('No statement provided.');
 		}
 
-		/** @var SQLStatement $instance */
-		$instance = parent::instance();
-		$instance->statement = $statement;
-		$instance->query = $query;
+		/** @var SQLStatement $i */
+		$i = parent::instance();
+		$i->query = $statement;
+		$i->statement = $dbh->prepare($statement);
 
-		return $instance;
+		return $i;
 	}
 
 	// ------------------------------------------------------------------------

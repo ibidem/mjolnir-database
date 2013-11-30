@@ -43,6 +43,8 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 
 	/**
 	 * Database setup; null if already executed.
+	 *
+	 * @var callable
 	 */
 	protected $setup = null;
 
@@ -126,31 +128,21 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 	}
 
 	/**
-	 * The key is usually __METHOD__ but any key may be provided so long as
-	 * it accuratly identifies the method.
-	 *
-	 * eg.
-	 *
-	 *     $db->prepare(__METHOD__, 'SELECT * FROM customers');
-	 *     $db->prepare(__METHOD__.':users', 'SELECT * FROM users');
-	 *
-	 * The : in ':users' above is the keysplit.
+	 * eg. $db->prepare('SELECT * FROM customers');
 	 *
 	 * @return \mjolnir\types\SQLStatement
 	 */
-	function prepare($key, $statement = null, $lang = null)
+	function prepare($statement = null, array $placeholders = null)
 	{
 		$this->check_setup();
 
-		if ($this->requires_translation($statement, $lang))
+		if ($placeholders !== null)
 		{
-			return $this->run_stored_statement($key);
+			return \app\SQLStatement::instance($this->dbh, \strtr($statement, $placeholders));
 		}
-		else # translation not required
+		else # placeholders === null
 		{
-			$rawstatement = $statement.' -- '.\str_replace('//', '/', \str_replace(':', '/', $key));
-			$prepared_statement = $this->dbh->prepare($rawstatement);
-			return \app\SQLStatement::instance($prepared_statement, $rawstatement);
+			return \app\SQLStatement::instance($this->dbh, $statement);
 		}
 	}
 
@@ -192,7 +184,7 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 		}
 		else # we are in a transaction
 		{
-			$this->prepare(__METHOD__, 'SAVEPOINT save'.$this->savepoint, 'mysql');
+			$this->prepare('SAVEPOINT save'.$this->savepoint);
 		}
 		++$this->savepoint;
 
@@ -213,7 +205,7 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 		}
 		else # we are still in another transaction
 		{
-			$this->prepare(__METHOD__, 'RELEASE SAVEPOINT save'.$this->savepoint, 'mysql');
+			$this->prepare('RELEASE SAVEPOINT save'.$this->savepoint);
 		}
 
 		return $this;
@@ -233,7 +225,7 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 		}
 		else # we are still in another transaction
 		{
-			$this->prepare(__METHOD__, 'ROLLBACK TO SAVEPOINT save'.$this->savepoint, 'mysql');
+			$this->prepare('ROLLBACK TO SAVEPOINT save'.$this->savepoint);
 		}
 
 		return $this;
@@ -243,68 +235,13 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 	// Helpers
 
 	/**
-	 * @param string statement
-	 * @param string lang
-	 * @return boolean requires translation?
-	 */
-	protected function requires_translation($statement, $lang)
-	{
-		return ($lang && $lang !== $this->dialect_target)
-			|| ($this->dialect_default !== $this->dialect_target)
-			|| $statement === null;
-	}
-
-	/**
-	 * @return string
-	 */
-	protected static function normalize_key($key)
-	{
-		// convert :: to :
-		// convert \ to /
-		// remove trailing /
-		return \trim
-			(
-				\str_replace
-					(
-						'::',
-						':',
-						\str_replace('\\', '/', $key)
-					),
-				'/'
-			);
-	}
-
-	/**
-	 * @return \mjolnir\types\SQLStatement
-	 */
-	protected function run_stored_statement($key)
-	{
-		$key = static::normalize_key($key);
-		$splitter = \strpos($key, \mjolnir\types\SQLDatabase::KEYSPLIT);
-		$file = \substr($key, 0, $splitter);
-		$key = \substr($key, $splitter+1);
-		$statements = \app\CFS::config('sql/'.$this->dialect_target.'/'.$file);
-		if ( ! isset($statements[$key]))
-		{
-			$file = \mjolnir\cfs\CFSInterface::CNFDIR
-				. '/sql/'.$this->dialect_target.'/'.$file;
-
-			throw new \app\Exception
-				(
-					'Missing key ['.$key.'] in ['.$file.'].', # message
-					'Database Translation Error' # title
-				);
-		}
-		return $statements[$key]($this->dbh);
-	}
-
-	/**
 	 * ...
 	 */
 	protected function check_setup()
 	{
 		if ($this->setup !== null)
 		{
+			/** @var callable $setup */
 			$setup = $this->setup;
 			$setup();
 			$this->setup = null;
