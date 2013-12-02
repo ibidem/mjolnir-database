@@ -59,7 +59,7 @@ trait Trait_MarionetteLib
 
 		if ($errors === null)
 		{
-			static::marionette_collection()	->post($fields);
+			static::marionette_collection()->post($fields);
 			return null;
 		}
 		else # errors is not empty
