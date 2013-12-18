@@ -5,7 +5,8 @@
 				'category' => 'Database',
 				'description' => array
 					(
-						'Reset database. Latest version if no version is provided.',
+						'Reset/Install database.',
+						'Latest version if no version is provided.',
 						'When resetting to a specific version you must provide the pivot '.
 						'channel to be used when determining which channels needs to be '.
 						'at which version for the migration.'
