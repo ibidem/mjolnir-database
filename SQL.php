@@ -181,7 +181,7 @@ class SQL
 	 *
 	 * @return string
 	 */
-	static function parseconstraints(array $constraints = null)
+	static function parseconstraints(array $constraints = null, $append_where = false)
 	{
 		if (empty($constraints))
 		{
@@ -295,7 +295,7 @@ class SQL
 				}
 			};
 
-		return \app\Arr::implode
+		$result = \app\Arr::implode
 			(
 				' AND ', # delimiter
 				$constraints, # source
@@ -314,6 +314,22 @@ class SQL
 					}
 				}
 			);
+
+		if ($append_where)
+		{
+			if ($result !== null)
+			{
+				return 'WHERE '.$result;
+			}
+			else # result === null
+			{
+				return null;
+			}
+		}
+		else # ! append where
+		{
+			return $result;
+		}
 	}
 
 	/**
