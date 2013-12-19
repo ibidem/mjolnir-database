@@ -600,4 +600,44 @@ trait Trait_NestedSetModel
 		    && $node[$rgt] <= $parent[$rgt];
 	}
 
+	/**
+	 * @return null|int parent for entry
+	 */
+	static function tree_parent($id, $constraints = null)
+	{
+		$constraints != null or $constraints = [];
+		$constraints['target.lft'] = [ '>' => 'entry.lft' ];
+		$constraints['target.lft'] = [ '<' => 'entry.rgt' ];
+
+		$WHERE = \app\SQL::parseconstraints($constraints, true);
+
+		$result = static::statement
+			(
+				__METHOD__,
+				"
+					SELECT entry.id
+					  FROM `".static::table()."` entry
+
+					  JOIN `".static::table()."` target
+						ON target.id = :entry_id
+
+					$WHERE
+					 ORDER BY entry.lft DESC
+					 LIMIT 1
+				"
+			)
+			->num(':entry_id', $id)
+			->run()
+			->fetch_all();
+
+		if ( ! empty($result))
+		{
+			return $result[0]['id'];
+		}
+		else # no parent
+		{
+			return null;
+		}
+	}
+
 } # trait
