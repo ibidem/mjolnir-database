@@ -606,10 +606,19 @@ trait Trait_NestedSetModel
 	static function tree_parent($id, $constraints = null)
 	{
 		$constraints != null or $constraints = [];
-		$constraints['target.lft'] = [ '>' => 'entry.lft' ];
-		$constraints['target.lft'] = [ '<' => 'entry.rgt' ];
-
+		
 		$WHERE = \app\SQL::parseconstraints($constraints, true);
+		
+		if (empty($WHERE))
+		{
+			$WHERE = 'WHERE ';
+		}
+		else # ! empty($WHERE)
+		{
+			$WHERE = $WHERE.' AND ';
+		}
+		
+		$WHERE .= 'target.lft > entry.lft AND target.lft < entry.rgt';
 
 		$result = static::statement
 			(
