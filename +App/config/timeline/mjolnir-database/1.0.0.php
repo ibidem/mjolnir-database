@@ -36,8 +36,7 @@
 						'
 							INSERT INTO `'.\app\Register::table().'`
 							(`key`, `value`) VALUES (:key, :value)
-						',
-						'mysql'
+						'
 					)
 					->bindstr(':key', $key)
 					->bindstr(':value', $value);

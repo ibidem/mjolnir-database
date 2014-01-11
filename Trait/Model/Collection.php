@@ -164,14 +164,12 @@ trait Trait_Model_Collection
 
 		$entries = static::stash
 			(
-				__METHOD__,
 				'
 					SELECT *
 					  FROM :table
 					  '.$where_sql.'
 					  '.$order_sql.'
-				',
-				'mysql'
+				'
 			)
 			->page($page, $limit, $offset)
 			->key($cache_key)
@@ -193,14 +191,12 @@ trait Trait_Model_Collection
 
 		$entries = static::stash
 			(
-				__METHOD__,
 				'
 					SELECT COUNT(1)
 					  FROM :table
 					  '.$where.'
 					  '.$order.'
-				',
-				'mysql'
+				'
 			)
 			->key($cache_key)
 			->fetch_all();
