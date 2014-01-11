@@ -628,7 +628,6 @@ trait Trait_NestedSetModel
 
 		$result = static::statement
 			(
-				__METHOD__,
 				"
 					SELECT entry.id
 					  FROM `".static::table()."` entry
