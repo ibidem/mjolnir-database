@@ -27,16 +27,6 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 	protected $savepoint = 0;
 
 	/**
-	 * @var string
-	 */
-	protected $dialect_default;
-
-	/**
-	 * @var string
-	 */
-	protected $dialect_target;
-
-	/**
 	 * @var \PDO
 	 */
 	protected $dbh;
@@ -84,10 +74,6 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 								\PDO::ATTR_ERRMODE,
 								\PDO::ERRMODE_EXCEPTION
 							);
-
-						// default SQL flavor
-						$instance->dialect_default = $pdo['dialect_default'];
-						$instance->dialect_target = $pdo['dialect_target'];
 
 						$base_config = \app\CFS::config('mjolnir/base');
 						// set charset

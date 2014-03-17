@@ -321,8 +321,7 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 								ENGINE=:engine DEFAULT CHARSET=:default_charset
 							',
 							$shorthands
-						),
-					'mysql'
+						)
 				)
 				->run();
 		}
@@ -1581,7 +1580,6 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 
 		static::insert
 			(
-				__METHOD__,
 				$db, static::table(),
 				[
 					'channel' => $channel,
