@@ -74,7 +74,7 @@ class SQLDatabase extends \app\Instantiatable implements \mjolnir\types\SQLDatab
 								\PDO::ATTR_ERRMODE,
 								\PDO::ERRMODE_EXCEPTION
 							);
-
+						
 						$base_config = \app\CFS::config('mjolnir/base');
 						// set charset
 						$instance->dbh->exec("SET CHARACTER SET '{$base_config['charset']}'");

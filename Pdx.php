@@ -280,14 +280,14 @@ class Pdx /* "Paradox" */ extends \app\Instantiatable implements \mjolnir\types\
 	/**
 	 * Same as insert only values is assumed to be array of arrays.
 	 */
-	static function massinsert($key, \mjolnir\types\SQLDatabase $db, $table, array $values, $map = null)
+	static function massinsert(\mjolnir\types\SQLDatabase $db, $table, array $values, $map = null)
 	{
 		$db->begin();
 		try
 		{
 			foreach ($values as $value)
 			{
-				static::insert($key, $db, $table, $value, $map);
+				static::insert($db, $table, $value, $map);
 			}
 
 			$db->commit();
